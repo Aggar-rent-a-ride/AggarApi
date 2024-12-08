@@ -1,0 +1,504 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208202425_Initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:AggarApi\\Migrations\\20241208202425_Initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\customerreviewconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\customerreviewconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\renterreviewconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\renterreviewconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\reviewconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\reviewconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208201923_Initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:AggarApi\\Migrations\\20241208201923_Initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\notification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\notification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\report.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\reportconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\reportconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\notificationconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\notificationconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\customerconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\customerconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\appuserconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\appuserconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208195820_Initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:AggarApi\\Migrations\\20241208195820_Initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\renterreview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\renterreview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\message.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\vehiclebrand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\vehiclebrand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\recommendedbrand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\recommendedbrand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\recommendedtype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\recommendedtype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\renter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\renter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\vehicletype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\vehicletype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\recommendedtypeconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\recommendedtypeconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\recommendedbrandconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\recommendedbrandconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\dataaccess\\context\\configurations\\bookingconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\dataaccess\\context\\configurations\\bookingconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\review.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\review.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\models\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\models\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|d:\\programming\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\aggarapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2C842A8-731E-48DC-807D-6D0BC84E403F}|AggarApi\\AggarApi.csproj|solutionrelative:aggarapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 319,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e506b91c-c606-466a-90a9-123d1d1e12b3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20241208202425_Initial.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208202425_Initial.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Migrations\\20241208202425_Initial.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208202425_Initial.cs",
+              "RelativeToolTip": "AggarApi\\Migrations\\20241208202425_Initial.cs",
+              "ViewState": "AgIAAE0CAAAAAAAAAAAwwFUCAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:24:26.042Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "20241208201923_Initial.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208201923_Initial.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Migrations\\20241208201923_Initial.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208201923_Initial.cs",
+              "RelativeToolTip": "AggarApi\\Migrations\\20241208201923_Initial.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAkwFQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:19:23.466Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CustomerReviewConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\CustomerReviewConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\CustomerReviewConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\CustomerReviewConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\CustomerReviewConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:18:56.234Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "RenterReviewConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\RenterReviewConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\RenterReviewConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\RenterReviewConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\RenterReviewConfiguration.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAAwAkAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:17:00.625Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ReportConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\ReportConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\ReportConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\ReportConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\ReportConfiguration.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:16:48.92Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ReviewConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\ReviewConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\ReviewConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\ReviewConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\ReviewConfiguration.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAkAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:16:28.432Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CustomerConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\CustomerConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\CustomerConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\CustomerConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\CustomerConfiguration.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:07:52.214Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "RenterReview.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\RenterReview.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\RenterReview.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\RenterReview.cs",
+              "RelativeToolTip": "AggarApi\\Models\\RenterReview.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:04:39.819Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "VehicleBrand.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\VehicleBrand.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\VehicleBrand.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\VehicleBrand.cs",
+              "RelativeToolTip": "AggarApi\\Models\\VehicleBrand.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T20:02:40.455Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "20241208195820_Initial.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208195820_Initial.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Migrations\\20241208195820_Initial.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Migrations\\20241208195820_Initial.cs",
+              "RelativeToolTip": "AggarApi\\Migrations\\20241208195820_Initial.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAQwH0CAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:58:21.61Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "RecommendedType.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\RecommendedType.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\RecommendedType.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\RecommendedType.cs",
+              "RelativeToolTip": "AggarApi\\Models\\RecommendedType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:57:38.489Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Renter.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Renter.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\Renter.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Renter.cs",
+              "RelativeToolTip": "AggarApi\\Models\\Renter.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:57:02.748Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "VehicleType.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\VehicleType.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\VehicleType.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\VehicleType.cs",
+              "RelativeToolTip": "AggarApi\\Models\\VehicleType.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAxwAEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:56:15.577Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "RecommendedTypeConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\RecommendedTypeConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\RecommendedTypeConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\RecommendedTypeConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\RecommendedTypeConfiguration.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAwAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:51:46.94Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "RecommendedBrand.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\RecommendedBrand.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\RecommendedBrand.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\RecommendedBrand.cs",
+              "RelativeToolTip": "AggarApi\\Models\\RecommendedBrand.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAxwAcAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:49:42.296Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "RecommendedBrandConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\RecommendedBrandConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\RecommendedBrandConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\RecommendedBrandConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\RecommendedBrandConfiguration.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAwwAYAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:48:02.054Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "NotificationConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\NotificationConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\NotificationConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\NotificationConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\NotificationConfiguration.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:46:03.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "Review.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Review.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\Review.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Review.cs",
+              "RelativeToolTip": "AggarApi\\Models\\Review.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:36:04.321Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Report.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Report.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\Report.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Report.cs",
+              "RelativeToolTip": "AggarApi\\Models\\Report.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAswBAAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:35:59.109Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Notification.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Notification.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\Notification.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Notification.cs",
+              "RelativeToolTip": "AggarApi\\Models\\Notification.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAA/wBQAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:35:49.169Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Message.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Message.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\Message.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Message.cs",
+              "RelativeToolTip": "AggarApi\\Models\\Message.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwAoAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:35:36.293Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "Booking.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Booking.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\Booking.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\Booking.cs",
+              "RelativeToolTip": "AggarApi\\Models\\Booking.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:35:30.101Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "BookingConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\BookingConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\BookingConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\BookingConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\BookingConfiguration.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:35:24.685Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AppUserConfiguration.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:35:14.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "AppUser.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\AppUser.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Models\\AppUser.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Models\\AppUser.cs",
+              "RelativeToolTip": "AggarApi\\Models\\AppUser.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAA2wBkAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:34:55.497Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Program.cs",
+              "RelativeDocumentMoniker": "AggarApi\\Program.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\Program.cs",
+              "RelativeToolTip": "AggarApi\\Program.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAzwAsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T19:02:32.347Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\appsettings.json",
+              "RelativeDocumentMoniker": "AggarApi\\appsettings.json",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\appsettings.json",
+              "RelativeToolTip": "AggarApi\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-12-08T19:00:19.418Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "AggarApi\\DataAccess\\Context\\AppDbContext.cs",
+              "ToolTip": "D:\\Programming\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\AggarApi\\DataAccess\\Context\\AppDbContext.cs",
+              "RelativeToolTip": "AggarApi\\DataAccess\\Context\\AppDbContext.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAA9wBMAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-08T18:58:42.646Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Geometries;
+
+namespace AggarApi.Models
+{
+    public class AppUser : IdentityUser<int>
+    {
+        public string Name { get; set; } = null!;
+        public DateOnly DateOfBirth { get; set; }
+        [NotMapped]
+        public int Age 
+        {
+            get => DateTime.Today.Year - DateOfBirth.Year;
+        }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public bool AggreedTheTerms { get; set; }
+        public double Rate { get; set; } = 0;
+        public Enums.UserStatus Status { get; set; }
+        public int WarningCount { get; set; } = 0;
+        public DateTime? ActivateIn { get; set; }
+        public string? ImagePath {  get; set; }
+        public string? Bio {  get; set; }
+        public Address? Address { get; set; }
+        public Point Location { get; set; } = null!;
+        
+        public ICollection<Notification>? Notifications { get; set; }
+        public ICollection<Message>? Messages { get; set; }
+        public ICollection<Message>? ReceivedMessages { get; set; }
+        public ICollection<Report>? Reports { get; set; }
+        public ICollection<Report>? TargetedReports { get; set; }
+        public ICollection<AdminAction>? TargetedAdminActions { get; set; }
+
+    }
+}
