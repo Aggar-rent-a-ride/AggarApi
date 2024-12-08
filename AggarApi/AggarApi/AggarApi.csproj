@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DataAccess\Migrations\" />
     <Folder Include="DataAccess\Repositories\IRepositories\" />
     <Folder Include="DTOs\" />
     <Folder Include="Servicies\IServicies\" />
