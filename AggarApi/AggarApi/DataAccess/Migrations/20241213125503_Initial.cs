@@ -31,10 +31,13 @@ namespace AggarApi.Migrations
                     ActivateIn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address_Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address_Governorate = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address_City = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address_Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<Point>(type: "geography", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DateDeleted = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
@@ -214,7 +217,8 @@ namespace AggarApi.Migrations
                         name: "FK_Messages_AppUsers_ReceiverId",
                         column: x => x.ReceiverId,
                         principalTable: "AppUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Messages_AppUsers_SenderId",
                         column: x => x.SenderId,
@@ -304,7 +308,8 @@ namespace AggarApi.Migrations
                         name: "FK_AdminActions_Admins_AdminId",
                         column: x => x.AdminId,
                         principalTable: "Admins",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AdminActions_AppUsers_TargetUserId",
                         column: x => x.TargetUserId,
@@ -376,7 +381,9 @@ namespace AggarApi.Migrations
                     Location = table.Column<Point>(type: "geography", nullable: false),
                     WarningCount = table.Column<int>(type: "int", nullable: false),
                     VehicleTypeId = table.Column<int>(type: "int", nullable: true),
-                    VehicleBrandId = table.Column<int>(type: "int", nullable: true)
+                    VehicleBrandId = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DateDeleted = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -385,7 +392,8 @@ namespace AggarApi.Migrations
                         name: "FK_Vehicles_Renters_RenterId",
                         column: x => x.RenterId,
                         principalTable: "Renters",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Vehicles_VehicleBrands_VehicleBrandId",
                         column: x => x.VehicleBrandId,
@@ -418,37 +426,36 @@ namespace AggarApi.Migrations
                         name: "FK_Bookings_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Bookings_Vehicles_VehicleId",
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "CustomersFavoriteVehicles",
                 columns: table => new
                 {
-                    FavoriteCustomersId = table.Column<int>(type: "int", nullable: false),
-                    FavoriteVehiclesId = table.Column<int>(type: "int", nullable: false)
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    VehicleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomersFavoriteVehicles", x => new { x.FavoriteCustomersId, x.FavoriteVehiclesId });
+                    table.PrimaryKey("PK_CustomersFavoriteVehicles", x => new { x.CustomerId, x.VehicleId });
                     table.ForeignKey(
-                        name: "FK_CustomersFavoriteVehicles_Customers_FavoriteCustomersId",
-                        column: x => x.FavoriteCustomersId,
+                        name: "FK_CustomersFavoriteVehicles_Customers_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CustomersFavoriteVehicles_Vehicles_FavoriteVehiclesId",
-                        column: x => x.FavoriteVehiclesId,
+                        name: "FK_CustomersFavoriteVehicles_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
                         principalTable: "Vehicles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -513,7 +520,8 @@ namespace AggarApi.Migrations
                         name: "FK_CustomerReviews_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CustomerReviews_Rentals_RentalId",
                         column: x => x.RentalId,
@@ -549,7 +557,8 @@ namespace AggarApi.Migrations
                         name: "FK_RenterReviews_Renters_RenterId",
                         column: x => x.RenterId,
                         principalTable: "Renters",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -650,7 +659,8 @@ namespace AggarApi.Migrations
                         name: "FK_Reports_AppUsers_ReporterId",
                         column: x => x.ReporterId,
                         principalTable: "AppUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Reports_AppUsers_TargetId",
                         column: x => x.TargetId,
@@ -766,9 +776,9 @@ namespace AggarApi.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomersFavoriteVehicles_FavoriteVehiclesId",
+                name: "IX_CustomersFavoriteVehicles_VehicleId",
                 table: "CustomersFavoriteVehicles",
-                column: "FavoriteVehiclesId");
+                column: "VehicleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_ReceiverId",

@@ -1,5 +1,4 @@
-﻿using AggarApi.Models.Enums;
-
+﻿
 namespace AggarApi.Models
 {
     public class AdminAction

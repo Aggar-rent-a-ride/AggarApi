@@ -20,7 +20,18 @@ namespace AggarApi.DataAccess.Context.Configurations
 
             builder.HasMany(c => c.FavoriteVehicles)
                 .WithMany(v => v.FavoriteCustomers)
-                .UsingEntity("CustomersFavoriteVehicles");
+                .UsingEntity<Dictionary<string, object>>(
+                "CustomersFavoriteVehicles",
+                right => right
+                .HasOne<Vehicle>()
+                .WithMany()
+                .HasForeignKey("VehicleId")
+                .OnDelete(DeleteBehavior.NoAction),
+                left => left
+                .HasOne<Customer>()
+                .WithMany()
+                .HasForeignKey("CustomerId")
+                .OnDelete(DeleteBehavior.Cascade));
 
             builder.HasMany(c => c.Bookings)
                 .WithOne(b => b.Customer)
