@@ -1,5 +1,5 @@
-
 using AggarApi.DataAccess.Context;
+using AggarApi.DataAccess.Context.Interceptors;
 using AggarApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +36,7 @@ namespace AggarApi
                 .UseNetTopologySuite()
                 .MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
                 )
+                .AddInterceptors(new SoftDeleteInterceptor())
             );
 
             // identity

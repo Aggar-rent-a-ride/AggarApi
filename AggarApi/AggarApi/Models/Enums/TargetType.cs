@@ -5,7 +5,8 @@
         None,
         Message,
         AdminAction,
-        Review,
+        CustomerReview,
+        RenterReview,
         User,
         Vehicle,
         Booking

@@ -1,8 +1,9 @@
-﻿using NetTopologySuite.Geometries;
+﻿using AggarApi.Models.Contract;
+using NetTopologySuite.Geometries;
 
 namespace AggarApi.Models
 {
-    public class Vehicle
+    public class Vehicle : ISoftDeleteable
     {
         public int Id { get; set; }
         public int RenterId { get; set; }
@@ -24,6 +25,9 @@ namespace AggarApi.Models
         public int WarningCount { get; set; } = 0;
         public int? VehicleTypeId { get; set; }
         public int? VehicleBrandId { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DateDeleted { get; set; }
 
         public Renter Renter { get; set; } = null!;
         public ICollection<Booking>? Bookings { get; set; }

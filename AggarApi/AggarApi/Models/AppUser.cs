@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 using NetTopologySuite.Geometries;
+using AggarApi.Models.Contract;
 
 namespace AggarApi.Models
 {
-    public class AppUser : IdentityUser<int>
+    public class AppUser : IdentityUser<int>, ISoftDeleteable
     {
         public string Name { get; set; } = null!;
         public DateOnly DateOfBirth { get; set; }
@@ -23,6 +24,9 @@ namespace AggarApi.Models
         public string? Bio {  get; set; }
         public Address? Address { get; set; }
         public Point Location { get; set; } = null!;
+
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DateDeleted { get; set; }
         
         public ICollection<Notification>? Notifications { get; set; }
         public ICollection<Message>? Messages { get; set; }
@@ -30,6 +34,5 @@ namespace AggarApi.Models
         public ICollection<Report>? Reports { get; set; }
         public ICollection<Report>? TargetedReports { get; set; }
         public ICollection<AdminAction>? TargetedAdminActions { get; set; }
-
     }
 }
