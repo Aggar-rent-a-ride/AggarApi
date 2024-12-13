@@ -89,6 +89,9 @@ namespace AggarApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DateDeleted")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
@@ -102,6 +105,9 @@ namespace AggarApi.Migrations
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<Point>("Location")
                         .IsRequired()
@@ -530,8 +536,14 @@ namespace AggarApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DateDeleted")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ExtraDetails")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<Point>("Location")
                         .IsRequired()
@@ -644,15 +656,15 @@ namespace AggarApi.Migrations
 
             modelBuilder.Entity("CustomersFavoriteVehicles", b =>
                 {
-                    b.Property<int>("FavoriteCustomersId")
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("FavoriteVehiclesId")
+                    b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
-                    b.HasKey("FavoriteCustomersId", "FavoriteVehiclesId");
+                    b.HasKey("CustomerId", "VehicleId");
 
-                    b.HasIndex("FavoriteVehiclesId");
+                    b.HasIndex("VehicleId");
 
                     b.ToTable("CustomersFavoriteVehicles");
                 });
@@ -816,7 +828,7 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.Admin", "Admin")
                         .WithMany("Actions")
                         .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.AppUser", "TargetUser")
@@ -838,6 +850,10 @@ namespace AggarApi.Migrations
                                 .HasColumnType("int");
 
                             b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Country")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
@@ -865,13 +881,13 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.Customer", "Customer")
                         .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.Vehicle", "Vehicle")
                         .WithMany("Bookings")
                         .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -884,7 +900,7 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.Customer", "Customer")
                         .WithMany("Reviews")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.Rental", "Rental")
@@ -903,7 +919,7 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.AppUser", "Receiver")
                         .WithMany("ReceivedMessages")
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.AppUser", "Sender")
@@ -1000,7 +1016,7 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.Renter", "Renter")
                         .WithMany("Reviews")
                         .HasForeignKey("RenterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Rental");
@@ -1013,7 +1029,7 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.AppUser", "Reporter")
                         .WithMany("Reports")
                         .HasForeignKey("ReporterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.Review", null)
@@ -1077,7 +1093,7 @@ namespace AggarApi.Migrations
                     b.HasOne("AggarApi.Models.Renter", "Renter")
                         .WithMany("Vehicles")
                         .HasForeignKey("RenterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.VehicleBrand", "VehicleBrand")
@@ -1124,14 +1140,14 @@ namespace AggarApi.Migrations
                 {
                     b.HasOne("AggarApi.Models.Customer", null)
                         .WithMany()
-                        .HasForeignKey("FavoriteCustomersId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AggarApi.Models.Vehicle", null)
                         .WithMany()
-                        .HasForeignKey("FavoriteVehiclesId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

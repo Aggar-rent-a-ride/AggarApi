@@ -46,6 +46,7 @@ namespace AggarApi.DataAccess.Context.Configurations
             builder.HasMany(u => u.Messages)
                 .WithOne(m => m.Sender)
                 .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(true);
 
             builder.HasMany(u => u.ReceivedMessages)
@@ -61,11 +62,13 @@ namespace AggarApi.DataAccess.Context.Configurations
             builder.HasMany(u => u.TargetedReports)
                 .WithOne(r => r.TargetUser)
                 .HasForeignKey(r => r.TargetId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(true);
 
             builder.HasMany(u => u.TargetedAdminActions)
                 .WithOne(a => a.TargetUser)
                 .HasForeignKey(a => a.TargetUserId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(true);
 
             builder.UseTptMappingStrategy();

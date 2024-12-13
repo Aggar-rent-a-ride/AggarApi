@@ -21,6 +21,7 @@ namespace AggarApi.DataAccess.Context.Configurations
             builder.HasOne(b => b.Vehicle)
                 .WithMany(v => v.Bookings)
                 .HasForeignKey(b => b.VehicleId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(true);
 
             builder.HasOne(b => b.Rental)

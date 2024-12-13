@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AggarApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9d8895fca0e8e5e504e5de825c48f8894095af5c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8ece1bc43f25718d13fd5e08e37e6696ac8225c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AggarApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AggarApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
