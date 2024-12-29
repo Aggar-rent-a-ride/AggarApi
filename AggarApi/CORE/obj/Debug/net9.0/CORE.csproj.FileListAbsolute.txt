@@ -1,0 +1,12 @@
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\bin\Debug\net9.0\CORE.deps.json
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\bin\Debug\net9.0\CORE.dll
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\bin\Debug\net9.0\CORE.pdb
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.GeneratedMSBuildEditorConfig.editorconfig
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.AssemblyInfoInputs.cache
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.AssemblyInfo.cs
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.csproj.CoreCompileInputs.cache
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.sourcelink.json
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.dll
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\refint\CORE.dll
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\CORE.pdb
+D:\Computer Science\MyProjects\AggarApi\AggarApi\CORE\obj\Debug\net9.0\ref\CORE.dll

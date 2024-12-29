@@ -1,0 +1,16 @@
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.csproj.AssemblyReference.cache
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.GeneratedMSBuildEditorConfig.editorconfig
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.AssemblyInfoInputs.cache
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.AssemblyInfo.cs
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.csproj.CoreCompileInputs.cache
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\EFCoreSqlServerNetTopologySuite.cs
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.sourcelink.json
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\bin\Debug\net9.0\DATA.deps.json
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\bin\Debug\net9.0\DATA.runtimeconfig.json
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\bin\Debug\net9.0\DATA.dll
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\bin\Debug\net9.0\DATA.pdb
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.dll
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\refint\DATA.dll
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.pdb
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\DATA.genruntimeconfig.cache
+D:\Computer Science\MyProjects\AggarApi\AggarApi\DATA\obj\Debug\net9.0\ref\DATA.dll
