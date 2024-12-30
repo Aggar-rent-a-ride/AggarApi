@@ -1,6 +1,14 @@
-﻿namespace DATA.DataAccess.Repositories.IRepositories
+﻿using System.Linq.Expressions;
+
+namespace DATA.DataAccess.Repositories.IRepositories
 {
     public interface IBaseRepository<T> where T : class
     {
+        Task<T> Get(int id);
+        Task<IEnumerable<T>> GetAll(int pageNo, int pageSize);
+        Task<int> Count();
+        Task<int> Count(Expression<Func<T, bool>> criteria);
+        Task<T> Find(Expression<Func<T, bool>> criteria);
+        Task<IEnumerable<T>> Find(Expression<Func<T, bool>> criteria, int pageNo, int pageSize);
     }
 }
