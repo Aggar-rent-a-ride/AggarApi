@@ -1,5 +1,7 @@
 using DATA.DataAccess.Context;
 using DATA.DataAccess.Context.Interceptors;
+using DATA.DataAccess.Repositories;
+using DATA.DataAccess.Repositories.IRepositories;
 using DATA.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,17 +47,26 @@ namespace API
             options =>
             {
             }
-                ).AddEntityFrameworkStores<AppDbContext>();
+            ).AddEntityFrameworkStores<AppDbContext>();
 
+            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
 
             var app = builder.Build();
+            app.MapOpenApi();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/openapi/v1.json", "v1");
+                });
+            else
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/openapi/v1.json", "v1");
+                    options.RoutePrefix = string.Empty;
+                });
 
             app.UseHttpsRedirection();
 

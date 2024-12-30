@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +18,36 @@
       "DocumentGroups": [
         {
           "DockedWidth": 319,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BaseRepository.cs",
+              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\BaseRepository.cs",
+              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Repositories\\BaseRepository.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAwCQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-30T11:32:09.215Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "IBaseRepository.cs",
+              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
+              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-30T11:32:04.356Z",
+              "EditorCaption": ""
             }
           ]
         }
