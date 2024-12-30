@@ -1,16 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\migrations\\20241213125503_initial.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\migrations\\20241213125503_initial.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5C58A5DE-4034-47CE-AF76-90922937C3AA}|API\\API.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5C58A5DE-4034-47CE-AF76-90922937C3AA}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -18,37 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 319,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\API\\Program.cs",
-              "RelativeDocumentMoniker": "API\\Program.cs",
-              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\API\\Program.cs",
-              "RelativeToolTip": "API\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-29T17:21:55.957Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20241213125503_Initial.Designer.cs",
-              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20241213125503_Initial.Designer.cs",
-              "RelativeDocumentMoniker": "DATA\\DataAccess\\Migrations\\20241213125503_Initial.Designer.cs",
-              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20241213125503_Initial.Designer.cs",
-              "RelativeToolTip": "DATA\\DataAccess\\Migrations\\20241213125503_Initial.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-29T17:16:47.39Z",
-              "EditorCaption": ""
             }
           ]
         }
