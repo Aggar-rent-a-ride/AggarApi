@@ -8,7 +8,9 @@ namespace DATA.DataAccess.Repositories.IRepositories
         Task<IEnumerable<T>> GetAll(int pageNo, int pageSize);
         Task<int> Count();
         Task<int> Count(Expression<Func<T, bool>> criteria);
-        Task<T> Find(Expression<Func<T, bool>> criteria);
-        Task<IEnumerable<T>> Find(Expression<Func<T, bool>> criteria, int pageNo, int pageSize);
+        Task<T> Find(Expression<Func<T, bool>> criteria, string[] includes=null);
+        Task<IEnumerable<T>> Find(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes = null);
+        Task<T> AddOrUpdate(T entity);
+        Task<IEnumerable<T>> AddRange(IEnumerable<T> entities);
     }
 }
