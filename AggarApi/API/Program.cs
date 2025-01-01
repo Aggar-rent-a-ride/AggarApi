@@ -2,6 +2,7 @@ using DATA.DataAccess.Context;
 using DATA.DataAccess.Context.Interceptors;
 using DATA.DataAccess.Repositories;
 using DATA.DataAccess.Repositories.IRepositories;
+using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,7 @@ namespace API
             ).AddEntityFrameworkStores<AppDbContext>();
 
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
             var app = builder.Build();

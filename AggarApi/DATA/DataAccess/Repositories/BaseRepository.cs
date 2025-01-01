@@ -18,21 +18,29 @@ namespace DATA.DataAccess.Repositories
         public async Task<T> AddOrUpdate(T entity)
         {
             _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
             return entity;
         }
 
         public async Task<IEnumerable<T>> AddRange(IEnumerable<T> entities)
         {
             await _context.Set<T>().AddRangeAsync(entities);
-            await _context.SaveChangesAsync();
             return entities;
+        }
+
+        public void Attach(T entity)
+        {
+            _context.Set<T>().Attach(entity);
         }
 
         public async Task<int> Count() => await _context.Set<T>().CountAsync();
 
         public async Task<int> Count(Expression<Func<T, bool>> criteria) => 
             await _context.Set<T>().Where(criteria).CountAsync();
+
+        public void Delete(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+        }
 
         public async Task<T> Find(Expression<Func<T, bool>> criteria, string[] includes)
         {
