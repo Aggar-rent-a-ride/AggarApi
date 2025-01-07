@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7B70BABF-AE06-4EBA-BD0B-B60492DA3C76}|CORE\\CORE.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7B70BABF-AE06-4EBA-BD0B-B60492DA3C76}|CORE\\CORE.csproj|solutionrelative:core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -18,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -26,7 +30,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "AppUser.cs",
+              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\Models\\AppUser.cs",
+              "RelativeDocumentMoniker": "DATA\\Models\\AppUser.cs",
+              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\Models\\AppUser.cs",
+              "RelativeToolTip": "DATA\\Models\\AppUser.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAowBkAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T14:54:31.329Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "AppUserProfile.cs",
               "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\CORE\\AutoMapperProfiles\\AppUserProfile.cs",
               "RelativeDocumentMoniker": "CORE\\AutoMapperProfiles\\AppUserProfile.cs",
@@ -38,7 +55,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "AuthService.cs",
               "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\CORE\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "CORE\\Services\\AuthService.cs",
