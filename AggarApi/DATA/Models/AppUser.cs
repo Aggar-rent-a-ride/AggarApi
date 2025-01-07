@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
-using NetTopologySuite.Geometries;
 using DATA.Models.Contract;
 
 namespace DATA.Models
@@ -16,14 +15,14 @@ namespace DATA.Models
         }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool AggreedTheTerms { get; set; }
-        public double Rate { get; set; } = 0;
-        public Enums.UserStatus Status { get; set; }
+        public double? Rate { get; set; }
+        public Enums.UserStatus Status { get; set; } = Enums.UserStatus.Inactive;
         public int WarningCount { get; set; } = 0;
         public DateTime? ActivateIn { get; set; }
         public string? ImagePath { get; set; }
         public string? Bio { get; set; }
         public Address? Address { get; set; }
-        public Point Location { get; set; } = null!;
+        public Location Location { get; set; } = null!;
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DateDeleted { get; set; }

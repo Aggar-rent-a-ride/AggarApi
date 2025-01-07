@@ -1,5 +1,4 @@
 ﻿using DATA.Models.Contract;
-using NetTopologySuite.Geometries;
 
 namespace DATA.Models
 {
@@ -9,7 +8,7 @@ namespace DATA.Models
         public int RenterId { get; set; }
         public DateTime AddedAt { get; set; }
         public int NumOfPassengers { get; set; }
-        public double Rate { get; set; } = 0;
+        public double? Rate { get; set; }
         public int Year { get; set; }
         public string? Model { get; set; }
         public string Color { get; set; } = null!;
@@ -21,7 +20,8 @@ namespace DATA.Models
         public double PricePerMonth { get; set; }
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
-        public Point Location { get; set; } = null!;
+        public Address? Address { get; set; }
+        public Location Location { get; set; } = null!;
         public int WarningCount { get; set; } = 0;
         public int? VehicleTypeId { get; set; }
         public int? VehicleBrandId { get; set; }

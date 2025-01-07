@@ -4989,23 +4989,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Omar AbdelAziz\\.nuget\\packages\\": {},
+    "C:\\Users\\eldee\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DATA.csproj",
+      "projectUniqueName": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DATA.csproj",
       "projectName": "DATA",
-      "projectPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DATA.csproj",
-      "packagesPath": "C:\\Users\\Omar AbdelAziz\\.nuget\\packages\\",
-      "outputPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\obj\\",
+      "projectPath": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DATA.csproj",
+      "packagesPath": "C:\\Users\\eldee\\.nuget\\packages\\",
+      "outputPath": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Omar AbdelAziz\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "D:\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -5014,6 +5014,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5030,7 +5031,7 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
+        "auditMode": "all"
       },
       "SdkAnalysisLevel": "9.0.100"
     },
@@ -5077,7 +5078,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
