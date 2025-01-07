@@ -35,8 +35,7 @@ namespace DATA.DataAccess.Context.Configurations
 
             builder.OwnsOne(u => u.Address);
 
-            builder.Property(u => u.Location)
-                .HasColumnType("geography");
+            builder.OwnsOne(u => u.Location);
 
             builder.HasMany(u => u.Notifications)
                 .WithOne(n => n.Reciver)

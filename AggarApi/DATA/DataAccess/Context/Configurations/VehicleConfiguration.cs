@@ -11,8 +11,9 @@ namespace DATA.DataAccess.Context.Configurations
         {
             builder.HasKey(v => v.Id);
 
-            builder.Property(v => v.Location)
-                .HasColumnType("geography");
+            builder.OwnsOne(v => v.Address);
+
+            builder.OwnsOne(v => v.Location);
 
             builder.OwnsMany(v => v.VehicleImages);
 

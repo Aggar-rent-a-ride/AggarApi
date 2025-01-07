@@ -1,14 +1,62 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\",
+  "WorkspaceRootPath": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\migrations\\20241213125503_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\migrations\\20241213125503_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20250107124229_some maintenance.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DATA\\DataAccess\\Migrations\\20250107124229_some maintenance.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\models\\vehicle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\models\\vehicle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\context\\configurations\\appuserconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\context\\configurations\\appuserconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\models\\address.cs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\models\\address.cs||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\context\\configurations\\vehicleconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\context\\configurations\\vehicleconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\models\\location.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\models\\location.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C58A5DE-4034-47CE-AF76-90922937C3AA}|API\\API.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{5C58A5DE-4034-47CE-AF76-90922937C3AA}|API\\API.csproj|solutionrelative:api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C58A5DE-4034-47CE-AF76-90922937C3AA}|API\\API.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C58A5DE-4034-47CE-AF76-90922937C3AA}|API\\API.csproj|solutionrelative:api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\unitofwork\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\unitofwork\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\web development\\back-end\\projects\\aggar\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\unitofwork\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\unitofwork\\iunitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,8 +66,16 @@
       "DocumentGroups": [
         {
           "DockedWidth": 319,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e506b91c-c606-466a-90a9-123d1d1e12b3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
@@ -27,25 +83,181 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "20241213125503_Initial.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20241213125503_Initial.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Migrations\\20241213125503_Initial.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20241213125503_Initial.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Migrations\\20241213125503_Initial.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAQwCIAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:45:05.897Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "20250107124229_some maintenance.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20250107124229_some maintenance.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Migrations\\20250107124229_some maintenance.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Migrations\\20250107124229_some maintenance.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Migrations\\20250107124229_some maintenance.cs",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAQwBgAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:42:29.954Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "VehicleConfiguration.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Context\\Configurations\\VehicleConfiguration.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Context\\Configurations\\VehicleConfiguration.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Context\\Configurations\\VehicleConfiguration.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Context\\Configurations\\VehicleConfiguration.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:38:35.259Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AppUserConfiguration.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Context\\Configurations\\AppUserConfiguration.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:37:33.979Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Vehicle.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\Vehicle.cs",
+              "RelativeDocumentMoniker": "DATA\\Models\\Vehicle.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\Vehicle.cs",
+              "RelativeToolTip": "DATA\\Models\\Vehicle.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAA3wAoAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:34:30.629Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Address.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\Address.cs",
+              "RelativeDocumentMoniker": "DATA\\Models\\Address.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\Address.cs",
+              "RelativeToolTip": "DATA\\Models\\Address.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAcwAQAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:33:03.985Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Location.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\Location.cs",
+              "RelativeDocumentMoniker": "DATA\\Models\\Location.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\Location.cs",
+              "RelativeToolTip": "DATA\\Models\\Location.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T12:30:23.032Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AppUser.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\AppUser.cs",
+              "RelativeDocumentMoniker": "DATA\\Models\\AppUser.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\Models\\AppUser.cs",
+              "RelativeToolTip": "DATA\\Models\\AppUser.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAA2wAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T11:50:59.755Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\API\\Program.cs",
+              "RelativeDocumentMoniker": "API\\Program.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\API\\Program.cs",
+              "RelativeToolTip": "API\\Program.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAQwDAAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T11:43:30.45Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IUnitOfWork.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\UnitOfWork\\IUnitOfWork.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\UnitOfWork\\IUnitOfWork.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\UnitOfWork\\IUnitOfWork.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Repositories\\UnitOfWork\\IUnitOfWork.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T11:42:46.013Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "UnitOfWork.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\UnitOfWork\\UnitOfWork.cs",
+              "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\UnitOfWork\\UnitOfWork.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\UnitOfWork\\UnitOfWork.cs",
+              "RelativeToolTip": "DATA\\DataAccess\\Repositories\\UnitOfWork\\UnitOfWork.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-07T11:42:23.841Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\API\\appsettings.json",
+              "RelativeDocumentMoniker": "API\\appsettings.json",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\API\\appsettings.json",
+              "RelativeToolTip": "API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-01-07T11:39:47.056Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "BaseRepository.cs",
-              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
               "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\BaseRepository.cs",
-              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
               "RelativeToolTip": "DATA\\DataAccess\\Repositories\\BaseRepository.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAYwCMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAIwEQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-01T08:19:34.417Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 11,
               "Title": "IBaseRepository.cs",
-              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
+              "DocumentMoniker": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
               "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
-              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
+              "ToolTip": "D:\\Computer Science\\web development\\Back-End\\Projects\\Aggar\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
               "RelativeToolTip": "DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAQwAEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-01T08:19:33.663Z",
               "EditorCaption": ""

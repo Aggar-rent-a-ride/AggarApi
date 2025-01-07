@@ -37,7 +37,6 @@ namespace API
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("SQLServer"),
                 sqlOptions => sqlOptions
-                .UseNetTopologySuite()
                 .MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
                 )
                 .AddInterceptors(new SoftDeleteInterceptor())
