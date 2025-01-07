@@ -25,7 +25,22 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.HasSequence("ReviewSequence");
 
-            modelBuilder.Entity("AggarApi.Models.AdminAction", b =>
+            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomerId", "VehicleId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.ToTable("CustomersFavoriteVehicles");
+                });
+
+            modelBuilder.Entity("DATA.Models.AdminAction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +77,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("AdminActions", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.AppUser", b =>
+            modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -140,7 +155,7 @@ namespace DATA.DataAccess.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<double>("Rate")
+                    b.Property<double?>("Rate")
                         .HasColumnType("float");
 
                     b.Property<string>("SecurityStamp")
@@ -182,7 +197,7 @@ namespace DATA.DataAccess.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Booking", b =>
+            modelBuilder.Entity("DATA.Models.Booking", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -218,7 +233,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Bookings", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.CustomerReview", b =>
+            modelBuilder.Entity("DATA.Models.CustomerReview", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -260,7 +275,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("CustomerReviews", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Message", b =>
+            modelBuilder.Entity("DATA.Models.Message", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -296,7 +311,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Messages", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Notification", b =>
+            modelBuilder.Entity("DATA.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -334,7 +349,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RecommendedBrand", b =>
+            modelBuilder.Entity("DATA.Models.RecommendedBrand", b =>
                 {
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
@@ -355,7 +370,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("RecommendedBrands", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RecommendedType", b =>
+            modelBuilder.Entity("DATA.Models.RecommendedType", b =>
                 {
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
@@ -376,7 +391,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("RecommendedTypes", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Rental", b =>
+            modelBuilder.Entity("DATA.Models.Rental", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -401,7 +416,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Rentals", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RenterReview", b =>
+            modelBuilder.Entity("DATA.Models.RenterReview", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -440,7 +455,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("RenterReviews", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Report", b =>
+            modelBuilder.Entity("DATA.Models.Report", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -483,7 +498,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Reports", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Review", b =>
+            modelBuilder.Entity("DATA.Models.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -521,7 +536,7 @@ namespace DATA.DataAccess.Migrations
                     b.UseTpcMappingStrategy();
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Vehicle", b =>
+            modelBuilder.Entity("DATA.Models.Vehicle", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -608,7 +623,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Vehicles", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.VehicleBrand", b =>
+            modelBuilder.Entity("DATA.Models.VehicleBrand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -633,7 +648,7 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("VehicleBrands");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.VehicleType", b =>
+            modelBuilder.Entity("DATA.Models.VehicleType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -652,21 +667,6 @@ namespace DATA.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("VehicleTypes");
-                });
-
-            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
-                {
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomerId", "VehicleId");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("CustomersFavoriteVehicles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -802,36 +802,51 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Admin", b =>
+            modelBuilder.Entity("DATA.Models.Admin", b =>
                 {
-                    b.HasBaseType("AggarApi.Models.AppUser");
+                    b.HasBaseType("DATA.Models.AppUser");
 
                     b.ToTable("Admins", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Customer", b =>
+            modelBuilder.Entity("DATA.Models.Customer", b =>
                 {
-                    b.HasBaseType("AggarApi.Models.AppUser");
+                    b.HasBaseType("DATA.Models.AppUser");
 
                     b.ToTable("Customers", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Renter", b =>
+            modelBuilder.Entity("DATA.Models.Renter", b =>
                 {
-                    b.HasBaseType("AggarApi.Models.AppUser");
+                    b.HasBaseType("DATA.Models.AppUser");
 
                     b.ToTable("Renters", (string)null);
                 });
 
-            modelBuilder.Entity("AggarApi.Models.AdminAction", b =>
+            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
                 {
-                    b.HasOne("AggarApi.Models.Admin", "Admin")
+                    b.HasOne("DATA.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DATA.Models.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DATA.Models.AdminAction", b =>
+                {
+                    b.HasOne("DATA.Models.Admin", "Admin")
                         .WithMany("Actions")
                         .HasForeignKey("AdminId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.AppUser", "TargetUser")
+                    b.HasOne("DATA.Models.AppUser", "TargetUser")
                         .WithMany("TargetedAdminActions")
                         .HasForeignKey("TargetUserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -842,9 +857,9 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("TargetUser");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.AppUser", b =>
+            modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
-                    b.OwnsOne("AggarApi.Models.Address", "Address", b1 =>
+                    b.OwnsOne("DATA.Models.Address", "Address", b1 =>
                         {
                             b1.Property<int>("AppUserId")
                                 .HasColumnType("int");
@@ -876,15 +891,15 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Booking", b =>
+            modelBuilder.Entity("DATA.Models.Booking", b =>
                 {
-                    b.HasOne("AggarApi.Models.Customer", "Customer")
+                    b.HasOne("DATA.Models.Customer", "Customer")
                         .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.Vehicle", "Vehicle")
+                    b.HasOne("DATA.Models.Vehicle", "Vehicle")
                         .WithMany("Bookings")
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -895,17 +910,17 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.CustomerReview", b =>
+            modelBuilder.Entity("DATA.Models.CustomerReview", b =>
                 {
-                    b.HasOne("AggarApi.Models.Customer", "Customer")
+                    b.HasOne("DATA.Models.Customer", "Customer")
                         .WithMany("Reviews")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.Rental", "Rental")
+                    b.HasOne("DATA.Models.Rental", "Rental")
                         .WithOne("CustomerReview")
-                        .HasForeignKey("AggarApi.Models.CustomerReview", "RentalId")
+                        .HasForeignKey("DATA.Models.CustomerReview", "RentalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -914,15 +929,15 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Rental");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Message", b =>
+            modelBuilder.Entity("DATA.Models.Message", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", "Receiver")
+                    b.HasOne("DATA.Models.AppUser", "Receiver")
                         .WithMany("ReceivedMessages")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.AppUser", "Sender")
+                    b.HasOne("DATA.Models.AppUser", "Sender")
                         .WithMany("Messages")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -933,33 +948,33 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Notification", b =>
+            modelBuilder.Entity("DATA.Models.Notification", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", "Reciver")
+                    b.HasOne("DATA.Models.AppUser", "Reciver")
                         .WithMany("Notifications")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.AdminAction", "TargetAdminAction")
+                    b.HasOne("DATA.Models.AdminAction", "TargetAdminAction")
                         .WithOne("Notification")
-                        .HasForeignKey("AggarApi.Models.Notification", "TargetId");
+                        .HasForeignKey("DATA.Models.Notification", "TargetId");
 
-                    b.HasOne("AggarApi.Models.Booking", "TargetBooking")
+                    b.HasOne("DATA.Models.Booking", "TargetBooking")
                         .WithOne("Notification")
-                        .HasForeignKey("AggarApi.Models.Notification", "TargetId");
+                        .HasForeignKey("DATA.Models.Notification", "TargetId");
 
-                    b.HasOne("AggarApi.Models.CustomerReview", "TargetCustomerReview")
+                    b.HasOne("DATA.Models.CustomerReview", "TargetCustomerReview")
                         .WithOne("Notification")
-                        .HasForeignKey("AggarApi.Models.Notification", "TargetId");
+                        .HasForeignKey("DATA.Models.Notification", "TargetId");
 
-                    b.HasOne("AggarApi.Models.Message", "TargetMessage")
+                    b.HasOne("DATA.Models.Message", "TargetMessage")
                         .WithOne("Notification")
-                        .HasForeignKey("AggarApi.Models.Notification", "TargetId");
+                        .HasForeignKey("DATA.Models.Notification", "TargetId");
 
-                    b.HasOne("AggarApi.Models.RenterReview", "TargetRenterReview")
+                    b.HasOne("DATA.Models.RenterReview", "TargetRenterReview")
                         .WithOne("Notification")
-                        .HasForeignKey("AggarApi.Models.Notification", "TargetId");
+                        .HasForeignKey("DATA.Models.Notification", "TargetId");
 
                     b.Navigation("Reciver");
 
@@ -974,9 +989,9 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("TargetRenterReview");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RecommendedBrand", b =>
+            modelBuilder.Entity("DATA.Models.RecommendedBrand", b =>
                 {
-                    b.HasOne("AggarApi.Models.Customer", "Customer")
+                    b.HasOne("DATA.Models.Customer", "Customer")
                         .WithMany("RecommendedBrands")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -985,9 +1000,9 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RecommendedType", b =>
+            modelBuilder.Entity("DATA.Models.RecommendedType", b =>
                 {
-                    b.HasOne("AggarApi.Models.Customer", "Customer")
+                    b.HasOne("DATA.Models.Customer", "Customer")
                         .WithMany("RecommendedTypes")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -996,24 +1011,24 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Rental", b =>
+            modelBuilder.Entity("DATA.Models.Rental", b =>
                 {
-                    b.HasOne("AggarApi.Models.Booking", "Booking")
+                    b.HasOne("DATA.Models.Booking", "Booking")
                         .WithOne("Rental")
-                        .HasForeignKey("AggarApi.Models.Rental", "BookingId");
+                        .HasForeignKey("DATA.Models.Rental", "BookingId");
 
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RenterReview", b =>
+            modelBuilder.Entity("DATA.Models.RenterReview", b =>
                 {
-                    b.HasOne("AggarApi.Models.Rental", "Rental")
+                    b.HasOne("DATA.Models.Rental", "Rental")
                         .WithOne("RenterReview")
-                        .HasForeignKey("AggarApi.Models.RenterReview", "RentalId")
+                        .HasForeignKey("DATA.Models.RenterReview", "RentalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.Renter", "Renter")
+                    b.HasOne("DATA.Models.Renter", "Renter")
                         .WithMany("Reviews")
                         .HasForeignKey("RenterId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1024,37 +1039,37 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Renter");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Report", b =>
+            modelBuilder.Entity("DATA.Models.Report", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", "Reporter")
+                    b.HasOne("DATA.Models.AppUser", "Reporter")
                         .WithMany("Reports")
                         .HasForeignKey("ReporterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.Review", null)
+                    b.HasOne("DATA.Models.Review", null)
                         .WithMany("Reports")
                         .HasForeignKey("ReviewId");
 
-                    b.HasOne("AggarApi.Models.AppUser", "TargetUser")
+                    b.HasOne("DATA.Models.AppUser", "TargetUser")
                         .WithMany("TargetedReports")
                         .HasForeignKey("TargetId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.CustomerReview", "TargetCustomerReview")
+                    b.HasOne("DATA.Models.CustomerReview", "TargetCustomerReview")
                         .WithMany("Reports")
                         .HasForeignKey("TargetId");
 
-                    b.HasOne("AggarApi.Models.Message", "TargetMessage")
+                    b.HasOne("DATA.Models.Message", "TargetMessage")
                         .WithOne("Report")
-                        .HasForeignKey("AggarApi.Models.Report", "TargetId");
+                        .HasForeignKey("DATA.Models.Report", "TargetId");
 
-                    b.HasOne("AggarApi.Models.RenterReview", "TargetRenterReview")
+                    b.HasOne("DATA.Models.RenterReview", "TargetRenterReview")
                         .WithMany("Reports")
                         .HasForeignKey("TargetId");
 
-                    b.HasOne("AggarApi.Models.Vehicle", "TargetVehicle")
+                    b.HasOne("DATA.Models.Vehicle", "TargetVehicle")
                         .WithMany("Reports")
                         .HasForeignKey("TargetId");
 
@@ -1071,13 +1086,13 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("TargetVehicle");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Review", b =>
+            modelBuilder.Entity("DATA.Models.Review", b =>
                 {
-                    b.HasOne("AggarApi.Models.Notification", "Notification")
+                    b.HasOne("DATA.Models.Notification", "Notification")
                         .WithMany()
                         .HasForeignKey("NotificationId");
 
-                    b.HasOne("AggarApi.Models.Rental", "Rental")
+                    b.HasOne("DATA.Models.Rental", "Rental")
                         .WithMany()
                         .HasForeignKey("RentalId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1088,23 +1103,23 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Rental");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Vehicle", b =>
+            modelBuilder.Entity("DATA.Models.Vehicle", b =>
                 {
-                    b.HasOne("AggarApi.Models.Renter", "Renter")
+                    b.HasOne("DATA.Models.Renter", "Renter")
                         .WithMany("Vehicles")
                         .HasForeignKey("RenterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.VehicleBrand", "VehicleBrand")
+                    b.HasOne("DATA.Models.VehicleBrand", "VehicleBrand")
                         .WithMany("Vehicles")
                         .HasForeignKey("VehicleBrandId");
 
-                    b.HasOne("AggarApi.Models.VehicleType", "VehicleType")
+                    b.HasOne("DATA.Models.VehicleType", "VehicleType")
                         .WithMany("Vehicles")
                         .HasForeignKey("VehicleTypeId");
 
-                    b.OwnsMany("AggarApi.Models.VehicleImage", "VehicleImages", b1 =>
+                    b.OwnsMany("DATA.Models.VehicleImage", "VehicleImages", b1 =>
                         {
                             b1.Property<int>("VehicleId")
                                 .HasColumnType("int");
@@ -1136,21 +1151,6 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("VehicleType");
                 });
 
-            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
-                {
-                    b.HasOne("AggarApi.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AggarApi.Models.Vehicle", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -1162,7 +1162,7 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1171,7 +1171,7 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1186,7 +1186,7 @@ namespace DATA.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1195,46 +1195,46 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Admin", b =>
+            modelBuilder.Entity("DATA.Models.Admin", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithOne()
-                        .HasForeignKey("AggarApi.Models.Admin", "Id")
+                        .HasForeignKey("DATA.Models.Admin", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Customer", b =>
+            modelBuilder.Entity("DATA.Models.Customer", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithOne()
-                        .HasForeignKey("AggarApi.Models.Customer", "Id")
+                        .HasForeignKey("DATA.Models.Customer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Renter", b =>
+            modelBuilder.Entity("DATA.Models.Renter", b =>
                 {
-                    b.HasOne("AggarApi.Models.AppUser", null)
+                    b.HasOne("DATA.Models.AppUser", null)
                         .WithOne()
-                        .HasForeignKey("AggarApi.Models.Renter", "Id")
+                        .HasForeignKey("DATA.Models.Renter", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AggarApi.Models.AdminAction", b =>
+            modelBuilder.Entity("DATA.Models.AdminAction", b =>
                 {
                     b.Navigation("Notification");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.AppUser", b =>
+            modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
                     b.Navigation("Messages");
 
@@ -1249,69 +1249,69 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("TargetedReports");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Booking", b =>
+            modelBuilder.Entity("DATA.Models.Booking", b =>
                 {
                     b.Navigation("Notification");
 
                     b.Navigation("Rental");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.CustomerReview", b =>
+            modelBuilder.Entity("DATA.Models.CustomerReview", b =>
                 {
                     b.Navigation("Notification");
 
                     b.Navigation("Reports");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Message", b =>
+            modelBuilder.Entity("DATA.Models.Message", b =>
                 {
                     b.Navigation("Notification");
 
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Rental", b =>
+            modelBuilder.Entity("DATA.Models.Rental", b =>
                 {
                     b.Navigation("CustomerReview");
 
                     b.Navigation("RenterReview");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.RenterReview", b =>
+            modelBuilder.Entity("DATA.Models.RenterReview", b =>
                 {
                     b.Navigation("Notification");
 
                     b.Navigation("Reports");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Review", b =>
+            modelBuilder.Entity("DATA.Models.Review", b =>
                 {
                     b.Navigation("Reports");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Vehicle", b =>
+            modelBuilder.Entity("DATA.Models.Vehicle", b =>
                 {
                     b.Navigation("Bookings");
 
                     b.Navigation("Reports");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.VehicleBrand", b =>
+            modelBuilder.Entity("DATA.Models.VehicleBrand", b =>
                 {
                     b.Navigation("Vehicles");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.VehicleType", b =>
+            modelBuilder.Entity("DATA.Models.VehicleType", b =>
                 {
                     b.Navigation("Vehicles");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Admin", b =>
+            modelBuilder.Entity("DATA.Models.Admin", b =>
                 {
                     b.Navigation("Actions");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Customer", b =>
+            modelBuilder.Entity("DATA.Models.Customer", b =>
                 {
                     b.Navigation("Bookings");
 
@@ -1322,7 +1322,7 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("AggarApi.Models.Renter", b =>
+            modelBuilder.Entity("DATA.Models.Renter", b =>
                 {
                     b.Navigation("Reviews");
 

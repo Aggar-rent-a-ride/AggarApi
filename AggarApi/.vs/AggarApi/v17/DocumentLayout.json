@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\irepositories\\ibaserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AD297FEC-A5C3-4E08-A4DE-3F0D513168AC}|DATA\\DATA.csproj|solutionrelative:data\\dataaccess\\repositories\\baserepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{7B70BABF-AE06-4EBA-BD0B-B60492DA3C76}|CORE\\CORE.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7B70BABF-AE06-4EBA-BD0B-B60492DA3C76}|CORE\\CORE.csproj|solutionrelative:core\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7B70BABF-AE06-4EBA-BD0B-B60492DA3C76}|CORE\\CORE.csproj|d:\\computer science\\myprojects\\aggarapi\\aggarapi\\core\\automapperprofiles\\appuserprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7B70BABF-AE06-4EBA-BD0B-B60492DA3C76}|CORE\\CORE.csproj|solutionrelative:core\\automapperprofiles\\appuserprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -17,8 +21,8 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 319,
-          "SelectedChildIndex": 2,
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -26,28 +30,40 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "BaseRepository.cs",
-              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
-              "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\BaseRepository.cs",
-              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\BaseRepository.cs",
-              "RelativeToolTip": "DATA\\DataAccess\\Repositories\\BaseRepository.cs",
-              "ViewState": "AgIAADQAAAAAAAAAAADwvxoAAAAcAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "AppUser.cs",
+              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\Models\\AppUser.cs",
+              "RelativeDocumentMoniker": "DATA\\Models\\AppUser.cs",
+              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\Models\\AppUser.cs",
+              "RelativeToolTip": "DATA\\Models\\AppUser.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAowBkAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-01T08:19:34.417Z",
+              "WhenOpened": "2025-01-07T14:54:31.329Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "IBaseRepository.cs",
-              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
-              "RelativeDocumentMoniker": "DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
-              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
-              "RelativeToolTip": "DATA\\DataAccess\\Repositories\\IRepositories\\IBaseRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAeAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "AppUserProfile.cs",
+              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\CORE\\AutoMapperProfiles\\AppUserProfile.cs",
+              "RelativeDocumentMoniker": "CORE\\AutoMapperProfiles\\AppUserProfile.cs",
+              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\CORE\\AutoMapperProfiles\\AppUserProfile.cs",
+              "RelativeToolTip": "CORE\\AutoMapperProfiles\\AppUserProfile.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABQAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-01T08:19:33.663Z",
+              "WhenOpened": "2025-01-05T14:56:49.001Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\CORE\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "CORE\\Services\\AuthService.cs",
+              "ToolTip": "D:\\Computer Science\\MyProjects\\AggarApi\\AggarApi\\CORE\\Services\\AuthService.cs",
+              "RelativeToolTip": "CORE\\Services\\AuthService.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAADwv0IAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-05T14:37:44.153Z",
               "EditorCaption": ""
             }
           ]

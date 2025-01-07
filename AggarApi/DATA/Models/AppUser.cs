@@ -7,7 +7,7 @@ namespace DATA.Models
 {
     public class AppUser : IdentityUser<int>, ISoftDeleteable
     {
-        public string Name { get; set; } = null!;
+        public string Name { get; set; } = null!; //this name will be displayed 
         public DateOnly DateOfBirth { get; set; }
         [NotMapped]
         public int Age
@@ -16,8 +16,8 @@ namespace DATA.Models
         }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool AggreedTheTerms { get; set; }
-        public double Rate { get; set; } = 0;
-        public Enums.UserStatus Status { get; set; }
+        public double? Rate { get; set; } = 0;
+        public Enums.UserStatus Status { get; set; } = Enums.UserStatus.Inactive;
         public int WarningCount { get; set; } = 0;
         public DateTime? ActivateIn { get; set; }
         public string? ImagePath { get; set; }
