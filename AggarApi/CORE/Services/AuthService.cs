@@ -50,9 +50,7 @@ namespace CORE.Services
             AppUser user = registerDto.IsCustomer ? _mapper.Map<Customer>(registerDto) : _mapper.Map<Renter>(registerDto);
             
             var result = await _userManager.CreateAsync(user, registerDto.Password);
-            if (result == null)
-                return new AuthDto { Message = "couldn't register user" };
-            else if (result.Succeeded == false)
+            if (result.Succeeded == false)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 return new AuthDto { Message = errors };
