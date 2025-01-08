@@ -1,0 +1,24 @@
+﻿using AutoMapper;
+using CORE.DTOs.Auth;
+using DATA.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CORE.AutoMapperProfiles
+{
+    public class AppUserProfile : Profile
+    {
+        public AppUserProfile()
+        {
+            CreateMap<AppUser, RegisterDto>()
+                .ForMember(dest=> dest.ConfirmPassword, opt=>opt.Ignore())
+                .ForMember(dest=> dest.Password, opt=>opt.Ignore())
+                .ForMember(dest=> dest.IsCustomer, opt=>opt.Ignore())
+                .ForMember(dest=> dest.AggreedTheTerms, opt=>opt.Ignore())
+                .ReverseMap();
+        }
+    }
+}
