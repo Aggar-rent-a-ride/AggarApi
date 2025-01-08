@@ -1,14 +1,21 @@
+using CORE.DTOs.Auth;
+using CORE.Services;
+using CORE.Services.IServices;
 using DATA.DataAccess.Context;
 using DATA.DataAccess.Context.Interceptors;
 using DATA.DataAccess.Repositories;
 using DATA.DataAccess.Repositories.IRepositories;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using System;
+using System.Security.Claims;
+using System.Text;
 
 namespace API
 {
@@ -49,8 +56,31 @@ namespace API
             }
             ).AddEntityFrameworkStores<AppDbContext>();
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = builder.Configuration["JWT:Issuer"],
+                    ValidAudience = builder.Configuration["JWT:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+                };
+            });
+            builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JWT"));
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
 
             var app = builder.Build();
@@ -71,6 +101,11 @@ namespace API
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

@@ -2,7 +2,6 @@
 {
     public class Customer : AppUser
     {
-
         public ICollection<RecommendedBrand>? RecommendedBrands { get; set; }
         public ICollection<RecommendedType>? RecommendedTypes { get; set; }
         public ICollection<Vehicle>? FavoriteVehicles { get; set; }
