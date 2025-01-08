@@ -19,4 +19,16 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="API\Controllers\" />
+    <Folder Include="API\Hubs\" />
+    <Folder Include="CORE\Helpers\" />
+    <Folder Include="DATA\Repositories\" />
+    <Folder Include="TestUtilities\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\API\API.csproj" />
+  </ItemGroup>
+
 </Project>
