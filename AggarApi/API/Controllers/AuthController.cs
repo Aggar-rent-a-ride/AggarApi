@@ -28,5 +28,14 @@ namespace API.Controllers
                 return BadRequest(result);
             return Ok(result);
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync(LoginDto loginDto)
+        {
+            var result = await _authService.LoginAsync(loginDto);
+            if (result.IsAuthenticated == false)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

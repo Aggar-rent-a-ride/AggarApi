@@ -5,12 +5,18 @@ using DATA.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using DATA.Models.Enums;
+using CORE.Constants;
+using RTools_NTS.Util;
 
 namespace CORE.Services
 {
@@ -40,7 +46,63 @@ namespace CORE.Services
                 return "Email already exists";
             return null;
         }
+        private async Task<string> CreateAccessTokenAsync(AppUser user)
+        {
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var roleClaims = userRoles.Select(role => new Claim("roles", role)).ToList();
 
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("username", user.UserName)
+            }
+            .Union(roleClaims);
+
+            var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Value.Key));
+            var signingCredentials = new SigningCredentials(symmetricKey, SecurityAlgorithms.HmacSha256);
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                    issuer: _jwt.Value.Issuer,
+                    audience: _jwt.Value.Audience,
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddHours(_jwt.Value.DurationInHours),
+                    signingCredentials: signingCredentials
+                );
+            return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        }
+        private RefreshToken GenerateRefreshToken()
+        {
+            var randomNumber = RandomNumberGenerator.GetBytes(32);
+
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("RefreshTokenDurationInDays")),
+                CreatedOn = DateTime.UtcNow,
+            };
+        }
+        private string GetUserStatusMessage(UserStatus status)
+        {
+            if (status == UserStatus.Inactive || status == UserStatus.Banned || status == UserStatus.Removed)
+                return $"Your account is {status.ToString().ToLower()}";
+            return null;
+        }
+
+        private async Task AddRefreshToken(AppUser user, RefreshToken refreshToken)
+        {
+            user.RefreshTokens.Add(refreshToken);
+            await _userManager.UpdateAsync(user);
+        }
+        private async Task<RefreshToken> ProcessUserRefreshToken(AppUser user)
+        {
+            var activeRefreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
+            if (activeRefreshToken != null)
+                return activeRefreshToken;
+            var refreshToken = GenerateRefreshToken();
+            await AddRefreshToken(user, refreshToken);
+            return refreshToken;
+        }
         public async Task<AuthDto> RegisterAsync(RegisterDto registerDto, List<string> roles)
         {
             if (await ValidateRegistrationAsync(registerDto) is string validationMessage)
@@ -71,12 +133,49 @@ namespace CORE.Services
 
             return new AuthDto
             {
+                UserId = user.Id,
                 IsAuthenticated = true,
                 Message = "Registered Successfully",
                 Roles = userRoles.ToList(),
                 Username = registerDto.Username,
                 Email = registerDto.Email,
+                AccountStatus = user.Status.ToString().ToLower()
             };
+        }
+        public async Task<AuthDto> LoginAsync(LoginDto loginDto)
+        {
+            var user = await _userManager.FindByNameAsync(loginDto.UsernameOrEmail);
+            if (user == null)
+                user = await _userManager.FindByEmailAsync(loginDto.UsernameOrEmail);
+
+            if (user == null || await _userManager.CheckPasswordAsync(user, loginDto.Password) == false)
+                return new AuthDto { Message = "Username or password is incorrect" };
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var authDto = new AuthDto
+            {
+                UserId = user.Id,
+                IsAuthenticated = true,
+                Username = user?.UserName,
+                Email = user.Email,
+                Roles = roles.ToList(),
+                AccountStatus = user.Status.ToString().ToLower(),
+            };
+
+            if(GetUserStatusMessage(user.Status) is string statusMessage)
+            {
+                authDto.Message = statusMessage;
+                return authDto;
+            }
+
+            authDto.AccessToken = await CreateAccessTokenAsync(user);
+
+            var refreshToken = await ProcessUserRefreshToken(user);
+            authDto.RefreshToken = refreshToken.Token;
+            authDto.RefreshTokenExpiration = refreshToken.ExpiresOn;
+
+            return authDto;
         }
     }
 }
