@@ -74,13 +74,20 @@ namespace CORE.Services
         private RefreshToken GenerateRefreshToken()
         {
             var randomNumber = RandomNumberGenerator.GetBytes(32);
+            var rawToken = Convert.ToBase64String(randomNumber);
 
-            return new RefreshToken
+            using (var sha256 = SHA256.Create())
             {
-                Token = Convert.ToBase64String(randomNumber),
-                ExpiresOn = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("RefreshTokenDurationInDays")),
-                CreatedOn = DateTime.UtcNow,
-            };
+                var hashedToken = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken)));
+
+                return new RefreshToken
+                {
+                    Token = hashedToken, // Store hashed token in the database
+                    RawToken = rawToken, // Send raw token back to the client
+                    ExpiresOn = DateTime.UtcNow.AddDays(_configuration.GetValue<int>("RefreshTokenDurationInDays")),
+                    CreatedOn = DateTime.UtcNow,
+                };
+            }
         }
         private string GetUserStatusMessage(UserStatus status)
         {
@@ -88,11 +95,22 @@ namespace CORE.Services
                 return $"Your account is {status.ToString().ToLower()}";
             return null;
         }
-
         private async Task AddRefreshToken(AppUser user, RefreshToken refreshToken)
         {
             user.RefreshTokens.Add(refreshToken);
             await _userManager.UpdateAsync(user);
+        }
+        private async Task<bool> ValidateRefreshTokenAsync(string providedToken, AppUser user)
+        {
+            var refreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
+            if (refreshToken == null) return false;
+
+            // Hash the provided token
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedProvidedToken = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(providedToken)));
+                return hashedProvidedToken == refreshToken.Token;
+            }
         }
         private async Task<RefreshToken> ProcessUserRefreshToken(AppUser user)
         {
@@ -163,16 +181,16 @@ namespace CORE.Services
                 AccountStatus = user.Status.ToString().ToLower(),
             };
 
-            if(GetUserStatusMessage(user.Status) is string statusMessage)
-            {
-                authDto.Message = statusMessage;
-                return authDto;
-            }
+            //if(GetUserStatusMessage(user.Status) is string statusMessage)
+            //{
+            //    authDto.Message = statusMessage;
+            //    return authDto;
+            //}
 
             authDto.AccessToken = await CreateAccessTokenAsync(user);
 
             var refreshToken = await ProcessUserRefreshToken(user);
-            authDto.RefreshToken = refreshToken.Token;
+            authDto.RefreshToken = refreshToken.RawToken;
             authDto.RefreshTokenExpiration = refreshToken.ExpiresOn;
 
             return authDto;
