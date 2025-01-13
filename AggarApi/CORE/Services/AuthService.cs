@@ -93,7 +93,9 @@ namespace CORE.Services
         {
             if (status == UserStatus.Inactive || status == UserStatus.Banned || status == UserStatus.Removed)
                 return $"Your account is {status.ToString().ToLower()}";
-            return null;
+            else if (status == UserStatus.Active)
+                return null;
+            return $"Your account status is undefined";
         }
         private async Task AddRefreshToken(AppUser user, RefreshToken refreshToken)
         {
@@ -170,6 +172,8 @@ namespace CORE.Services
                 return new AuthDto { Message = "Username or password is incorrect" };
 
             var roles = await _userManager.GetRolesAsync(user);
+            if(roles == null || roles.Count == 0)
+                return new AuthDto { Message = "User has no roles, Try logging in again" };
 
             var authDto = new AuthDto
             {
@@ -181,11 +185,11 @@ namespace CORE.Services
                 AccountStatus = user.Status.ToString().ToLower(),
             };
 
-            //if(GetUserStatusMessage(user.Status) is string statusMessage)
-            //{
-            //    authDto.Message = statusMessage;
-            //    return authDto;
-            //}
+            if (GetUserStatusMessage(user.Status) is string statusMessage)
+            {
+                authDto.Message = statusMessage;
+                return authDto;
+            }
 
             authDto.AccessToken = await CreateAccessTokenAsync(user);
 

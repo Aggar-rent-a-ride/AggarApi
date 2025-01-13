@@ -2,6 +2,7 @@
 using CORE.DTOs.Auth;
 using CORE.Services;
 using DATA.Models;
+using DATA.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -76,7 +77,7 @@ namespace UnitTests.CORE.Services
         public async Task RegisterAsync_ShouldReturnValidationMessage_WhenEmailExists()
         {
             // Arrange
-            var registerDto = new RegisterDto { Username = "User",  Email = "ExistingEmail", AggreedTheTerms = true };
+            var registerDto = new RegisterDto { Username = "User", Email = "ExistingEmail", AggreedTheTerms = true };
             _mockUserManager.Setup(x => x.FindByEmailAsync(registerDto.Email))
                             .ReturnsAsync(new AppUser());
 
@@ -163,6 +164,43 @@ namespace UnitTests.CORE.Services
             Assert.That(result.Roles, Is.EquivalentTo(roles));
             Assert.That(result.Username == registerDto.Username);
             Assert.That(result.Email == registerDto.Email);
+        }
+        [Test]
+        public async Task LoginAsync_ShouldHandleUnexpectedStatusValues()
+        {
+            // Arrange
+            var loginDto = new LoginDto { UsernameOrEmail = "testuser", Password = "password" };
+
+            var user = new AppUser { UserName = "testuser", Email = "test@example.com", Id = 123, Status = (UserStatus)999 }; // An undefined status
+
+            _mockUserManager.Setup(m => m.FindByNameAsync("testuser")).ReturnsAsync(user);
+            _mockUserManager.Setup(m => m.CheckPasswordAsync(user, "password")).ReturnsAsync(true);
+            _mockUserManager.Setup(m => m.GetRolesAsync(user)).ReturnsAsync(new List<string> { "User" });
+
+            // Act
+            var result = await _authService.LoginAsync(loginDto);
+
+            // Assert
+            Assert.That(result != null);
+            Assert.That(result.IsAuthenticated == true);
+            Assert.That("Your account status is undefined" == result.Message); // Assuming `GetUserStatusMessage` handles this edge case
+        }
+        [Test]
+        public async Task LoginAsync_UserHasNoRoles_ShouldReturnMessage()
+        {
+            // Arrange
+            var loginDto = new LoginDto { UsernameOrEmail = "testuser", Password = "password" };
+            var user = new AppUser { UserName = "testuser", Email = "test@example.com", Id = 123, Status = UserStatus.Active }; // An undefined status
+            _mockUserManager.Setup(m => m.FindByNameAsync("testuser")).ReturnsAsync(user);
+            _mockUserManager.Setup(m=>m.CheckPasswordAsync(user, loginDto.Password)).ReturnsAsync(true);
+            _mockUserManager.Setup(m=>m.GetRolesAsync(user)).ReturnsAsync(new List<string>());
+
+            // Act
+            var result = await _authService.LoginAsync(loginDto);
+
+            // Assert
+            Assert.That(result != null);
+            Assert.That(result.Message == "User has no roles, Try logging in again");
         }
     }
 }
