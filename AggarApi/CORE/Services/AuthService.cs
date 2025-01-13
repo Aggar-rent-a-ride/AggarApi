@@ -17,6 +17,10 @@ using System.Threading.Tasks;
 using DATA.Models.Enums;
 using CORE.Constants;
 using RTools_NTS.Util;
+using CORE.DTOs;
+using DATA.DataAccess.Repositories.UnitOfWork;
+using CORE.Helpers;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CORE.Services
 {
@@ -26,15 +30,25 @@ namespace CORE.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
+        private readonly IMemoryCache _memoryCache;
 
         public AuthService(IOptions<JwtConfig> jwt,
             UserManager<AppUser> userManager,
-            IConfiguration configuration, IMapper mapper)
+            IConfiguration configuration,
+            IMapper mapper,
+            IUnitOfWork unitOfWork,
+            IEmailService emailService,
+            IMemoryCache memoryCache)
         {
             _jwt = jwt;
             _userManager = userManager;
             _configuration = configuration;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
+            _emailService = emailService;
+            _memoryCache = memoryCache;
         }
         private async Task<string?> ValidateRegistrationAsync(RegisterDto registerDto)
         {
@@ -96,6 +110,24 @@ namespace CORE.Services
             else if (status == UserStatus.Active)
                 return null;
             return $"Your account status is undefined";
+        }
+        public static string GenerateActivationCode(int length = 6)
+        {
+            const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            StringBuilder result = new StringBuilder(length);
+            byte[] randomBytes = new byte[length];
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomBytes);
+            }
+
+            foreach (byte randomByte in randomBytes)
+            {
+                result.Append(characters[randomByte % characters.Length]);
+            }
+
+            return result.ToString();
         }
         private async Task AddRefreshToken(AppUser user, RefreshToken refreshToken)
         {
@@ -198,6 +230,24 @@ namespace CORE.Services
             authDto.RefreshTokenExpiration = refreshToken.ExpiresOn;
 
             return authDto;
+        }
+        public async Task<ResponseDto<object>> SendActivationCodeAsync(int userId)
+        {
+            var user = await _unitOfWork.AppUsers.Get(userId);
+            if (user == null)
+                return new ResponseDto<object> { Message = "User not found", StatusCode = StatusCodes.NotFound };
+            if (user.Status != UserStatus.Inactive)
+                return new ResponseDto<object> { Message = $"You account is {user.Status.ToString().ToLower()}", StatusCode = StatusCodes.BadRequest };
+
+            var activationCode = GenerateActivationCode();
+            var emailSent = await _emailService.SendEmailAsync(user.Email, "Activate your account", HtmlHelpers.GenerateAccountActivationHtmlBody(activationCode));
+            if (emailSent == false)
+                return new ResponseDto<object> { Message = "Something went wrong. Please try again", StatusCode =  StatusCodes.InternalServerError };
+
+            _memoryCache.Set(activationCode, userId, TimeSpan.FromMinutes(5));
+
+            return new ResponseDto<object> { StatusCode = StatusCodes.OK };
+
         }
     }
 }

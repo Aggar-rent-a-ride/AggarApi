@@ -1,0 +1,56 @@
+﻿using CORE.Services.IServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mail;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using CORE.Helpers;
+using CORE.DTOs.Auth;
+using Microsoft.Extensions.Options;
+using CORE.DTOs.Email;
+
+namespace CORE.Services
+{
+    public class EmailService : IEmailService
+    {
+        private readonly IOptions<EmailSettings> _emailSettings;
+
+        public EmailService(IOptions<EmailSettings> emailSettings)
+        {
+            _emailSettings = emailSettings;
+        }
+
+        public async Task<bool> SendEmailAsync(string recipientEmail, string subject, string htmlBody)
+        {
+            try
+            {
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(EnvironmentVariableHelpers.EmailAddress, _emailSettings.Value.DisplayName),
+                    Subject = subject,
+                    Body = htmlBody,
+                    IsBodyHtml = true // Set to true if sending an HTML email
+                };
+
+                mailMessage.To.Add(recipientEmail);
+
+                // Configure the SMTP client
+                using (var smtpClient = new SmtpClient(_emailSettings.Value.SmtpHost, _emailSettings.Value.SmtpPort))
+                {
+                    smtpClient.Credentials = new NetworkCredential(EnvironmentVariableHelpers.EmailAddress,
+                    EnvironmentVariableHelpers.EmailPassword);
+                    smtpClient.EnableSsl = true; 
+
+                    await smtpClient.SendMailAsync(mailMessage);
+                }
+                return true; // email sent successfully
+            }
+            catch (Exception ex)
+            {
+                return false; // email failed to send
+            }
+        }
+    }
+}
