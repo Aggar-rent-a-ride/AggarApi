@@ -1,4 +1,5 @@
 using CORE.DTOs.Auth;
+using CORE.DTOs.Email;
 using CORE.Services;
 using CORE.Services.IServices;
 using DATA.DataAccess.Context;
@@ -77,10 +78,13 @@ namespace API
                 };
             });
             builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JWT"));
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddMemoryCache();
 
 
             var app = builder.Build();

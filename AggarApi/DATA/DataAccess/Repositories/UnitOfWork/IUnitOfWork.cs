@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DATA.DataAccess.Repositories.IRepositories;
+using DATA.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
+        IBaseRepository<AppUser> AppUsers { get; }
         Task<int> Commit();
     }
 }
