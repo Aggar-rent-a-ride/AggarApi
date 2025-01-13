@@ -247,7 +247,6 @@ namespace CORE.Services
             _memoryCache.Set(activationCode, userId, TimeSpan.FromMinutes(5));
 
             return new ResponseDto<object> { StatusCode = StatusCodes.OK };
-
         }
     }
 }

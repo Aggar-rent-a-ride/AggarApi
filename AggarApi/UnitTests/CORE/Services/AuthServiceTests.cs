@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
+using CORE.Constants;
 using CORE.DTOs.Auth;
 using CORE.Services;
+using CORE.Services.IServices;
+using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -23,6 +27,9 @@ namespace UnitTests.CORE.Services
         private Mock<IOptions<JwtConfig>> _mockJwtOptions;
         private Mock<IConfiguration> _mockConfiguration;
         private Mock<IMapper> _mockMapper;
+        private Mock<IUnitOfWork> _mockUnitOfWork;
+        private Mock<IEmailService> _mockEmailService;
+        private Mock<IMemoryCache> _mockMemoryCache;
         private AuthService _authService;
         private Mock<UserManager<AppUser>> MockUserManager()
         {
@@ -37,12 +44,18 @@ namespace UnitTests.CORE.Services
             _mockJwtOptions = new Mock<IOptions<JwtConfig>>();
             _mockConfiguration = new Mock<IConfiguration>();
             _mockMapper = new Mock<IMapper>();
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockEmailService = new Mock<IEmailService>();
+            _mockMemoryCache = new Mock<IMemoryCache>();
 
             _authService = new AuthService(
                 _mockJwtOptions.Object,
                 _mockUserManager.Object,
                 _mockConfiguration.Object,
-                _mockMapper.Object
+                _mockMapper.Object,
+                _mockUnitOfWork.Object,
+                _mockEmailService.Object,
+                _mockMemoryCache.Object
             );
         }
         [Test]
@@ -201,6 +214,18 @@ namespace UnitTests.CORE.Services
             // Assert
             Assert.That(result != null);
             Assert.That(result.Message == "User has no roles, Try logging in again");
+        }
+        [Test]
+        public async Task SendActivationCodeAsync_UserIsNull()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.Get(It.IsAny<int>())).ReturnsAsync((AppUser) null);
+
+            // Act 
+            var result = await _authService.SendActivationCodeAsync(5);
+
+            // Assert
+            Assert.That(result.StatusCode == StatusCodes.NotFound);
         }
     }
 }
