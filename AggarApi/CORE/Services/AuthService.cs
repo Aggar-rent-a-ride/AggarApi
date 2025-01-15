@@ -24,7 +24,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CORE.Services
 {
-    public class AuthService: IAuthService
+    public class AuthService : IAuthService
     {
         private readonly IOptions<JwtConfig> _jwt;
         private readonly UserManager<AppUser> _userManager;
@@ -150,7 +150,7 @@ namespace CORE.Services
         {
             var activeRefreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
             if (activeRefreshToken != null)
-                return activeRefreshToken;
+                activeRefreshToken.RevokedOn = DateTime.UtcNow;
             var refreshToken = GenerateRefreshToken();
             await AddRefreshToken(user, refreshToken);
             return refreshToken;
@@ -233,11 +233,11 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<object>> SendActivationCodeAsync(int userId)
         {
-            var user = await _unitOfWork.AppUsers.Get(userId);
+            var user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
                 return new ResponseDto<object> { Message = "User not found", StatusCode = StatusCodes.NotFound };
             if (user.Status != UserStatus.Inactive)
-                return new ResponseDto<object> { Message = $"You account is {user.Status.ToString().ToLower()}", StatusCode = StatusCodes.BadRequest };
+                return new ResponseDto<object> { Message = $"Your account is {user.Status.ToString().ToLower()}", StatusCode = StatusCodes.BadRequest };
 
             var activationCode = GenerateActivationCode();
             var emailSent = await _emailService.SendEmailAsync(user.Email, "Activate your account", HtmlHelpers.GenerateAccountActivationHtmlBody(activationCode));
@@ -247,6 +247,43 @@ namespace CORE.Services
             _memoryCache.Set(activationCode, userId, TimeSpan.FromMinutes(5));
 
             return new ResponseDto<object> { StatusCode = StatusCodes.OK };
+        }
+        public async Task<AuthDto> ActivateAccount(AccountActivationDto dto)
+        {
+            var user = await _unitOfWork.AppUsers.GetAsync(dto.UserId);
+            if (user == null)
+                return new AuthDto { Message = "User not found" };
+            if (user.Status != UserStatus.Inactive)
+                return new AuthDto { Message = $"Your account is {user.Status.ToString().ToLower()}" };
+
+            if(_memoryCache.TryGetValue(dto.ActivationCode, out int userId) == false)
+                return new AuthDto { Message = "Invalid activation code" };
+            if(userId != user.Id)
+                return new AuthDto { Message = "Invalid activation code" };
+
+            user.EmailConfirmed = true;
+            user.Status = UserStatus.Active;
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if(updateUserResult.Succeeded == false)
+            {
+                var errors = string.Join(", ", updateUserResult.Errors.Select(e => e.Description));
+                return new AuthDto { Message = $"Account couldn't be activated: {errors}" };
+            }
+            _memoryCache.Remove(dto.ActivationCode);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles == null || roles.Count == 0)
+                return new AuthDto { Message = "User has no roles, Try logging in again" };
+
+            return new AuthDto
+            {
+                UserId = user.Id,
+                IsAuthenticated = true,
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = roles.ToList(),
+                AccountStatus = user.Status.ToString().ToLower(),
+                Message = "Your account has been activated successfully. Try to login to access your account"
+            };
         }
     }
 }

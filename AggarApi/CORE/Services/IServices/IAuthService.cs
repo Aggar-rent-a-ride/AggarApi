@@ -13,5 +13,6 @@ namespace CORE.Services.IServices
         Task<AuthDto> RegisterAsync(RegisterDto registerDto, List<string> roles);
         Task<AuthDto> LoginAsync(LoginDto loginDto);
         Task<ResponseDto<object>> SendActivationCodeAsync(int userId);
+        Task<AuthDto> ActivateAccount(AccountActivationDto dto);
     }
 }
