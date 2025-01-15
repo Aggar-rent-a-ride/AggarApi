@@ -248,7 +248,7 @@ namespace CORE.Services
 
             return new ResponseDto<object> { StatusCode = StatusCodes.OK };
         }
-        public async Task<AuthDto> ActivateAccount(AccountActivationDto dto)
+        public async Task<AuthDto> ActivateAccountAsync(AccountActivationDto dto)
         {
             var user = await _unitOfWork.AppUsers.GetAsync(dto.UserId);
             if (user == null)
@@ -256,10 +256,10 @@ namespace CORE.Services
             if (user.Status != UserStatus.Inactive)
                 return new AuthDto { Message = $"Your account is {user.Status.ToString().ToLower()}" };
 
-            if(_memoryCache.TryGetValue(dto.ActivationCode, out int userId) == false)
+            if(_memoryCache.TryGetValue(dto.ActivationCode, out int userId) == false || userId != user.Id)
                 return new AuthDto { Message = "Invalid activation code" };
-            if(userId != user.Id)
-                return new AuthDto { Message = "Invalid activation code" };
+
+            _memoryCache.Remove(dto.ActivationCode);
 
             user.EmailConfirmed = true;
             user.Status = UserStatus.Active;
@@ -269,7 +269,7 @@ namespace CORE.Services
                 var errors = string.Join(", ", updateUserResult.Errors.Select(e => e.Description));
                 return new AuthDto { Message = $"Account couldn't be activated: {errors}" };
             }
-            _memoryCache.Remove(dto.ActivationCode);
+            
             var roles = await _userManager.GetRolesAsync(user);
             if (roles == null || roles.Count == 0)
                 return new AuthDto { Message = "User has no roles, Try logging in again" };
