@@ -44,5 +44,11 @@ namespace API.Controllers
             var result = await _authService.ActivateAccountAsync(dto);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshAccessTokenAsync(RefreshTokenDto dto)
+        {
+            var result = await _authService.RefreshAccessTokenAsync(dto.RefreshToken);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

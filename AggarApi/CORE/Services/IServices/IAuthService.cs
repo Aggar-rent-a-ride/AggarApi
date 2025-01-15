@@ -14,6 +14,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<AuthDto>> LoginAsync(LoginDto loginDto);
         Task<ResponseDto<object>> SendActivationCodeAsync(int userId);
         Task<ResponseDto<AuthDto>> ActivateAccountAsync(AccountActivationDto dto);
-        //Task<ResponseDto<AuthDto>> RefreshAccessTokenAsync(string refreshToken);
+        Task<ResponseDto<AuthDto>> RefreshAccessTokenAsync(string refreshToken);
     }
 }

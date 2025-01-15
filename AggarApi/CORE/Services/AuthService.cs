@@ -22,6 +22,7 @@ using DATA.DataAccess.Repositories.UnitOfWork;
 using CORE.Helpers;
 using Microsoft.Extensions.Caching.Memory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore;
 
 namespace CORE.Services
 {
@@ -135,17 +136,20 @@ namespace CORE.Services
             user.RefreshTokens.Add(refreshToken);
             await _userManager.UpdateAsync(user);
         }
-        private async Task<bool> ValidateRefreshTokenAsync(string providedToken, AppUser user)
+        private string HashRefreshToken(string rawToken)
         {
-            var refreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
-            if (refreshToken == null) return false;
-
-            // Hash the provided token
             using (var sha256 = SHA256.Create())
             {
-                var hashedProvidedToken = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(providedToken)));
-                return hashedProvidedToken == refreshToken.Token;
+                var hashedToken = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken)));
+                return hashedToken;
             }
+        }
+        private RefreshToken? ValidateRefreshToken(string providedToken, AppUser user)
+        {
+            var refreshToken = user.RefreshTokens.FirstOrDefault(r => r.IsActive);
+            if (refreshToken == null) return null;
+
+            return HashRefreshToken(providedToken) == refreshToken.Token ? refreshToken : null;
         }
         private async Task<RefreshToken> ProcessUserRefreshToken(AppUser user)
         {
@@ -306,6 +310,37 @@ namespace CORE.Services
                 },
                 StatusCode = StatusCodes.OK,
                 Message = "Your account has been activated successfully. Try to login to access your account"
+            };
+        }
+        public async Task<ResponseDto<AuthDto>> RefreshAccessTokenAsync(string refreshToken)
+        {
+            var hashedRefreshToken = HashRefreshToken(refreshToken);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshTokens.Any(r => r.Token == hashedRefreshToken));
+            if (user == null)
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid token", StatusCode = StatusCodes.BadRequest };
+
+            if (ValidateRefreshToken(refreshToken, user) == null)
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid token", StatusCode = StatusCodes.BadRequest };
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles == null || roles.Any() == false)
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User has no roles assigned", StatusCode = StatusCodes.InternalServerError };
+
+            var newRefreshToken = await ProcessUserRefreshToken(user);
+
+            return new ResponseDto<AuthDto>
+            {
+                Data = new AuthDto
+                {
+                    IsAuthenticated = true,
+                    AccessToken = await CreateAccessTokenAsync(user),
+                    Username = user.UserName,
+                    Email = user.Email,
+                    RefreshToken = newRefreshToken.RawToken,
+                    RefreshTokenExpiration = newRefreshToken.ExpiresOn,
+                    Roles = roles.ToList()
+                },
+                StatusCode = StatusCodes.OK,
             };
         }
     }
