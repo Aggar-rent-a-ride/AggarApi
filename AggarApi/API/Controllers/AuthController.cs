@@ -46,7 +46,7 @@ namespace API.Controllers
         [HttpPost("activate")]
         public async Task<IActionResult> ActivateAccountAsync(AccountActivationDto dto)
         {
-            var result = await _authService.ActivateAccount(dto);
+            var result = await _authService.ActivateAccountAsync(dto);
             if(result.IsAuthenticated == false)
                 return BadRequest(result);
             return Ok(result);

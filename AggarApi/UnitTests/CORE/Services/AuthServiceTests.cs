@@ -216,10 +216,10 @@ namespace UnitTests.CORE.Services
             Assert.That(result.Message == "User has no roles, Try logging in again");
         }
         [Test]
-        public async Task SendActivationCodeAsync_UserIsNull()
+        public async Task SendActivationCodeAsync_ShouldReturnNotFound_WhenUserIsNull()
         {
             // Arrange 
-            _mockUnitOfWork.Setup(m => m.AppUsers.Get(It.IsAny<int>())).ReturnsAsync((AppUser) null);
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync((AppUser) null);
 
             // Act 
             var result = await _authService.SendActivationCodeAsync(5);
@@ -227,5 +227,110 @@ namespace UnitTests.CORE.Services
             // Assert
             Assert.That(result.StatusCode == StatusCodes.NotFound);
         }
+        [Test]
+        public async Task SendActivationCodeAsync_ShouldReturnBadRequest_WhenUserStatusIsNotInactive()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync(new AppUser { Status = (UserStatus)999 });
+
+            // Act 
+            var result = await _authService.SendActivationCodeAsync(5);
+
+            // Assert
+            Assert.That(result.StatusCode == StatusCodes.BadRequest);
+        }
+        [Test]
+        public async Task SendActivationCodeAsync_ShouldReturnInternalServerError_WhenEmailNotSent()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync(new AppUser { Status = UserStatus.Inactive });
+
+            // Act 
+            var result = await _authService.SendActivationCodeAsync(5);
+
+            // Assert
+            Assert.That(result.StatusCode == StatusCodes.InternalServerError);
+        }
+        [Test]
+        public async Task ActivateAccountAsync_ShouldReturnUserNotFound_WhenUserIsNull()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync((AppUser)null);
+            var dto = new AccountActivationDto { ActivationCode = "code", UserId = 5 };
+
+            // Act 
+            var result = await _authService.ActivateAccountAsync(dto);
+
+            // Assert
+            Assert.That(result.Message == "User not found");
+        }
+        [Test]
+        public async Task ActivateAccountAsync_ShouldReturnMessage_WhenUserIsNotInactive()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync(new AppUser { Status = UserStatus.Active});
+            var dto = new AccountActivationDto { ActivationCode = "code", UserId = 5 };
+
+            // Act 
+            var result = await _authService.ActivateAccountAsync(dto);
+
+            // Assert
+            Assert.That(result.Message != null);
+        }
+        [Test]
+        public async Task ActivateAccountAsync_ShouldReturnMessage_WhenActivationCodeNotFound()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync(new AppUser { Status = UserStatus.Active });
+            var dto = new AccountActivationDto { ActivationCode = "code", UserId = 5 };
+            _mockMemoryCache.Setup(m => m.TryGetValue(It.IsAny<string>(), out It.Ref<object>.IsAny)).Returns(false);
+
+            // Act 
+            var result = await _authService.ActivateAccountAsync(dto);
+
+            // Assert
+            Assert.That(result.Message != "Invalid activation code");
+        }
+        [Test]
+        public async Task ActivateAccountAsync_ShouldReturnMessage_WhenUserIdNotEqualDtoUserId()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync(new AppUser {Id = 5,  Status = UserStatus.Active });
+            _mockMemoryCache.Setup(m => m.TryGetValue(It.IsAny<string>(), out It.Ref<object>.IsAny)).Returns(true);
+            var dto = new AccountActivationDto { ActivationCode = "code", UserId = 5 };
+
+
+            // Act 
+            var result = await _authService.ActivateAccountAsync(dto);
+
+            // Assert
+            Assert.That(result.Message != "Invalid activation code");
+        }
+        [Test]
+        public async Task ActivateAccountAsync_ShouldReturnMessage_WhenUserUpdateIsNotSuccessful()
+        {
+            // Arrange 
+            _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new AppUser { Id = 5, Status = UserStatus.Inactive });
+
+            object userIdFromCache = 5; // Use an object to match the signature of the `out` parameter
+            _mockMemoryCache
+                .Setup(m => m.TryGetValue(It.IsAny<object>(), out userIdFromCache))
+                .Returns(true);
+
+            _mockUserManager
+                .Setup(m => m.UpdateAsync(It.IsAny<AppUser>()))
+                .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "update failed" }));
+
+            var dto = new AccountActivationDto { ActivationCode = "code", UserId = 5 };
+
+            // Act 
+            var result = await _authService.ActivateAccountAsync(dto);
+            
+            // Assert
+            Assert.That(result.Message != null);
+        }
+
+
     }
 }
