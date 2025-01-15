@@ -10,9 +10,10 @@ namespace CORE.Services.IServices
 {
     public interface IAuthService
     {
-        Task<AuthDto> RegisterAsync(RegisterDto registerDto, List<string> roles);
-        Task<AuthDto> LoginAsync(LoginDto loginDto);
+        Task<ResponseDto<AuthDto>> RegisterAsync(RegisterDto registerDto, List<string> roles);
+        Task<ResponseDto<AuthDto>> LoginAsync(LoginDto loginDto);
         Task<ResponseDto<object>> SendActivationCodeAsync(int userId);
-        Task<AuthDto> ActivateAccountAsync(AccountActivationDto dto);
+        Task<ResponseDto<AuthDto>> ActivateAccountAsync(AccountActivationDto dto);
+        //Task<ResponseDto<AuthDto>> RefreshAccessTokenAsync(string refreshToken);
     }
 }

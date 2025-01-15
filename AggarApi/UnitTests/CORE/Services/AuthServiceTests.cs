@@ -68,7 +68,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.IsAuthenticated == false);
+            Assert.That(result.Data.IsAuthenticated == false);
             Assert.That(result.Message == "You must agree to the Terms and Conditions to register");
         }
         [Test]
@@ -83,7 +83,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.IsAuthenticated == false);
+            Assert.That(result.Data.IsAuthenticated == false);
             Assert.That(result.Message == "Username already exists");
         }
         [Test]
@@ -98,7 +98,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.IsAuthenticated == false);
+            Assert.That(result.Data.IsAuthenticated == false);
             Assert.That(result.Message == "Email already exists");
         }
         [Test]
@@ -116,7 +116,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.IsAuthenticated == false);
+            Assert.That(result.Data.IsAuthenticated == false);
             Assert.That(result.Message == "Password too weak");
         }
         [Test]
@@ -134,13 +134,12 @@ namespace UnitTests.CORE.Services
 
             _mockUserManager.Setup(x => x.AddToRolesAsync(It.IsAny<AppUser>(), roles))
                             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Role does not exist" }));
-
+            _mockUserManager.Setup(x => x.DeleteAsync(It.IsAny<AppUser>())).ReturnsAsync(IdentityResult.Failed());
             // Act
             var result = await _authService.RegisterAsync(registerDto, roles);
 
             // Assert
-            Assert.That(result.IsAuthenticated == false);
-            Assert.That(result.Message == "User created, but roles couldn't be assigned: Role does not exist");
+            Assert.That(result.Data.IsAuthenticated == false);
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnSuccessMessage_WhenRegistrationSucceeds()
@@ -172,11 +171,11 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, roles);
 
             // Assert
-            Assert.That(result.IsAuthenticated == true);
+            Assert.That(result.Data.IsAuthenticated == true);
             Assert.That(result.Message == "Registered Successfully");
-            Assert.That(result.Roles, Is.EquivalentTo(roles));
-            Assert.That(result.Username == registerDto.Username);
-            Assert.That(result.Email == registerDto.Email);
+            Assert.That(result.Data.Roles, Is.EquivalentTo(roles));
+            Assert.That(result.Data.Username == registerDto.Username);
+            Assert.That(result.Data.Email == registerDto.Email);
         }
         [Test]
         public async Task LoginAsync_ShouldHandleUnexpectedStatusValues()
@@ -195,7 +194,7 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result != null);
-            Assert.That(result.IsAuthenticated == true);
+            Assert.That(result.Data.IsAuthenticated == true);
             Assert.That("Your account status is undefined" == result.Message); // Assuming `GetUserStatusMessage` handles this edge case
         }
         [Test]

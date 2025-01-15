@@ -24,18 +24,13 @@ namespace API.Controllers
             else
                 roles.Add(Roles.Renter);
             var result = await _authService.RegisterAsync(registerDto, roles);
-            if (result.IsAuthenticated == false)
-                return BadRequest(result);
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync(LoginDto loginDto)
         {
             var result = await _authService.LoginAsync(loginDto);
-            if (result.IsAuthenticated == false)
-                return BadRequest(result);
-
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
         [HttpPost("sendActivationCode{userId}")]
         public async Task<IActionResult> SendActivationCodeAsync(int userId)
@@ -47,9 +42,7 @@ namespace API.Controllers
         public async Task<IActionResult> ActivateAccountAsync(AccountActivationDto dto)
         {
             var result = await _authService.ActivateAccountAsync(dto);
-            if(result.IsAuthenticated == false)
-                return BadRequest(result);
-            return Ok(result);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }
