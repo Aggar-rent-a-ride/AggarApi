@@ -15,13 +15,13 @@ namespace DATA.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<T> AddOrUpdate(T entity)
+        public async Task<T> AddOrUpdateAsync(T entity)
         {
             _context.Set<T>().Update(entity);
             return entity;
         }
 
-        public async Task<IEnumerable<T>> AddRange(IEnumerable<T> entities)
+        public async Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities)
         {
             await _context.Set<T>().AddRangeAsync(entities);
             return entities;
@@ -32,9 +32,9 @@ namespace DATA.DataAccess.Repositories
             _context.Set<T>().Attach(entity);
         }
 
-        public async Task<int> Count() => await _context.Set<T>().CountAsync();
+        public async Task<int> CountAsync() => await _context.Set<T>().CountAsync();
 
-        public async Task<int> Count(Expression<Func<T, bool>> criteria) => 
+        public async Task<int> CountAsync(Expression<Func<T, bool>> criteria) => 
             await _context.Set<T>().Where(criteria).CountAsync();
 
         public void Delete(T entity)
@@ -42,7 +42,7 @@ namespace DATA.DataAccess.Repositories
             _context.Set<T>().Remove(entity);
         }
 
-        public async Task<T> Find(Expression<Func<T, bool>> criteria, string[] includes)
+        public async Task<T> FindAsync(Expression<Func<T, bool>> criteria, string[] includes)
         {
             IQueryable<T> query = _context.Set<T>();
 
@@ -54,7 +54,7 @@ namespace DATA.DataAccess.Repositories
         }
 
 
-        public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes)
         {
             IQueryable<T> query = _context.Set<T>().Where(criteria);
 
@@ -67,9 +67,9 @@ namespace DATA.DataAccess.Repositories
         }
 
 
-        public async Task<T> Get(int id) => await _context.Set<T>().FindAsync(id);
+        public async Task<T> GetAsync(int id) => await _context.Set<T>().FindAsync(id);
 
-        public async Task<IEnumerable<T>> GetAll(int pageNo, int pageSize) =>
+        public async Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize) =>
             _context.Set<T>()
             .Skip((pageNo - 1) * pageSize).Take(pageSize);
 

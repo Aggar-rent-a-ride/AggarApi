@@ -37,11 +37,19 @@ namespace API.Controllers
 
             return Ok(result);
         }
-        [HttpPost("activateAccount{userId}")]
+        [HttpPost("sendActivationCode{userId}")]
         public async Task<IActionResult> SendActivationCodeAsync(int userId)
         {
             var result = await _authService.SendActivationCodeAsync(userId);
             return StatusCode(result.StatusCode, result);
+        }
+        [HttpPost("activate")]
+        public async Task<IActionResult> ActivateAccountAsync(AccountActivationDto dto)
+        {
+            var result = await _authService.ActivateAccount(dto);
+            if(result.IsAuthenticated == false)
+                return BadRequest(result);
+            return Ok(result);
         }
     }
 }
