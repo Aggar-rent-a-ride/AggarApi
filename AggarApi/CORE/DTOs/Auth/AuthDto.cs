@@ -10,7 +10,6 @@ namespace CORE.DTOs.Auth
     public class AuthDto
     {
         public int UserId { get; set; }
-        public string Message { get; set; }
         public string Username { get; set; }
         public string AccountStatus { get; set; }
         public string Email { get; set; }
