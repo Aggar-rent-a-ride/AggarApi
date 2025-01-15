@@ -113,7 +113,7 @@ namespace CORE.Services
                 return null;
             return $"Your account status is undefined.";
         }
-        public static string GenerateActivationCode(int length = 6)
+        private static string GenerateActivationCode(int length = 6)
         {
             const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             StringBuilder result = new StringBuilder(length);
