@@ -50,5 +50,11 @@ namespace API.Controllers
             var result = await _authService.RefreshAccessTokenAsync(dto.RefreshToken);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpPost("logout")]
+        public async Task<IActionResult> RevokeRefreshTokenAsync(RefreshTokenDto dto)
+        {
+            var result = await _authService.RevokeRefreshTokenAsync(dto.RefreshToken);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
