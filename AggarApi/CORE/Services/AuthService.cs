@@ -55,11 +55,11 @@ namespace CORE.Services
         private async Task<string?> ValidateRegistrationAsync(RegisterDto registerDto)
         {
             if (!registerDto.AggreedTheTerms)
-                return "You must agree to the Terms and Conditions to register";
+                return "You must agree to the Terms and Conditions to register.";
             if (await _userManager.FindByNameAsync(registerDto.Username) != null)
-                return "Username already exists";
+                return "Username already exists.";
             if (await _userManager.FindByEmailAsync(registerDto.Email) != null)
-                return "Email already exists";
+                return "Email already exists.";
             return null;
         }
         private async Task<string> CreateAccessTokenAsync(AppUser user)
@@ -108,10 +108,10 @@ namespace CORE.Services
         private string GetUserStatusMessage(UserStatus status)
         {
             if (status == UserStatus.Inactive || status == UserStatus.Banned || status == UserStatus.Removed)
-                return $"Your account is {status.ToString().ToLower()}";
+                return $"Your account is {status.ToString().ToLower()}.";
             else if (status == UserStatus.Active)
                 return null;
-            return $"Your account status is undefined";
+            return $"Your account status is undefined.";
         }
         public static string GenerateActivationCode(int length = 6)
         {
@@ -183,13 +183,13 @@ namespace CORE.Services
                 {
                     var errors = "";
                     var roleErrors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                    errors += $"Failed to assign roles: {roleErrors}";
+                    errors += $"Failed to assign roles: {roleErrors}.";
 
                     var deleteResult = await _userManager.DeleteAsync(user);
                     if (deleteResult.Succeeded == false)
                     {
                         var deleteErrors = string.Join(", ", deleteResult.Errors.Select(e => e.Description));
-                        errors += $"\nFailed to cleanup user: {deleteErrors}";
+                        errors += $"\nFailed to cleanup user: {deleteErrors}.";
                     }
                     return new ResponseDto<AuthDto> { Data = new AuthDto(), StatusCode = StatusCodes.InternalServerError, Message = errors };
                 }
@@ -209,7 +209,7 @@ namespace CORE.Services
                     AccountStatus = user.Status.ToString().ToLower()
                 },
                 StatusCode = StatusCodes.Created,
-                Message = "Registered Successfully",
+                Message = "Registered Successfully.",
             };
         }
         public async Task<ResponseDto<AuthDto>> LoginAsync(LoginDto loginDto)
@@ -219,11 +219,11 @@ namespace CORE.Services
                 user = await _userManager.FindByEmailAsync(loginDto.UsernameOrEmail);
 
             if (user == null || await _userManager.CheckPasswordAsync(user, loginDto.Password) == false)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), StatusCode = StatusCodes.BadRequest, Message = "Username or password is incorrect" };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), StatusCode = StatusCodes.BadRequest, Message = "Username or password is incorrect." };
 
             var roles = await _userManager.GetRolesAsync(user);
             if(roles == null || roles.Count == 0)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), StatusCode = StatusCodes.InternalServerError, Message = "User has no roles, Try logging in again" };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), StatusCode = StatusCodes.InternalServerError, Message = "User has no roles, Try logging in again." };
 
             var result = new ResponseDto<AuthDto>
             {
@@ -237,7 +237,7 @@ namespace CORE.Services
                     AccountStatus = user.Status.ToString().ToLower(),
                 },
                 StatusCode = StatusCodes.OK,
-                Message = "Logged in successfully"
+                Message = "Logged in successfully."
             };
 
             if (GetUserStatusMessage(user.Status) is string statusMessage)
@@ -258,14 +258,14 @@ namespace CORE.Services
         {
             var user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
-                return new ResponseDto<object> { Message = "User not found", StatusCode = StatusCodes.NotFound };
+                return new ResponseDto<object> { Message = "User not found.", StatusCode = StatusCodes.NotFound };
             if (user.Status != UserStatus.Inactive)
-                return new ResponseDto<object> { Message = $"Your account is {user.Status.ToString().ToLower()}", StatusCode = StatusCodes.BadRequest };
+                return new ResponseDto<object> { Message = $"Your account is {user.Status.ToString().ToLower()}.", StatusCode = StatusCodes.BadRequest };
 
             var activationCode = GenerateActivationCode();
             var emailSent = await _emailService.SendEmailAsync(user.Email, "Activate your account", HtmlHelpers.GenerateAccountActivationHtmlBody(activationCode));
             if (emailSent == false)
-                return new ResponseDto<object> { Message = "Something went wrong. Please try again", StatusCode =  StatusCodes.InternalServerError };
+                return new ResponseDto<object> { Message = "Something went wrong. Please try again.", StatusCode =  StatusCodes.InternalServerError };
 
             _memoryCache.Set(activationCode, userId, TimeSpan.FromMinutes(5));
 
@@ -275,12 +275,12 @@ namespace CORE.Services
         {
             var user = await _unitOfWork.AppUsers.GetAsync(dto.UserId);
             if (user == null)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User not found", StatusCode = StatusCodes.NotFound };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User not found.", StatusCode = StatusCodes.NotFound };
             if (user.Status != UserStatus.Inactive)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = $"Your account is {user.Status.ToString().ToLower()}", StatusCode = StatusCodes.BadRequest };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = $"Your account is {user.Status.ToString().ToLower()}.", StatusCode = StatusCodes.BadRequest };
 
             if(_memoryCache.TryGetValue(dto.ActivationCode, out int userId) == false || userId != user.Id)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid activation code", StatusCode = StatusCodes.BadRequest };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid activation code.", StatusCode = StatusCodes.BadRequest };
 
             _memoryCache.Remove(dto.ActivationCode);
 
@@ -290,12 +290,12 @@ namespace CORE.Services
             if(updateUserResult.Succeeded == false)
             {
                 var errors = string.Join(", ", updateUserResult.Errors.Select(e => e.Description));
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = $"Account couldn't be activated: {errors}", StatusCode = StatusCodes.InternalServerError };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = $"Account couldn't be activated: {errors}.", StatusCode = StatusCodes.InternalServerError };
             }
             
             var roles = await _userManager.GetRolesAsync(user);
             if (roles == null || roles.Count == 0)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User has no roles. Try logging in again", StatusCode = StatusCodes.InternalServerError };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User has no roles. Try logging in again.", StatusCode = StatusCodes.InternalServerError };
 
             return new ResponseDto<AuthDto>
             {
@@ -309,7 +309,7 @@ namespace CORE.Services
                     AccountStatus = user.Status.ToString().ToLower(),
                 },
                 StatusCode = StatusCodes.OK,
-                Message = "Your account has been activated successfully. Try to login to access your account"
+                Message = "Your account has been activated successfully. Try to login to access your account."
             };
         }
         public async Task<ResponseDto<AuthDto>> RefreshAccessTokenAsync(string refreshToken)
@@ -317,14 +317,14 @@ namespace CORE.Services
             var hashedRefreshToken = HashRefreshToken(refreshToken);
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshTokens.Any(r => r.Token == hashedRefreshToken));
             if (user == null)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid token", StatusCode = StatusCodes.BadRequest };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid token.", StatusCode = StatusCodes.BadRequest };
 
             if (ValidateRefreshToken(refreshToken, user) == null)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid token", StatusCode = StatusCodes.BadRequest };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "Invalid token.", StatusCode = StatusCodes.BadRequest };
 
             var roles = await _userManager.GetRolesAsync(user);
             if (roles == null || roles.Any() == false)
-                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User has no roles assigned", StatusCode = StatusCodes.InternalServerError };
+                return new ResponseDto<AuthDto> { Data = new AuthDto(), Message = "User has no roles assigned.", StatusCode = StatusCodes.InternalServerError };
 
             var newRefreshToken = await ProcessUserRefreshToken(user);
 
@@ -342,6 +342,29 @@ namespace CORE.Services
                 },
                 StatusCode = StatusCodes.OK,
             };
+        }
+        public async Task<ResponseDto<object>> RevokeRefreshTokenAsync(string refreshToken)
+        {
+            var hashedRefreshToken = HashRefreshToken(refreshToken);
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == hashedRefreshToken));
+
+            if (user == null)
+                return new ResponseDto<object> { Message = "Invalid token.", StatusCode = StatusCodes.BadRequest };
+
+            var token = ValidateRefreshToken(refreshToken, user);
+
+            if (token == null) 
+                return new ResponseDto<object> { Message = "Invalid token.", StatusCode = StatusCodes.BadRequest };
+
+            token.RevokedOn = DateTime.UtcNow;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded == false)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return new ResponseDto<object> { Message = $"Failed to revoke token: {errors}.", StatusCode = StatusCodes.InternalServerError };
+            }
+
+            return new ResponseDto<object> { StatusCode = StatusCodes.OK, Message = "You have been logged out. Please delete your access token and refresh token." };
         }
     }
 }
