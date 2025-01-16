@@ -16,5 +16,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<AuthDto>> ActivateAccountAsync(AccountActivationDto dto);
         Task<ResponseDto<AuthDto>> RefreshAccessTokenAsync(string refreshToken);
         Task<ResponseDto<object>> RevokeRefreshTokenAsync(string refreshToken);
+        Task<ResponseDto<object>> UpdateUserRolesAsync(int userId, List<string> roles);
     }
 }

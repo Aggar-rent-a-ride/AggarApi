@@ -1,6 +1,7 @@
 ﻿using CORE.Constants;
 using CORE.DTOs.Auth;
 using CORE.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,6 +55,14 @@ namespace API.Controllers
         public async Task<IActionResult> RevokeRefreshTokenAsync(RefreshTokenDto dto)
         {
             var result = await _authService.RevokeRefreshTokenAsync(dto.RefreshToken);
+            return StatusCode(result.StatusCode, result);
+        }
+        //[Authorize(Roles = "Admin")]
+        [HttpPost("registerAdmin")]
+        public async Task<IActionResult> RegisterAdminAsync(int userId)
+        {
+            var roles = new List<string> { Roles.Admin };
+            var result = await _authService.UpdateUserRolesAsync(userId, roles);
             return StatusCode(result.StatusCode, result);
         }
     }
