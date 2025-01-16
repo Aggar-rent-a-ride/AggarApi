@@ -62,6 +62,10 @@ namespace CORE.Services
                 return "Email already exists.";
             return null;
         }
+        private async Task<IdentityResult> UpdateUserRolesByUserAsync(AppUser user, List<string> roles)
+        {
+            return await _userManager.AddToRolesAsync(user, roles);
+        }
         private async Task<string> CreateAccessTokenAsync(AppUser user)
         {
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -178,7 +182,7 @@ namespace CORE.Services
 
             if (roles != null && roles.Any() == true)
             {
-                var roleResult = await _userManager.AddToRolesAsync(user, roles);
+                var roleResult = await UpdateUserRolesByUserAsync(user, roles);
                 if (roleResult.Succeeded == false)
                 {
                     var errors = "";
@@ -365,6 +369,20 @@ namespace CORE.Services
             }
 
             return new ResponseDto<object> { StatusCode = StatusCodes.OK, Message = "You have been logged out. Please delete your access token and refresh token." };
+        }
+        public async Task<ResponseDto<object>> UpdateUserRolesAsync(int userId, List<string> roles)
+        {
+            var user = await _unitOfWork.AppUsers.GetAsync(userId);
+            if (user == null)
+                return new ResponseDto<object> { Message = "User not found.", StatusCode = StatusCodes.NotFound };
+
+            var result = await UpdateUserRolesByUserAsync(user, roles);
+            if (result.Succeeded == false)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return new ResponseDto<object> { Message = $"Failed to update roles: {errors}.", StatusCode = StatusCodes.InternalServerError };
+            }
+            return new ResponseDto<object> { StatusCode = StatusCodes.OK, Message = "Roles updated successfully." };
         }
     }
 }
