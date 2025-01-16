@@ -51,18 +51,19 @@ namespace API.Controllers
             var result = await _authService.RefreshAccessTokenAsync(dto.RefreshToken);
             return StatusCode(result.StatusCode, result);
         }
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> RevokeRefreshTokenAsync(RefreshTokenDto dto)
         {
             var result = await _authService.RevokeRefreshTokenAsync(dto.RefreshToken);
             return StatusCode(result.StatusCode, result);
         }
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("registerAdmin")]
-        public async Task<IActionResult> RegisterAdminAsync(int userId)
+        public async Task<IActionResult> RegisterAdminAsync(RegisterAdminDto dto)
         {
             var roles = new List<string> { Roles.Admin };
-            var result = await _authService.UpdateUserRolesAsync(userId, roles);
+            var result = await _authService.UpdateUserRolesAsync(dto.UserId, roles);
             return StatusCode(result.StatusCode, result);
         }
     }
