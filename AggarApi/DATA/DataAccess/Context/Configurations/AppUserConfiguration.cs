@@ -70,6 +70,10 @@ namespace DATA.DataAccess.Context.Configurations
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(true);
 
+            builder.OwnsMany(u => u.RefreshTokens)
+                .HasIndex(r => r.Token)
+                .IsUnique(true);
+
             builder.UseTptMappingStrategy();
             builder.ToTable("AppUsers");
         }
