@@ -19,7 +19,8 @@
 
   <ItemGroup>
     <Folder Include="Hubs\" />
-    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\Images\VehicleBrands\" />
+    <Folder Include="wwwroot\Images\VehicleTypes\" />
   </ItemGroup>
 
   <ItemGroup>

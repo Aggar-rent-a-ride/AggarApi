@@ -5,6 +5,6 @@ namespace DATA.Models
     [Owned]
     public class VehicleImage
     {
-        public string ImagePath { get; set; } = null!;
+        public string? ImagePath { get; set; }
     }
 }
