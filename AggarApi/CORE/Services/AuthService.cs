@@ -35,6 +35,7 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly IMemoryCache _memoryCache;
+        private readonly IGeoapifyService _geoapifyService;
 
         public AuthService(IOptions<JwtConfig> jwt,
             UserManager<AppUser> userManager,
@@ -42,7 +43,8 @@ namespace CORE.Services
             IMapper mapper,
             IUnitOfWork unitOfWork,
             IEmailService emailService,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IGeoapifyService geoapifyService)
         {
             _jwt = jwt;
             _userManager = userManager;
@@ -51,6 +53,7 @@ namespace CORE.Services
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _memoryCache = memoryCache;
+            _geoapifyService = geoapifyService;
         }
         private async Task<string?> ValidateRegistrationAsync(RegisterDto registerDto)
         {
@@ -172,7 +175,8 @@ namespace CORE.Services
             }
 
             AppUser user = registerDto.IsCustomer ? _mapper.Map<Customer>(registerDto) : _mapper.Map<Renter>(registerDto);
-            
+            user.Address = _mapper.Map<Address>(await _geoapifyService.GetAddressByLocationAsync(user.Location));
+
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded == false)
             {
