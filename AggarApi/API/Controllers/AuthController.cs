@@ -33,7 +33,7 @@ namespace API.Controllers
             var result = await _authService.LoginAsync(loginDto);
             return StatusCode(result.StatusCode, result);
         }
-        [HttpPost("sendActivationCode{userId}")]
+        [HttpPost("send-activation-code{userId}")]
         public async Task<IActionResult> SendActivationCodeAsync(int userId)
         {
             var result = await _authService.SendActivationCodeAsync(userId);
@@ -59,7 +59,7 @@ namespace API.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Admin")]
-        [HttpPost("registerAdmin")]
+        [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdminAsync(RegisterAdminDto dto)
         {
             var roles = new List<string> { Roles.Admin };
