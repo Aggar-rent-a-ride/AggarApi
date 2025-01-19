@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CORE.DTOs.Vehicle
@@ -17,7 +18,9 @@ namespace CORE.DTOs.Vehicle
         public string? Model { get; set; }
         public string Color { get; set; } = null!;
         public IFormFile MainImage { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehicleStatus Status { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehiclePhysicalStatus PhysicalStatus { get; set; }
         public double PricePerHour { get; set; }
         public double PricePerDay { get; set; }
