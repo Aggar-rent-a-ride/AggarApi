@@ -1,5 +1,7 @@
 ﻿using DATA.Models;
 using DATA.Models.Enums;
+﻿using CORE.DTOs;
+using CORE.DTOs.Vehicle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +19,6 @@ namespace CORE.Services.IServices
             int? typeId, int? brandId,
             PriceCategory? priceCategory, double? minPrice, double? maxPrice,
             string? model, int? year, double? Rate);
+        Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto);
     }
 }

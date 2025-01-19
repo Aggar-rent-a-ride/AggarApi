@@ -2,6 +2,9 @@
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
+﻿using CORE.DTOs;
+using CORE.DTOs.Vehicle;
+using CORE.Services.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +33,7 @@ namespace CORE.Services
         }
 
         public Task<Vehicle> GetVehicles()
+        public Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto)
         {
             throw new NotImplementedException();
         }
