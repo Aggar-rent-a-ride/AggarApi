@@ -12,7 +12,6 @@ namespace CORE.Services.IServices
 {
     public interface IVehicleService
     {
-        public Task<Vehicle> GetVehicles();
         public Task<Vehicle> GetNearestVehicles(int userId);
         public Task<Vehicle> GetNearestVehiclesByCriteria(int userId,
             string? searchKey,

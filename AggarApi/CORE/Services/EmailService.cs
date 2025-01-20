@@ -28,7 +28,7 @@ namespace CORE.Services
             {
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(EnvironmentVariableHelpers.EmailAddress, _emailSettings.Value.DisplayName),
+                    From = new MailAddress(_emailSettings.Value.EmailAddress, _emailSettings.Value.DisplayName),
                     Subject = subject,
                     Body = htmlBody,
                     IsBodyHtml = true // Set to true if sending an HTML email
@@ -39,8 +39,8 @@ namespace CORE.Services
                 // Configure the SMTP client
                 using (var smtpClient = new SmtpClient(_emailSettings.Value.SmtpHost, _emailSettings.Value.SmtpPort))
                 {
-                    smtpClient.Credentials = new NetworkCredential(EnvironmentVariableHelpers.EmailAddress,
-                    EnvironmentVariableHelpers.EmailPassword);
+                    smtpClient.Credentials = new NetworkCredential(_emailSettings.Value.EmailAddress,
+                    _emailSettings.Value.Password);
                     smtpClient.EnableSsl = true; 
 
                     await smtpClient.SendMailAsync(mailMessage);

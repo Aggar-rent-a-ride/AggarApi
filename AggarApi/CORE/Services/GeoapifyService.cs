@@ -36,6 +36,8 @@ namespace CORE.Services
                 JObject jsonObject = JObject.Parse(content);
 
                 var result = jsonObject["results"].Children().ToList().FirstOrDefault();
+                if (result == null)
+                    return new GeoapifyAddressResponse();
                 var address = result.ToObject<GeoapifyAddressResponse>();
                 if (address != null)
                     return address;

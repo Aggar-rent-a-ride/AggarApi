@@ -32,7 +32,7 @@ namespace CORE.Services
             throw new NotImplementedException();
         }
 
-        public Task<Vehicle> GetVehicles()
+
         public Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto)
         {
             throw new NotImplementedException();
