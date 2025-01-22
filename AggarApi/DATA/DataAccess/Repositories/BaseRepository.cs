@@ -67,7 +67,7 @@ namespace DATA.DataAccess.Repositories
         }
 
 
-        public async Task<T> GetAsync(int id) => await _context.Set<T>().FindAsync(id);
+        public async Task<T?> GetAsync(int id) => await _context.Set<T>().FindAsync(id);
 
         public async Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize) =>
             _context.Set<T>()

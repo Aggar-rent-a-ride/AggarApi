@@ -15,6 +15,7 @@ namespace DATA.Models
         public string MainImagePath { get; set; } = null!;
         public Enums.VehicleStatus Status { get; set; }
         public Enums.VehiclePhysicalStatus PhysicalStatus { get; set; }
+        public Enums.VehicleTransmission Transmission { get; set; }
         public double PricePerHour { get; set; }
         public double PricePerDay { get; set; }
         public double PricePerMonth { get; set; }

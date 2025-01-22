@@ -85,7 +85,9 @@ namespace API
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.Configure<GeoapifyAddressRequest>(builder.Configuration.GetSection("GeoapifyAddressRequest"));
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();

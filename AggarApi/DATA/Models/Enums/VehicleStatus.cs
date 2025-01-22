@@ -4,6 +4,5 @@
     {
         Active,
         OutOfService,
-        Removed
     }
 }

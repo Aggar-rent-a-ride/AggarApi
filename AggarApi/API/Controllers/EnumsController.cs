@@ -20,6 +20,12 @@ namespace API.Controllers
             var values = Enum.GetNames(typeof(VehiclePhysicalStatus));
             return Ok(values);
         }
+        [HttpGet("vehicle-transmission")]
+        public IActionResult GetVehicleTransmission()
+        {
+            var values = Enum.GetNames(typeof(VehicleTransmission));
+            return Ok(values);
+        }
 
     }
 }

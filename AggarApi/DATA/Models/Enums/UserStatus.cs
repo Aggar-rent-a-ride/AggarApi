@@ -5,6 +5,5 @@
         Active,
         Inactive,
         Banned,
-        Removed
     }
 }

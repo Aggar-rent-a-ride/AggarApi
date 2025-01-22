@@ -1,0 +1,15 @@
+﻿using DATA.Models;
+using DATA.Models.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DATA.DataAccess.Repositories.IRepositories
+{
+    public interface IVehicleRepository : IBaseRepository<Vehicle>
+    {
+        public IQueryable<Vehicle> GetNearestVehicles(int? brandId, int? typeId, VehicleTransmission? transmission, string? searchKey, double? minPrice, double? maxPrice, int? year, double? rate);
+    }
+}
