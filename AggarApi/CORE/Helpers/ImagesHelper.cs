@@ -1,0 +1,48 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection.PortableExecutable;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CORE.Helpers
+{
+    public static class ImagesHelper
+    {
+        public static IFormFile? ConvertToIFormFile(string imagePath)
+        {
+
+            var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);
+
+            if (!File.Exists(absolutePath))
+            {
+                Console.WriteLine($"\n\n\nFile not found in {absolutePath}\n\n\n");
+                return null;
+            }
+
+            var fileStream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read);
+            return new FormFile(fileStream, 0, fileStream.Length, "MainImage", Path.GetFileName(imagePath))
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = GetMimeType(absolutePath)
+            };
+        }
+
+        private static string GetMimeType(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                _ => "application/octet-stream",
+            };
+        }
+    }
+}

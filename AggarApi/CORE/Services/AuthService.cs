@@ -114,7 +114,7 @@ namespace CORE.Services
         }
         private string GetUserStatusMessage(UserStatus status)
         {
-            if (status == UserStatus.Inactive || status == UserStatus.Banned || status == UserStatus.Removed)
+            if (status == UserStatus.Inactive || status == UserStatus.Banned)
                 return $"Your account is {status.ToString().ToLower()}.";
             else if (status == UserStatus.Active)
                 return null;

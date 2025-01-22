@@ -12,13 +12,10 @@ namespace CORE.Services.IServices
 {
     public interface IVehicleService
     {
-        public Task<Vehicle> GetVehicles();
-        public Task<Vehicle> GetNearestVehicles(int userId);
-        public Task<Vehicle> GetNearestVehiclesByCriteria(int userId,
-            string? searchKey,
-            int? typeId, int? brandId,
-            PriceCategory? priceCategory, double? minPrice, double? maxPrice,
-            string? model, int? year, double? Rate);
-        Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto);
+        public Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize,
+            string? searchKey, 
+            int? brandId, int? typeId, VehicleTransmission? transmission,
+            double? Rate, double? minPrice, double? maxPrice, int? year);
+        public Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto);
     }
 }
