@@ -4,7 +4,7 @@ namespace DATA.DataAccess.Repositories.IRepositories
 {
     public interface IBaseRepository<T> where T : class
     {
-        Task<T> GetAsync(int id);
+        Task<T?> GetAsync(int id);
         Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize);
         Task<int> CountAsync();
         Task<int> CountAsync(Expression<Func<T, bool>> criteria);

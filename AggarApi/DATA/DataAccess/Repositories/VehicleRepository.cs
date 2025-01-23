@@ -1,0 +1,58 @@
+﻿using DATA.DataAccess.Context;
+using DATA.DataAccess.Repositories.IRepositories;
+using DATA.Models;
+using DATA.Models.Enums;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DATA.DataAccess.Repositories
+{
+    public class VehicleRepository : BaseRepository<Vehicle>, IVehicleRepository
+    {
+        public VehicleRepository(AppDbContext context) : base(context)
+        {
+        }
+
+        public IQueryable<Vehicle> GetNearestVehicles(int? brandId, int? typeId, VehicleTransmission? transmission, string? searchKey, double? minPrice, double? maxPrice, int? year, double? rate)
+        {
+            IQueryable<Vehicle> vehicles = _context.Vehicles
+                .Include(v => v.VehicleBrand)
+                .Include(v => v.VehicleType)
+                .AsQueryable();
+
+            if (brandId.HasValue)
+                vehicles = vehicles.Where(v => v.VehicleBrandId == brandId);
+
+            if (typeId.HasValue)
+                vehicles = vehicles.Where(v => v.VehicleTypeId == typeId);
+
+            if (transmission.HasValue)
+                vehicles = vehicles.Where(v => v.Transmission == transmission);
+
+            if (minPrice.HasValue)
+                vehicles = vehicles.Where(v => v.PricePerHour >= minPrice);
+
+            if (maxPrice.HasValue)
+                vehicles = vehicles.Where(v => v.PricePerHour <= maxPrice);
+
+            if (rate.HasValue)
+                vehicles = vehicles.Where(v => v.Rate >= rate);
+
+            if (year.HasValue)
+                vehicles = vehicles.Where(v => v.Year >= year);
+
+            if (searchKey is not null)
+                vehicles = vehicles.Where(v =>
+                    (v.Requirements != null && v.Requirements.Contains(searchKey)) ||
+                    (v.ExtraDetails != null && v.ExtraDetails.Contains(searchKey)) ||
+                    (v.Model != null && v.Model.Contains(searchKey)) ||
+                    (v.Color != null && v.Color.Contains(searchKey)));
+
+            return vehicles;
+        }
+    }
+}

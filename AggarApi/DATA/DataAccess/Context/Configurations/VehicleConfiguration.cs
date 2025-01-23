@@ -39,6 +39,12 @@ namespace DATA.DataAccess.Context.Configurations
                 s => (VehiclePhysicalStatus)Enum.Parse(typeof(VehiclePhysicalStatus), s)
                 );
 
+            builder.Property(v => v.Transmission)
+                .HasConversion(
+                s => s.ToString(),
+                s => (VehicleTransmission)Enum.Parse(typeof(VehicleTransmission), s)
+                );
+
             builder.HasMany(v => v.Reports)
                 .WithOne(r => r.TargetVehicle)
                 .HasForeignKey(r => r.TargetId)

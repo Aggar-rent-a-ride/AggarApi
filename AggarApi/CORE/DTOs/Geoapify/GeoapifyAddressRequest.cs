@@ -14,7 +14,6 @@
         {
             if (BaseUrl == null) throw new ArgumentNullException(nameof(BaseUrl));
             if (string.IsNullOrWhiteSpace(ApiKey)) throw new ArgumentNullException(nameof(ApiKey));
-            if (Lat == 0 || Lon == 0) throw new ArgumentException("Lat and Lon must be set.");
 
             return $"{BaseUrl}?lat={Lat}&lon={Lon}&format={Format}&apiKey={ApiKey}&type={Type}&limit={Limit}&lang={Lang}";
         }

@@ -18,10 +18,13 @@ namespace CORE.DTOs.Vehicle
         public string? Model { get; set; }
         public string Color { get; set; } = null!;
         public IFormFile MainImage { get; set; }
+        public ICollection<IFormFile> Images { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehicleStatus Status { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehiclePhysicalStatus PhysicalStatus { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public VehicleTransmission Transmission { get; set; }
         public double PricePerHour { get; set; }
         public double PricePerDay { get; set; }
         public double PricePerMonth { get; set; }

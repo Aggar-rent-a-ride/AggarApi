@@ -2,9 +2,9 @@
 {
     public enum VehiclePhysicalStatus
     {
-        ممتاز,
-        جيدة,
-        ليست_سيئة,
-        بها_صدمات_خفيفة
+        Excellent,
+        Good,
+        Scratched,
+        NotBad,
     }
 }

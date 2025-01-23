@@ -78,7 +78,8 @@ namespace CORE.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, $"{user.Id}"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("username", user.UserName)
+                new Claim("username", user.UserName),
+                new Claim("uid", user.Id.ToString()),
             }
             .Union(roleClaims);
 
@@ -114,7 +115,7 @@ namespace CORE.Services
         }
         private string GetUserStatusMessage(UserStatus status)
         {
-            if (status == UserStatus.Inactive || status == UserStatus.Banned || status == UserStatus.Removed)
+            if (status == UserStatus.Inactive || status == UserStatus.Banned)
                 return $"Your account is {status.ToString().ToLower()}.";
             else if (status == UserStatus.Active)
                 return null;

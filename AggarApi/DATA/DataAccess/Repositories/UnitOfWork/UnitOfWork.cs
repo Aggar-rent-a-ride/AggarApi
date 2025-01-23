@@ -13,17 +13,17 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
     {
         private readonly AppDbContext _context;
         public IBaseRepository<AppUser> AppUsers { get; private set; }
-        public IBaseRepository<Vehicle> Vehicles { get; private set; }
+        public IVehicleRepository Vehicles { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
             AppUsers = new BaseRepository<AppUser>(_context);
-            Vehicles = new BaseRepository<Vehicle>(_context);
+            Vehicles = new VehicleRepository(_context);
         }
 
 
-        public async Task<int> Commit() => await _context.SaveChangesAsync();
+        public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
 
         public void Dispose()
         {
