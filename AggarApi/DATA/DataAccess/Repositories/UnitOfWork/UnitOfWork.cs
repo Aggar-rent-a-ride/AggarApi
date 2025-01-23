@@ -23,7 +23,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         }
 
 
-        public async Task<int> Commit() => await _context.SaveChangesAsync();
+        public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
 
         public void Dispose()
         {

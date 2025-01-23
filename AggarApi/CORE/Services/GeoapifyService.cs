@@ -35,7 +35,7 @@ namespace CORE.Services
                 var content = await response.Content.ReadAsStringAsync();
                 JObject jsonObject = JObject.Parse(content);
 
-                var result = jsonObject["results"].Children().ToList().FirstOrDefault();
+                var result = jsonObject["results"]?.Children().ToList().FirstOrDefault();
                 if (result == null)
                     return new GeoapifyAddressResponse();
                 var address = result.ToObject<GeoapifyAddressResponse>();

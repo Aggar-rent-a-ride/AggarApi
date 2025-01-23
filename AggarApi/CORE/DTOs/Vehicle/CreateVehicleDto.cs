@@ -18,6 +18,7 @@ namespace CORE.DTOs.Vehicle
         public string? Model { get; set; }
         public string Color { get; set; } = null!;
         public IFormFile MainImage { get; set; }
+        public ICollection<IFormFile> Images { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehicleStatus Status { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

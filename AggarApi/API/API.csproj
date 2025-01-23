@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Folder Include="Hubs\" />
+    <Folder Include="wwwroot\Images\Vehicles\" />
     <Folder Include="wwwroot\Images\VehicleBrands\" />
     <Folder Include="wwwroot\Images\VehicleTypes\" />
   </ItemGroup>
