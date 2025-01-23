@@ -10,18 +10,14 @@ namespace CORE.Helpers
 {
     public static class UserHelper
     {
-        private static readonly ILogger _logger;
         public static int GetUserId(ClaimsPrincipal User)
         {
             string? userClaim = User?.FindFirst(c => c.Type == "uid")?.Value;
 
-            if (int.TryParse(userClaim, out int userId))
-                return userId;
-            else
-            {
-                _logger.LogError("Invalid or missing user ID claim");
-                return -1;
-            }
+            int userId = -1;
+            int.TryParse(userClaim, out userId);
+            
+            return userId;
         }
     }
 }
