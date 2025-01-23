@@ -20,5 +20,9 @@ namespace CORE.Services.IServices
             string? model, int? year, double? Rate);
         Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId);
+        public Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, 
+            string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, 
+            double? Rate, double? minPrice, double? maxPrice, int? year);
+        Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto);
     }
 }
