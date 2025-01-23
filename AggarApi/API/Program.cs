@@ -1,6 +1,7 @@
 using CORE.DTOs.Auth;
 using CORE.DTOs.Email;
 using CORE.DTOs.Geoapify;
+using CORE.DTOs.Paths;
 using CORE.Services;
 using CORE.Services.IServices;
 using DATA.DataAccess.Context;
@@ -10,6 +11,7 @@ using DATA.DataAccess.Repositories.IRepositories;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -84,13 +86,18 @@ namespace API
             builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JWT"));
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.Configure<GeoapifyAddressRequest>(builder.Configuration.GetSection("GeoapifyAddressRequest"));
+            builder.Services.Configure<Paths>(builder.Configuration.GetSection("Paths"));
+
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IVehicleService, VehicleService>();
             builder.Services.AddScoped<IGeoapifyService, GeoapifyService>();
+            builder.Services.AddScoped<IFileService, FileService>();
+
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
 
