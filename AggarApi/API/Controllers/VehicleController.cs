@@ -23,7 +23,8 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateVehicleAsync([FromForm] CreateVehicleDto createVehicleDto)
         {
-            var response = await _vehicleService.CreateVehicleAsync(createVehicleDto, 8);
+            var renterId = UserHelper.GetUserId(User);
+            var response = await _vehicleService.CreateVehicleAsync(createVehicleDto, renterId);
             return StatusCode(response.StatusCode, response);
         }
         [Authorize(Roles = "Customer")]

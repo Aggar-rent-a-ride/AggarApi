@@ -92,7 +92,7 @@ namespace CORE.Services
 
         public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
         {
-            string[] includes = {Includes.VehicleBrands, Includes.VehicleTypes};
+            string[] includes = { Includes.VehicleBrand, Includes.VehicleType, Includes.Renter };
             var vehicle = await _unitOfWork.Vehicles.FindAsync(v=>v.Id == vehicleId, includes);
             
             if(vehicle == null)
