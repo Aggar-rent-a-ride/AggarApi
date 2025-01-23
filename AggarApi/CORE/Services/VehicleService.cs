@@ -37,20 +37,7 @@ namespace CORE.Services
             _mapper = mapper;
             _geoapifyService = geoapifyService;
         }
-
-        public Task<Vehicle> GetNearestVehicles(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Vehicle> GetNearestVehiclesByCriteria(int userId, string? searchKey, int? typeId, int? brandId, PriceCategory? priceCategory, double? minPrice, double? maxPrice, string? model, int? year, double? Rate)
-        {
-            throw new NotImplementedException();
-        }
-
-
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
-        public Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto)
         {
             if(renterId == null)
                 return new ResponseDto<GetVehicleDto>
