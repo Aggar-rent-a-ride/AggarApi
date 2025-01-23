@@ -11,7 +11,8 @@ namespace DATA.Constants
         public const string AppUsers = "AppUsers";
         public const string Vehicles = "Vehicles";
         public const string Notifications = "Notifications";
-        public const string VehicleBrands = "VehicleBrands";
-        public const string VehicleTypes = "VehicleTypes";
+        public const string VehicleBrand = "VehicleBrand";
+        public const string VehicleType = "VehicleType";
+        public const string Renter = "Renter";
     }
 }
