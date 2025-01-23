@@ -18,6 +18,7 @@ namespace CORE.Services.IServices
             int? typeId, int? brandId,
             PriceCategory? priceCategory, double? minPrice, double? maxPrice,
             string? model, int? year, double? Rate);
-        Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto);
+        Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId);
+        Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId);
     }
 }

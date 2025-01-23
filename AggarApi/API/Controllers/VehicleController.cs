@@ -1,26 +1,15 @@
-<<<<<<< HEAD
 ﻿using CORE.DTOs.Vehicle;
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-namespace API.Controllers
-{
-=======
 ﻿using CORE.DTOs;
-using CORE.DTOs.Vehicle;
 using CORE.Helpers;
-using CORE.Services.IServices;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata;
 
 namespace API.Controllers
 {
     [Authorize]
->>>>>>> a1be340c42144636a2970dbb31acfc2b35d2df61
     [Route("api/[controller]")]
     [ApiController]
     public class VehicleController : ControllerBase
