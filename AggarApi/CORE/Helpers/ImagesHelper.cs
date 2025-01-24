@@ -4,16 +4,14 @@ namespace CORE.Helpers
 {
     public static class ImagesHelper
     {
+
         public static IFormFile? ConvertToIFormFile(string imagePath)
         {
 
             var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath);
 
             if (!File.Exists(absolutePath))
-            {
-                Console.WriteLine($"\n\n\nFile not found in {absolutePath}\n\n\n");
                 return null;
-            }
 
             var fileStream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read);
             return new FormFile(fileStream, 0, fileStream.Length, "MainImage", Path.GetFileName(imagePath))

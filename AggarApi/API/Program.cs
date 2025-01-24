@@ -152,6 +152,13 @@ namespace API
                     options.RoutePrefix = string.Empty;
                 });
 
+            app.Use(async (context, next) =>
+            {
+                var baseUrl = $"{context.Request.Scheme}://{context.Request.Host.Value}/";
+                context.Items["BaseUrl"] = baseUrl;
+                await next();
+            });
+
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
