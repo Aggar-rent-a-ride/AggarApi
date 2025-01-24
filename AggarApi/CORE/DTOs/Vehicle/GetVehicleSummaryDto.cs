@@ -19,7 +19,8 @@ namespace CORE.DTOs.Vehicle
         public bool IsFavourite { get; set; }
         public string Transmission { get; set; } = null!;
         public double? Rate { get; set; }
-        public IFormFile MainImage { get; set; } = null!;
+        public string? MainImagePath { get; set; }
+        //public IFormFile MainImage { get; set; } = null!;
 
     }
 }
