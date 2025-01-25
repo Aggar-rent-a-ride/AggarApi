@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CORE.Helpers
 {
-    public static class UserHelper
+    public static class UserHelpers
     {
         public static int GetUserId(ClaimsPrincipal User)
         {

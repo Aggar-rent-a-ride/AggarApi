@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CORE.Helpers
 {
-    public static class PaginationHelper
+    public static class PaginationHelpers
     {
         public static int CalculateTotalPages(double countData, double pageSize)
         {
