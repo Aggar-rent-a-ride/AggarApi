@@ -24,7 +24,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateVehicleAsync([FromForm] CreateVehicleDto createVehicleDto)
         {
-            var renterId = UserHelper.GetUserId(User);
+            var renterId = UserHelpers.GetUserId(User);
             var response = await _vehicleService.CreateVehicleAsync(createVehicleDto, renterId);
             return StatusCode(response.StatusCode, response);
         }
@@ -43,7 +43,7 @@ namespace API.Controllers
             [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
             [FromQuery] double? Rate, [FromQuery] double? minPrice, [FromQuery] double? maxPrice, [FromQuery] int? year)
         {
-            int userId = UserHelper.GetUserId(User);
+            int userId = UserHelpers.GetUserId(User);
             
             string baseUrl = HttpContext.Items["BaseUrl"].ToString();
 

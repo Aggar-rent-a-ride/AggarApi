@@ -15,7 +15,6 @@ namespace CORE.AutoMapperProfiles
         public AddressProfile()
         {
             CreateMap<Address, GeoapifyAddressResponse>()
-                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.Governorate))
                 .ReverseMap();
         }
     }

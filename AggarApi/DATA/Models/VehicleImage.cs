@@ -2,9 +2,11 @@
 
 namespace DATA.Models
 {
-    [Owned]
     public class VehicleImage
     {
-        public string? ImagePath { get; set; }
+        public int Id { get; set; }
+        public string ImagePath { get; set; } = null!;
+        public int VehicleId { get; set; }
+        public Vehicle Vehicle { get; set; } = null!;
     }
 }

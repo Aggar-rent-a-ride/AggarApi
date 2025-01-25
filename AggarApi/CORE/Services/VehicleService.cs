@@ -18,6 +18,7 @@ using CORE.Constants;
 using CORE.Extensions;
 using Microsoft.EntityFrameworkCore;
 using CORE.Helpers;
+using DATA.Constants.Includes;
 
 namespace CORE.Services
 {
@@ -92,7 +93,7 @@ namespace CORE.Services
 
         public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
         {
-            string[] includes = { Includes.VehicleBrand, Includes.VehicleType, Includes.Renter };
+            string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages };
             var vehicle = await _unitOfWork.Vehicles.FindAsync(v=>v.Id == vehicleId, includes);
             
             if(vehicle == null)
@@ -154,7 +155,7 @@ namespace CORE.Services
                 Data = data,
                 PageNumber = pageNo,
                 PageSize = pageSize,
-                TotalPages = PaginationHelper.CalculateTotalPages(vehicles.Count(), pageSize)
+                TotalPages = PaginationHelpers.CalculateTotalPages(vehicles.Count(), pageSize)
             };
 
             return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
