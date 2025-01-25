@@ -109,7 +109,7 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, double? minPrice, double? maxPrice, int? year)
+        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, double? minPrice, double? maxPrice, int? year, string baseUrl)
         {
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
@@ -127,16 +127,23 @@ namespace CORE.Services
 
             List<GetVehicleSummaryDto> data = await vehicles
                 .Select(v => new GetVehicleSummaryDto
-            {
-                Id = v.Id,
-                Brand = v.VehicleBrand != null ? v.VehicleBrand.Name : null,
-                Type = v.VehicleType != null ? v.VehicleType.Name : null,
-                Model = v.Model,
-                Year = v.Year,
-                PricePerHour = v.PricePerHour,
-                Rate = v.Rate,
-                Distance = userLocation.CalculateDistance(v.Location),
-            })
+                {
+                    Id = v.Id,
+                    Brand = v.VehicleBrand != null ? v.VehicleBrand.Name : null,
+                    Type = v.VehicleType != null ? v.VehicleType.Name : null,
+                    Model = v.Model,
+                    Year = v.Year,
+                    PricePerHour = v.PricePerHour,
+                    Rate = v.Rate,
+                    MainImagePath = $"{baseUrl}{v.MainImagePath}",
+                    Distance = (6371 * Math.Acos(
+                        Math.Cos(userLocation.Latitude * Math.PI / 180.0) *
+                        Math.Cos(v.Location.Latitude * Math.PI / 180.0) *
+                        Math.Cos((v.Location.Longitude - userLocation.Longitude) * Math.PI / 180.0) +
+                        Math.Sin(userLocation.Latitude * Math.PI / 180.0) *
+                        Math.Sin(v.Location.Latitude * Math.PI / 180.0)
+                    )),
+                })
                 .OrderBy(dto => dto.Distance)
                 .Skip((pageNo - 1) * pageSize)
                 .Take(pageSize)
@@ -147,7 +154,7 @@ namespace CORE.Services
                 Data = data,
                 PageNumber = pageNo,
                 PageSize = pageSize,
-                TotalPages = PaginationHelper.CalculateTotalPages(data.Count, pageSize)
+                TotalPages = PaginationHelper.CalculateTotalPages(vehicles.Count(), pageSize)
             };
 
             return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>

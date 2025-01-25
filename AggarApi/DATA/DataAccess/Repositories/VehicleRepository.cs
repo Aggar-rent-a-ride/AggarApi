@@ -22,7 +22,10 @@ namespace DATA.DataAccess.Repositories
             IQueryable<Vehicle> vehicles = _context.Vehicles
                 .Include(v => v.VehicleBrand)
                 .Include(v => v.VehicleType)
+                .AsNoTracking()
                 .AsQueryable();
+
+            vehicles = vehicles.Where(v => v.Status == VehicleStatus.Active);
 
             if (brandId.HasValue)
                 vehicles = vehicles.Where(v => v.VehicleBrandId == brandId);
