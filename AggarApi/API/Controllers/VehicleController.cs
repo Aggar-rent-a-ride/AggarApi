@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VehicleController : ControllerBase
@@ -20,11 +20,20 @@ namespace API.Controllers
         {
             _vehicleService = vehicleService;
         }
+        [Authorize(Roles = "Renter")]
         [HttpPost]
         public async Task<IActionResult> CreateVehicleAsync([FromForm] CreateVehicleDto createVehicleDto)
         {
             var renterId = UserHelper.GetUserId(User);
             var response = await _vehicleService.CreateVehicleAsync(createVehicleDto, renterId);
+            return StatusCode(response.StatusCode, response);
+        }
+        //[Authorize]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVehicleByIdAsync(int id)
+        {
+            var renterId = UserHelper.GetUserId(User);
+            var response = await _vehicleService.GetVehicleByIdAsync(id);
             return StatusCode(response.StatusCode, response);
         }
         [Authorize(Roles = "Customer")]
