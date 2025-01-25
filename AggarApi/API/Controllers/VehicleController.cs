@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VehicleController : ControllerBase
@@ -28,7 +28,7 @@ namespace API.Controllers
             var response = await _vehicleService.CreateVehicleAsync(createVehicleDto, renterId);
             return StatusCode(response.StatusCode, response);
         }
-        //[Authorize]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicleByIdAsync(int id)
         {
