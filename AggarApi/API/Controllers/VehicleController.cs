@@ -32,7 +32,7 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicleByIdAsync(int id)
         {
-            var renterId = UserHelper.GetUserId(User);
+            var renterId = UserHelpers.GetUserId(User);
             var response = await _vehicleService.GetVehicleByIdAsync(id);
             return StatusCode(response.StatusCode, response);
         }
