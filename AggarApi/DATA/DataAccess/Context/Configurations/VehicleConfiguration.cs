@@ -15,7 +15,10 @@ namespace DATA.DataAccess.Context.Configurations
 
             builder.OwnsOne(v => v.Location);
 
-            builder.OwnsMany(v => v.VehicleImages);
+            builder.HasMany(v => v.VehicleImages)
+                .WithOne(i => i.Vehicle)
+                .HasForeignKey(i => i.VehicleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(v => v.VehicleBrand)
                 .WithMany(v => v.Vehicles)

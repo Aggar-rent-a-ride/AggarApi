@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CORE.Helpers
 {
-    public static class LocationHelper
+    public static class LocationHelpers
     {
         public static double ToRadians(double degrees)
         {

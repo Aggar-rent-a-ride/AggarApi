@@ -14,6 +14,7 @@ namespace DATA.DataAccess.Context
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<VehicleBrand> VehicleBrands { get; set; }
         public DbSet<VehicleType> VehicleTypes { get; set; }
+        public DbSet<VehicleImage> VehicleImages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Report> Reports { get; set; }

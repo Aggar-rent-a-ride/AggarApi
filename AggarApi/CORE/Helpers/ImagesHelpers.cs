@@ -2,7 +2,7 @@
 
 namespace CORE.Helpers
 {
-    public static class ImagesHelper
+    public static class ImagesHelpers
     {
 
         public static IFormFile? ConvertToIFormFile(string imagePath)
