@@ -18,6 +18,7 @@ using CORE.Constants;
 using CORE.Extensions;
 using Microsoft.EntityFrameworkCore;
 using CORE.Helpers;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DATA.Constants.Includes;
 
 namespace CORE.Services
@@ -37,6 +38,10 @@ namespace CORE.Services
             _paths = paths;
             _mapper = mapper;
             _geoapifyService = geoapifyService;
+        }
+        private string? ValidateCreateVehicleDto(CreateVehicleDto dto)
+        {
+            if(dto )
         }
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
         {
@@ -60,11 +65,13 @@ namespace CORE.Services
             vehicle.Address = _mapper.Map<Address>(await _geoapifyService.GetAddressByLocationAsync(createVehicleDto.Location));
             vehicle.RenterId = renterId.Value;
             vehicle.AddedAt = DateTime.UtcNow;
-            var uploadTasks = createVehicleDto.Images.Select(img => Task.Run(() => _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, img, AllowedExtensions.ImageExtensions)));
-            var results = await Task.WhenAll(uploadTasks);
-            if(results != null)
-                vehicle.VehicleImages = results.Select(r => new VehicleImage { ImagePath = r}).ToList();
-
+            if(createVehicleDto.Images != null)
+            {
+                var uploadTasks = createVehicleDto.Images.Select(img => Task.Run(() => _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, img, AllowedExtensions.ImageExtensions)));
+                var results = await Task.WhenAll(uploadTasks);
+                if (results != null)
+                    vehicle.VehicleImages = results.Select(r => new VehicleImage { ImagePath = r }).ToList();
+            }
             await _unitOfWork.Vehicles.AddOrUpdateAsync(vehicle);
             var changes = await _unitOfWork.CommitAsync();
 
