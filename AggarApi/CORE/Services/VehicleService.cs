@@ -184,9 +184,9 @@ namespace CORE.Services
                     Type = v.VehicleType != null ? v.VehicleType.Name : null,
                     Model = v.Model,
                     Year = v.Year,
-                    PricePerHour = v.PricePerHour,
+                    PricePerDay = v.PricePerDay,
                     Rate = v.Rate,
-                    MainImagePath = $"{baseUrl}{v.MainImagePath}",
+                    MainImagePath = v.MainImagePath,
                     Distance = (6371 * Math.Acos(
                         Math.Cos(userLocation.Latitude * Math.PI / 180.0) *
                         Math.Cos(v.Location.Latitude * Math.PI / 180.0) *

@@ -15,12 +15,11 @@ namespace CORE.DTOs.Vehicle
         public string? Type { get; set; }
         public string? Model { get; set; }
         public int Year { get; set; }
-        public double PricePerHour { get; set; }
+        public double PricePerDay { get; set; }
         public bool IsFavourite { get; set; }
         public string Transmission { get; set; } = null!;
         public double? Rate { get; set; }
         public string? MainImagePath { get; set; }
-        //public IFormFile MainImage { get; set; } = null!;
 
     }
 }

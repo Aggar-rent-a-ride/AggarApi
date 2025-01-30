@@ -37,10 +37,10 @@ namespace DATA.DataAccess.Repositories
                 vehicles = vehicles.Where(v => v.Transmission == transmission);
 
             if (minPrice.HasValue)
-                vehicles = vehicles.Where(v => v.PricePerHour >= minPrice);
+                vehicles = vehicles.Where(v => v.PricePerDay >= minPrice);
 
             if (maxPrice.HasValue)
-                vehicles = vehicles.Where(v => v.PricePerHour <= maxPrice);
+                vehicles = vehicles.Where(v => v.PricePerDay <= maxPrice);
 
             if (rate.HasValue)
                 vehicles = vehicles.Where(v => v.Rate >= rate);
