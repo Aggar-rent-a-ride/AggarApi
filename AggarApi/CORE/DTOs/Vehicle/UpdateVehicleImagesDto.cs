@@ -11,6 +11,6 @@ namespace CORE.DTOs.Vehicle
     {
         public int VehicleId { get; set; }
         public List<string>? RemovedImagesPaths { get; set; }
-        public List<IFormFile>? AddedImages { get; set; }
+        public List<IFormFile>? NewImages { get; set; }
     }
 }
