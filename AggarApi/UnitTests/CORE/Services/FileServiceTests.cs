@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace UnitTests.CORE.Services
 {
-    
+    [TestFixture]
     public class FileServiceTests
     {
         private Mock<IWebHostEnvironment> _mockEnvironment;
