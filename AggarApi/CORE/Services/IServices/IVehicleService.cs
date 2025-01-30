@@ -13,5 +13,6 @@ namespace CORE.Services.IServices
             string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, 
             double? Rate, double? minPrice, double? maxPrice, int? year, string baseUrl);
         Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId);
+        Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId);
     }
 }

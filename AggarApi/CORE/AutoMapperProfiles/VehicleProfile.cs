@@ -17,6 +17,9 @@ namespace CORE.AutoMapperProfiles
             CreateMap<Vehicle, CreateVehicleDto>()
                 .ReverseMap();
 
+            CreateMap<Vehicle, UpdateVehicleDto>()
+                .ReverseMap();
+
             CreateMap<Vehicle, GetVehicleDto>()
                 .ForMember(dest => dest.VehicleImages,
                     opt => opt.MapFrom(src =>

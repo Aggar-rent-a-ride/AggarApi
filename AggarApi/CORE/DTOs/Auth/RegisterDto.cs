@@ -25,6 +25,8 @@ namespace CORE.DTOs.Auth
         public bool AggreedTheTerms { get; set; }
         [Required]
         public Location Location { get; set; }
+        public Address? Address { get; set; }
+
         [Required]
         public bool IsCustomer { get; set; } = true;//if false, then that means s/he's a renter
     }
