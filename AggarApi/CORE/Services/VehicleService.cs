@@ -90,7 +90,6 @@ namespace CORE.Services
                     Message = "Failed to upload main image"
                 };
 
-            vehicle.Address = _mapper.Map<Address>(await _geoapifyService.GetAddressByLocationAsync(createVehicleDto.Location));
             vehicle.RenterId = renterId.Value;
             vehicle.AddedAt = DateTime.UtcNow;
             if(createVehicleDto.Images != null)

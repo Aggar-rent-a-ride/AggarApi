@@ -51,12 +51,7 @@ namespace CORE.Services
                 }
 
                 // Delete the old file, if it exists
-                if (string.IsNullOrEmpty(oldFilePath) == false)
-                {
-                    var oldFileFullPath = Path.Combine(_environment.WebRootPath, oldFilePath.TrimStart('/'));
-                    if (File.Exists(oldFileFullPath) == true)
-                        File.Delete(oldFileFullPath);
-                }
+                DeleteFile(oldFilePath);
                 return publicPath;
             }
             catch (Exception ex)
