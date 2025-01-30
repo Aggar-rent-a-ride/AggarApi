@@ -41,15 +41,35 @@ namespace CORE.Services
         }
         private string? ValidateCreateVehicleDto(CreateVehicleDto dto)
         {
-            if(dto )
+            if (dto.NumOfPassengers < 1)
+                return "Number of passengers must be at least 1";
+            if (dto.Year < 1900 || dto.Year > DateTime.UtcNow.Year)
+                return "Year must be between 1900 and current year";
+            if(dto.MainImage == null)
+                return "Main image is required";
+            if(dto.PricePerDay < 0 || dto.PricePerHour < 0 || dto.PricePerMonth < 0)
+                return "Prices must be positive";
+            if (dto.Location == null)
+                return "Location is required";
+            if(dto.VehicleBrandId == 0)
+                return "Brand must be larger than 0 or null";
+            if (dto.VehicleTypeId == 0)
+                return "Type must be larger than 0 or null";
+            return null;
         }
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
         {
-            if(renterId == null)
+            if(renterId == null || renterId.Value == 0)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "RenterId is required"
+                };
+            if(ValidateCreateVehicleDto(createVehicleDto) is string errorMsg)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
                 };
             var vehicle = _mapper.Map<Vehicle>(createVehicleDto);
             if(vehicle == null)
@@ -62,6 +82,13 @@ namespace CORE.Services
             }
 
             vehicle.MainImagePath = await _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, createVehicleDto.MainImage, AllowedExtensions.ImageExtensions);
+            if(vehicle.MainImagePath == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Failed to upload main image"
+                };
+
             vehicle.Address = _mapper.Map<Address>(await _geoapifyService.GetAddressByLocationAsync(createVehicleDto.Location));
             vehicle.RenterId = renterId.Value;
             vehicle.AddedAt = DateTime.UtcNow;
@@ -97,7 +124,6 @@ namespace CORE.Services
                 Data = addedVehicleResult.Data
             };
         }
-
         public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
         {
             string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages };
@@ -116,7 +142,6 @@ namespace CORE.Services
                 Data = _mapper.Map<GetVehicleDto>(vehicle)
             };
         }
-
         public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, double? minPrice, double? maxPrice, int? year, string baseUrl)
         {
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
