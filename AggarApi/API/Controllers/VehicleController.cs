@@ -50,5 +50,13 @@ namespace API.Controllers
             ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year, baseUrl);
             return StatusCode(result.StatusCode, result);
         }
+        [Authorize(Roles = "Renter")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVehicleAsync(int id)
+        {
+            var renterId = UserHelpers.GetUserId(User);
+            var response = await _vehicleService.DeleteVehicleByIdAsync(id, renterId);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

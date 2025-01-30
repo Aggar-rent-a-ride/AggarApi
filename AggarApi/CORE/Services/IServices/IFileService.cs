@@ -10,5 +10,6 @@ namespace CORE.Services.IServices
     public interface IFileService
     {
         Task<string?> UploadFileAsync(string dir, string oldFilePath, IFormFile file, List<string> allowedExtensions = null);
+        bool DeleteFile(string filePath);
     }
 }

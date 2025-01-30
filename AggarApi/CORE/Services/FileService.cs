@@ -61,9 +61,29 @@ namespace CORE.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error uploading image: {ex.Message}");
                 return null;
             }
         }
+        public bool DeleteFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return false;
+
+            try
+            {
+                var completeFilePath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+
+                if (File.Exists(completeFilePath) == false)
+                    return false;
+
+                File.Delete(completeFilePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }

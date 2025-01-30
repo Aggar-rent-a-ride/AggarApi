@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using CORE.Helpers;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DATA.Constants.Includes;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CORE.Services
 {
@@ -195,6 +196,60 @@ namespace CORE.Services
                 Data = pagedData,
                 Message = "Vehicles Loaded Successfully...",
                 StatusCode = StatusCodes.OK,
+            };
+        }
+        public async Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId)
+        {
+            if(vehicleId == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "VehicleId is required"
+                };
+
+            if (renterId == null || renterId == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "RenterId is required"
+                };
+
+            string[] includes = { VehicleIncludes.VehicleImages };
+            var vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == vehicleId, includes);
+
+            if (vehicle == null)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+            else if(vehicle.RenterId != renterId)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You are not the owner of this vehicle"
+                };
+
+            var vehicleImages = new List<string> { vehicle.MainImagePath };
+            if(vehicle.VehicleImages != null && vehicle.VehicleImages.Count > 0)
+                vehicleImages.AddRange(vehicle.VehicleImages.Select(vi => vi.ImagePath));
+            if (vehicleImages.Count != 0)
+                vehicleImages.ForEach(img => _fileService.DeleteFile(img));
+
+            _unitOfWork.Vehicles.Delete(vehicle);
+            var changes = await _unitOfWork.CommitAsync();
+
+            if(changes == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to delete vehicle"
+                };
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Vehicle deleted successfully"
             };
         }
     }
