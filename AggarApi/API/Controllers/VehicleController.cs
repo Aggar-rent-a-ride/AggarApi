@@ -60,7 +60,7 @@ namespace API.Controllers
         }
         [Authorize(Roles = "Renter")]
         [HttpPut]
-        public async Task<IActionResult> UpdateVehicleAsync(UpdateVehicleDto dto)
+        public async Task<IActionResult> UpdateVehicleAsync([FromForm] UpdateVehicleDto dto)
         {
             var renterId = UserHelpers.GetUserId(User);
             var response = await _vehicleService.UpdateVehicleAsync(dto, renterId);

@@ -100,6 +100,7 @@ namespace DATA.Constants.Includes
         public const string VehicleType = "VehicleType";
         public const string FavoriteCustomers = "FavoriteCustomers";
         public const string Reports = "Reports";
+        public const string Discounts = "Discounts";
     }
 
     public static class VehicleBrandIncludes

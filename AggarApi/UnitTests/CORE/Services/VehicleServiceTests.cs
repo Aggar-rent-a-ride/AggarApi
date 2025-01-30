@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CORE.Constants;
+using CORE.DTOs;
 using CORE.DTOs.Paths;
 using CORE.DTOs.Vehicle;
 using CORE.Services;
@@ -61,7 +62,7 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.CreateVehicleAsync(createVehicleDto, null);
 
             // Assert
-            Assert.That(StatusCodes.BadRequest == result.StatusCode);
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
         [Test]
         public async Task CreateVehicleAsync_ShouldReturnBadRequest_WhenRenterIdIsZero()
@@ -73,7 +74,7 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.CreateVehicleAsync(createVehicleDto, 0);
 
             // Assert
-            Assert.That(StatusCodes.BadRequest == result.StatusCode);
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
         [Test]
         public async Task CreateVehicleAsync_ShouldReturnBadRequest_WhenDtoValidationFails()
@@ -88,7 +89,7 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.CreateVehicleAsync(createVehicleDto, 1);
 
             // Assert
-            Assert.That(StatusCodes.BadRequest == result.StatusCode);
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
         [Test]
         public async Task CreateVehicleAsync_ShouldReturnInternalServerError_WhenMappingFails()
@@ -100,8 +101,6 @@ namespace UnitTests.CORE.Services
                 Year = 2020,
                 MainImage = new Mock<Microsoft.AspNetCore.Http.IFormFile>().Object,
                 PricePerDay = 100,
-                PricePerHour = 10,
-                PricePerMonth = 2000,
                 Location = new Location(),
             };
             _mockMapper.Setup(m => m.Map<Vehicle>(createVehicleDto)).Returns((Vehicle)null);
@@ -110,7 +109,7 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.CreateVehicleAsync(createVehicleDto, 1);
 
             // Assert
-            Assert.That(StatusCodes.InternalServerError == result.StatusCode);
+            Assert.That(StatusCodes.InternalServerError, Is.EqualTo(result.StatusCode));
         }
         [Test]
         public async Task CreateVehicleAsync_ShouldReturnBadRequest_WhenFileUploadFails()
@@ -122,8 +121,6 @@ namespace UnitTests.CORE.Services
                 Year = 2020,
                 MainImage = new Mock<Microsoft.AspNetCore.Http.IFormFile>().Object,
                 PricePerDay = 100,
-                PricePerHour = 10,
-                PricePerMonth = 2000,
                 Location = new Location(),
             };
             _mockMapper.Setup(m => m.Map<Vehicle>(createVehicleDto)).Returns(new Vehicle());
@@ -135,7 +132,7 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.CreateVehicleAsync(createVehicleDto, 1);
 
             // Assert
-            Assert.That(StatusCodes.BadRequest == result.StatusCode);
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
         [Test]
         public async Task CreateVehicleAsync_ShouldReturnInternalServerError_WhenDatabaseSaveFails()
@@ -147,8 +144,6 @@ namespace UnitTests.CORE.Services
                 Year = 2020,
                 MainImage = new Mock<Microsoft.AspNetCore.Http.IFormFile>().Object,
                 PricePerDay = 100,
-                PricePerHour = 10,
-                PricePerMonth = 2000,
                 Location = new Location(),
             };
             _mockMapper.Setup(m => m.Map<Vehicle>(createVehicleDto)).Returns(new Vehicle());
@@ -161,7 +156,44 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.CreateVehicleAsync(createVehicleDto, 1);
 
             // Assert
-            Assert.That(StatusCodes.InternalServerError == result.StatusCode);
+            Assert.That(StatusCodes.InternalServerError, Is.EqualTo(result.StatusCode));
+        }
+        [Test]
+        public async Task UpdateVehicleAsync_ShouldReturnBadRequest_WhenRenterIdIsNull()
+        {
+            // Arrange
+            var updateVehicleDto = new UpdateVehicleDto { Id = 1 };
+
+            // Act
+            var result = await _vehicleService.UpdateVehicleAsync(updateVehicleDto, null);
+
+            // Assert
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
+        }
+        [Test]
+        public async Task UpdateVehicleAsync_ShouldReturnBadRequest_WhenValidationFails()
+        {
+            // Arrange
+            var updateVehicleDto = new UpdateVehicleDto { Id = 0 };
+
+            // Act
+            var result = await _vehicleService.UpdateVehicleAsync(updateVehicleDto, 1);
+
+            // Assert
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
+        }
+        [Test]
+        public async Task UpdateVehicleAsync_ShouldReturnNotFound_WhenVehicleDoesNotExist()
+        {
+            // Arrange
+            var updateVehicleDto = new UpdateVehicleDto { Id = 1, NumOfPassengers = 1, Year = 1995, PricePerDay = 10, Location = new Location() };
+            _mockUnitOfWork.Setup(u => u.Vehicles.GetAsync(updateVehicleDto.Id)).ReturnsAsync((Vehicle)null);
+
+            // Act
+            var result = await _vehicleService.UpdateVehicleAsync(updateVehicleDto, 1);
+
+            // Assert
+            Assert.That(StatusCodes.NotFound, Is.EqualTo(result.StatusCode));
         }
     }
 }

@@ -48,7 +48,7 @@ namespace CORE.Services
                 return "Year must be between 1900 and current year";
             if(dto.MainImage == null)
                 return "Main image is required";
-            if(dto.PricePerDay < 0 || dto.PricePerHour < 0 || dto.PricePerMonth < 0)
+            if(dto.PricePerDay < 0)
                 return "Prices must be positive";
             if (dto.Location == null)
                 return "Location is required";
@@ -66,7 +66,7 @@ namespace CORE.Services
                 return "Number of passengers must be at least 1";
             if (dto.Year < 1900 || dto.Year > DateTime.UtcNow.Year)
                 return "Year must be between 1900 and current year";
-            if (dto.PricePerDay < 0 || dto.PricePerHour < 0 || dto.PricePerMonth < 0)
+            if (dto.PricePerDay < 0)
                 return "Prices must be positive";
             if (dto.Location == null)
                 return "Location is required";

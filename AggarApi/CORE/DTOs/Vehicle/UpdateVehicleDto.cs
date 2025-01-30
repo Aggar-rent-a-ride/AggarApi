@@ -24,9 +24,7 @@ namespace CORE.DTOs.Vehicle
         public VehiclePhysicalStatus PhysicalStatus { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehicleTransmission Transmission { get; set; }
-        public double PricePerHour { get; set; }
         public double PricePerDay { get; set; }
-        public double PricePerMonth { get; set; }
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
         public Location Location { get; set; } = null!;
