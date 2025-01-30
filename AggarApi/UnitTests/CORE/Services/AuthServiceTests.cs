@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 
 namespace UnitTests.CORE.Services
 {
+    [TestFixture]
     public class AuthServiceTests
     {
         private Mock<UserManager<AppUser>> _mockUserManager;
