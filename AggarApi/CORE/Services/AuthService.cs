@@ -176,7 +176,6 @@ namespace CORE.Services
             }
 
             AppUser user = registerDto.IsCustomer ? _mapper.Map<Customer>(registerDto) : _mapper.Map<Renter>(registerDto);
-            user.Address = _mapper.Map<Address>(await _geoapifyService.GetAddressByLocationAsync(user.Location));
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded == false)

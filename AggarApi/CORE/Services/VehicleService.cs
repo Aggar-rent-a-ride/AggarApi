@@ -18,7 +18,9 @@ using CORE.Constants;
 using CORE.Extensions;
 using Microsoft.EntityFrameworkCore;
 using CORE.Helpers;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DATA.Constants.Includes;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CORE.Services
 {
@@ -38,13 +40,37 @@ namespace CORE.Services
             _mapper = mapper;
             _geoapifyService = geoapifyService;
         }
+        private string? ValidateCreateVehicleDto(CreateVehicleDto dto)
+        {
+            if (dto.NumOfPassengers < 1)
+                return "Number of passengers must be at least 1";
+            if (dto.Year < 1900 || dto.Year > DateTime.UtcNow.Year)
+                return "Year must be between 1900 and current year";
+            if(dto.MainImage == null)
+                return "Main image is required";
+            if(dto.PricePerDay < 0 || dto.PricePerHour < 0 || dto.PricePerMonth < 0)
+                return "Prices must be positive";
+            if (dto.Location == null)
+                return "Location is required";
+            if(dto.VehicleBrandId == 0)
+                return "Brand must be larger than 0 or null";
+            if (dto.VehicleTypeId == 0)
+                return "Type must be larger than 0 or null";
+            return null;
+        }
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
         {
-            if(renterId == null)
+            if(renterId == null || renterId.Value == 0)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "RenterId is required"
+                };
+            if(ValidateCreateVehicleDto(createVehicleDto) is string errorMsg)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
                 };
             var vehicle = _mapper.Map<Vehicle>(createVehicleDto);
             if(vehicle == null)
@@ -57,14 +83,22 @@ namespace CORE.Services
             }
 
             vehicle.MainImagePath = await _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, createVehicleDto.MainImage, AllowedExtensions.ImageExtensions);
-            vehicle.Address = _mapper.Map<Address>(await _geoapifyService.GetAddressByLocationAsync(createVehicleDto.Location));
+            if(vehicle.MainImagePath == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Failed to upload main image"
+                };
+
             vehicle.RenterId = renterId.Value;
             vehicle.AddedAt = DateTime.UtcNow;
-            var uploadTasks = createVehicleDto.Images.Select(img => Task.Run(() => _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, img, AllowedExtensions.ImageExtensions)));
-            var results = await Task.WhenAll(uploadTasks);
-            if(results != null)
-                vehicle.VehicleImages = results.Select(r => new VehicleImage { ImagePath = r}).ToList();
-
+            if(createVehicleDto.Images != null)
+            {
+                var uploadTasks = createVehicleDto.Images.Select(img => Task.Run(() => _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, img, AllowedExtensions.ImageExtensions)));
+                var results = await Task.WhenAll(uploadTasks);
+                if (results != null)
+                    vehicle.VehicleImages = results.Select(r => new VehicleImage { ImagePath = r }).ToList();
+            }
             await _unitOfWork.Vehicles.AddOrUpdateAsync(vehicle);
             var changes = await _unitOfWork.CommitAsync();
 
@@ -90,7 +124,6 @@ namespace CORE.Services
                 Data = addedVehicleResult.Data
             };
         }
-
         public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
         {
             string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages };
@@ -109,7 +142,6 @@ namespace CORE.Services
                 Data = _mapper.Map<GetVehicleDto>(vehicle)
             };
         }
-
         public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, double? minPrice, double? maxPrice, int? year, string baseUrl)
         {
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
@@ -163,6 +195,60 @@ namespace CORE.Services
                 Data = pagedData,
                 Message = "Vehicles Loaded Successfully...",
                 StatusCode = StatusCodes.OK,
+            };
+        }
+        public async Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId)
+        {
+            if(vehicleId == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "VehicleId is required"
+                };
+
+            if (renterId == null || renterId == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "RenterId is required"
+                };
+
+            string[] includes = { VehicleIncludes.VehicleImages };
+            var vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == vehicleId, includes);
+
+            if (vehicle == null)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+            else if(vehicle.RenterId != renterId)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You are not the owner of this vehicle"
+                };
+
+            var vehicleImages = new List<string> { vehicle.MainImagePath };
+            if(vehicle.VehicleImages != null && vehicle.VehicleImages.Count > 0)
+                vehicleImages.AddRange(vehicle.VehicleImages.Select(vi => vi.ImagePath));
+            if (vehicleImages.Count != 0)
+                vehicleImages.ForEach(img => _fileService.DeleteFile(img));
+
+            _unitOfWork.Vehicles.Delete(vehicle);
+            var changes = await _unitOfWork.CommitAsync();
+
+            if(changes == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to delete vehicle"
+                };
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Vehicle deleted successfully"
             };
         }
     }

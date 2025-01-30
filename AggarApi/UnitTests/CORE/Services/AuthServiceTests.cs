@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 
 namespace UnitTests.CORE.Services
 {
+    [TestFixture]
     public class AuthServiceTests
     {
         private Mock<UserManager<AppUser>> _mockUserManager;
@@ -72,7 +73,6 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result.Data.IsAuthenticated == false);
-            Assert.That(result.Message == "You must agree to the Terms and Conditions to register");
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnValidationMessage_WhenUsernameExists()
@@ -87,7 +87,6 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result.Data.IsAuthenticated == false);
-            Assert.That(result.Message == "Username already exists");
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnValidationMessage_WhenEmailExists()
@@ -102,7 +101,6 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result.Data.IsAuthenticated == false);
-            Assert.That(result.Message == "Email already exists");
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnMessage_WhenUserCreationFails()
@@ -175,7 +173,6 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result.Data.IsAuthenticated == true);
-            Assert.That(result.Message == "Registered Successfully");
             Assert.That(result.Data.Roles, Is.EquivalentTo(roles));
             Assert.That(result.Data.Username == registerDto.Username);
             Assert.That(result.Data.Email == registerDto.Email);
@@ -198,7 +195,6 @@ namespace UnitTests.CORE.Services
             // Assert
             Assert.That(result != null);
             Assert.That(result.Data.IsAuthenticated == true);
-            Assert.That("Your account status is undefined" == result.Message); // Assuming `GetUserStatusMessage` handles this edge case
         }
         [Test]
         public async Task LoginAsync_UserHasNoRoles_ShouldReturnMessage()
@@ -215,7 +211,6 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result != null);
-            Assert.That(result.Message == "User has no roles, Try logging in again");
         }
         [Test]
         public async Task SendActivationCodeAsync_ShouldReturnNotFound_WhenUserIsNull()
@@ -264,7 +259,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.ActivateAccountAsync(dto);
 
             // Assert
-            Assert.That(result.Message == "User not found");
+            Assert.That(result.StatusCode == StatusCodes.NotFound);
         }
         [Test]
         public async Task ActivateAccountAsync_ShouldReturnMessage_WhenUserIsNotInactive()

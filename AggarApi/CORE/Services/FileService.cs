@@ -51,19 +51,34 @@ namespace CORE.Services
                 }
 
                 // Delete the old file, if it exists
-                if (string.IsNullOrEmpty(oldFilePath) == false)
-                {
-                    var oldFileFullPath = Path.Combine(_environment.WebRootPath, oldFilePath.TrimStart('/'));
-                    if (File.Exists(oldFileFullPath) == true)
-                        File.Delete(oldFileFullPath);
-                }
+                DeleteFile(oldFilePath);
                 return publicPath;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error uploading image: {ex.Message}");
                 return null;
             }
         }
+        public bool DeleteFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return false;
+
+            try
+            {
+                var completeFilePath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+
+                if (File.Exists(completeFilePath) == false)
+                    return false;
+
+                File.Delete(completeFilePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }
