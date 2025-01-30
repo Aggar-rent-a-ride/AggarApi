@@ -1,24 +1,23 @@
-﻿using DATA.Models;
-using DATA.Models.Enums;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using DATA.Models.Enums;
+using System.Text.Json.Serialization;
+using DATA.Models;
 
 namespace CORE.DTOs.Vehicle
 {
-    public class CreateVehicleDto
+    public class UpdateVehicleDto
     {
+        public int Id { get; set; }
         public int NumOfPassengers { get; set; }
         public int Year { get; set; }
         public string? Model { get; set; }
         public string Color { get; set; } = null!;
-        public IFormFile MainImage { get; set; }
-        public ICollection<IFormFile>? Images { get; set; }
+        public IFormFile? MainImage { get; set; } // if null, don't update it
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public VehicleStatus Status { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

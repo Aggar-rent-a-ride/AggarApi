@@ -58,9 +58,27 @@ namespace CORE.Services
                 return "Type must be larger than 0 or null";
             return null;
         }
+        private string? ValidateUpdateVehicleDto(UpdateVehicleDto dto)
+        {
+            if(dto.Id == 0)
+                return "VehicleId is required";
+            if (dto.NumOfPassengers < 1)
+                return "Number of passengers must be at least 1";
+            if (dto.Year < 1900 || dto.Year > DateTime.UtcNow.Year)
+                return "Year must be between 1900 and current year";
+            if (dto.PricePerDay < 0 || dto.PricePerHour < 0 || dto.PricePerMonth < 0)
+                return "Prices must be positive";
+            if (dto.Location == null)
+                return "Location is required";
+            if (dto.VehicleBrandId == 0)
+                return "Brand must be larger than 0 or null";
+            if (dto.VehicleTypeId == 0)
+                return "Type must be larger than 0 or null";
+            return null;
+        }
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
         {
-            if(renterId == null || renterId.Value == 0)
+            if(renterId == null || renterId == 0)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -249,6 +267,75 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Message = "Vehicle deleted successfully"
+            };
+        }
+
+        public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId)
+        {
+            if (renterId == null || renterId == 0)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "RenterId is required"
+                };
+            
+
+            if(ValidateUpdateVehicleDto(updateVehicleDto) is string errorMsg)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
+                };
+
+            var vehicle = await _unitOfWork.Vehicles.GetAsync(updateVehicleDto.Id);
+            if (vehicle == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+            
+            if(renterId != vehicle.RenterId)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You are not the owner of this vehicle"
+                };
+
+            _mapper.Map(updateVehicleDto, vehicle);
+            if (updateVehicleDto.MainImage != null)
+            {
+                vehicle.MainImagePath = await _fileService.UploadFileAsync(_paths.Value?.VehicleImages, vehicle.MainImagePath, updateVehicleDto.MainImage, AllowedExtensions.ImageExtensions);
+                if (vehicle.MainImagePath == null)
+                    return new ResponseDto<GetVehicleDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Failed to upload main image"
+                    };
+            }
+            
+            await _unitOfWork.Vehicles.AddOrUpdateAsync(vehicle);
+            var changes = await _unitOfWork.CommitAsync();
+            if(changes == 0)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to update vehicle"
+                };
+            
+            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            if (updatedVehicleResult.StatusCode != StatusCodes.OK)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Vehicle updated but failed to retrieve it"
+                };
+            
+            return new ResponseDto<GetVehicleDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Vehicle updated successfully",
+                Data = updatedVehicleResult.Data
             };
         }
     }
