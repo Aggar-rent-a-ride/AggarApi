@@ -53,6 +53,11 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasForeignKey(r => r.TargetId)
                 .IsRequired(false);
 
+            builder.HasMany(v => v.Discounts)
+                .WithOne(d => d.Vehicle)
+                .HasForeignKey(d => d.VehicleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.ToTable("Vehicles");
         }
     }

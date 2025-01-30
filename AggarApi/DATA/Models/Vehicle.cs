@@ -16,9 +16,7 @@ namespace DATA.Models
         public Enums.VehicleStatus Status { get; set; }
         public Enums.VehiclePhysicalStatus PhysicalStatus { get; set; }
         public Enums.VehicleTransmission Transmission { get; set; }
-        public double PricePerHour { get; set; }
         public double PricePerDay { get; set; }
-        public double PricePerMonth { get; set; }
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
         public Address? Address { get; set; }
@@ -37,5 +35,6 @@ namespace DATA.Models
         public VehicleType? VehicleType { get; set; }
         public ICollection<Customer>? FavoriteCustomers { get; set; }
         public ICollection<Report>? Reports { get; set; }
+        public ICollection<Discount>? Discounts { get; set; }
     }
 }
