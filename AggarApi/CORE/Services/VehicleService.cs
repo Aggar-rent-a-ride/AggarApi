@@ -269,7 +269,6 @@ namespace CORE.Services
                 Message = "Vehicle deleted successfully"
             };
         }
-
         public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId)
         {
             if (renterId == null || renterId == 0)
@@ -335,6 +334,76 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Message = "Vehicle updated successfully",
+                Data = updatedVehicleResult.Data
+            };
+        }
+        public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId)
+        {
+            if(renterId == null || renterId == 0)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "RenterId is required"
+                };
+
+            if (updateVehicleImagesDto.VehicleId == 0)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "VehicleId is required"
+                };
+
+            string[] includes = { VehicleIncludes.VehicleImages };
+            var vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == updateVehicleImagesDto.VehicleId, includes);
+            if (vehicle == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+
+            if (renterId != vehicle.RenterId)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You are not the owner of this vehicle"
+                };
+            if(updateVehicleImagesDto.RemovedImagesPaths != null && updateVehicleImagesDto.RemovedImagesPaths.Count > 0)
+            {
+                updateVehicleImagesDto?.RemovedImagesPaths.ForEach(img => _fileService.DeleteFile(img));
+                if(vehicle.VehicleImages != null)
+                    vehicle.VehicleImages = vehicle.VehicleImages.Where(vi => updateVehicleImagesDto.RemovedImagesPaths.Contains(vi.ImagePath) == false).ToList();
+            }
+            if (updateVehicleImagesDto.NewImages != null && updateVehicleImagesDto.NewImages.Count > 0)
+            {
+                var uploadTasks = updateVehicleImagesDto.NewImages.Select(img => Task.Run(() => _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, img, AllowedExtensions.ImageExtensions)));
+                var results = await Task.WhenAll(uploadTasks);
+                if (results != null)
+                {
+                    if (vehicle.VehicleImages == null)
+                        vehicle.VehicleImages = new List<VehicleImage>();
+                    results.ToList().ForEach(r => vehicle.VehicleImages.Add(new VehicleImage { ImagePath = r }));
+                }
+            }
+            await _unitOfWork.Vehicles.AddOrUpdateAsync(vehicle);
+            var changes = await _unitOfWork.CommitAsync();
+            if (changes == 0)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to update vehicle images"
+                };
+            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            if (updatedVehicleResult.StatusCode != StatusCodes.OK)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Vehicle images updated but failed to retrieve it"
+                };
+            return new ResponseDto<GetVehicleDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Vehicle images updated successfully",
                 Data = updatedVehicleResult.Data
             };
         }

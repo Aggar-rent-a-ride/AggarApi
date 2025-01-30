@@ -66,5 +66,13 @@ namespace API.Controllers
             var response = await _vehicleService.UpdateVehicleAsync(dto, renterId);
             return StatusCode(response.StatusCode, response);
         }
+        [Authorize(Roles = "Renter")]
+        [HttpPut("vehicle-images")]
+        public async Task<IActionResult> UpdateVehicleImagesAsync([FromForm] UpdateVehicleImagesDto dto)
+        {
+            var renterId = UserHelpers.GetUserId(User);
+            var response = await _vehicleService.UpdateVehicleImagesAsync(dto, renterId);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
