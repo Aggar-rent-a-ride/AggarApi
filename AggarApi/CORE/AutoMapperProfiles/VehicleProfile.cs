@@ -15,18 +15,24 @@ namespace CORE.AutoMapperProfiles
         public VehicleProfile()
         {
             CreateMap<Vehicle, CreateVehicleDto>()
-                .ReverseMap();
+                .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)))
+                .ReverseMap()
+                .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)));
 
             CreateMap<Vehicle, UpdateVehicleDto>()
-                .ReverseMap();
+                .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)))
+                .ReverseMap()
+                .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)));
 
             CreateMap<Vehicle, GetVehicleDto>()
+                .ForMember(dest => dest.PricePerDay, opt=>opt.MapFrom(src=>decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)))
                 .ForMember(dest => dest.VehicleImages,
                     opt => opt.MapFrom(src =>
                         src.VehicleImages != null
                             ? src.VehicleImages.Select(i => i.ImagePath)
                             : new List<string>()))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)));
 
         }
     }
