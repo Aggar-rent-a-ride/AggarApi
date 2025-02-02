@@ -16,7 +16,7 @@ namespace DATA.Models
         public Enums.VehicleStatus Status { get; set; }
         public Enums.VehiclePhysicalStatus PhysicalStatus { get; set; }
         public Enums.VehicleTransmission Transmission { get; set; }
-        public double PricePerDay { get; set; }
+        public decimal PricePerDay { get; set; }
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
         public Address? Address { get; set; }

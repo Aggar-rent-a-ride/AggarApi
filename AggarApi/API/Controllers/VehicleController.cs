@@ -41,7 +41,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetNearestVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
             [FromQuery] string? searchKey,
             [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
-            [FromQuery] double? Rate, [FromQuery] double? minPrice, [FromQuery] double? maxPrice, [FromQuery] int? year)
+            [FromQuery] double? Rate, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int? year)
         {
             int userId = UserHelpers.GetUserId(User);
 

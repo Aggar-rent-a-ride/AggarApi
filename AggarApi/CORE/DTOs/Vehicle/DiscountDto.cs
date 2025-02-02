@@ -10,7 +10,7 @@ namespace CORE.DTOs.Vehicle
     {
         public int Id { get; set; }
         public int DaysRequired { get; set; }
-        public double DiscountPercentage { get; set; }
+        public decimal DiscountPercentage { get; set; }
         public decimal DiscountedPricePerDay { get; set; }
     }
 }

@@ -160,7 +160,7 @@ namespace CORE.Services
                 Data = _mapper.Map<GetVehicleDto>(vehicle)
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, double? minPrice, double? maxPrice, int? year)
+        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year)
         {
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
