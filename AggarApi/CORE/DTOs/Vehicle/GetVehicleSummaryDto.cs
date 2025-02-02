@@ -15,7 +15,7 @@ namespace CORE.DTOs.Vehicle
         public string? Type { get; set; }
         public string? Model { get; set; }
         public int Year { get; set; }
-        public double PricePerDay { get; set; }
+        public decimal PricePerDay { get; set; }
         public bool IsFavourite { get; set; }
         public string Transmission { get; set; } = null!;
         public double? Rate { get; set; }
