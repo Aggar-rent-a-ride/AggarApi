@@ -32,5 +32,6 @@ namespace CORE.DTOs.Vehicle
         public Address? Address { get; set; }
         public int? VehicleTypeId { get; set; }
         public int? VehicleBrandId { get; set; }
+        public ICollection<DiscountDto>? Discounts { get; set; }
     }
 }
