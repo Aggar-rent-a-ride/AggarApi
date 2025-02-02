@@ -44,10 +44,8 @@ namespace API.Controllers
             [FromQuery] double? Rate, [FromQuery] double? minPrice, [FromQuery] double? maxPrice, [FromQuery] int? year)
         {
             int userId = UserHelpers.GetUserId(User);
-            
-            string baseUrl = HttpContext.Items["BaseUrl"].ToString();
 
-            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year, baseUrl);
+            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year);
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Renter")]

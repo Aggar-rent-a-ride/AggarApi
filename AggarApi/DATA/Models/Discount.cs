@@ -11,7 +11,7 @@ namespace DATA.Models
         public int Id { get; set; }
         public int VehicleId { get; set; }
         public int DaysRequired { get; set; }
-        public double DiscountPercentage { get; set; }
+        public decimal DiscountPercentage { get; set; }
         public Vehicle Vehicle { get; set; } = null!;
     }
 }
