@@ -10,6 +10,7 @@ namespace DATA.DataAccess.Repositories.IRepositories
         Task<int> CountAsync(Expression<Func<T, bool>> criteria);
         Task<T> FindAsync(Expression<Func<T, bool>> criteria, string[] includes=null);
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes = null);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null);
         Task<T> AddOrUpdateAsync(T entity);
         void Delete(T entity);
         void Attach(T entity);
