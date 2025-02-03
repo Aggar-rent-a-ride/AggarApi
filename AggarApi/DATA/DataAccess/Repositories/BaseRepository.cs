@@ -1,4 +1,5 @@
-﻿using DATA.DataAccess.Context;
+﻿using Azure;
+using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -73,5 +74,15 @@ namespace DATA.DataAccess.Repositories
             _context.Set<T>()
             .Skip((pageNo - 1) * pageSize).Take(pageSize);
 
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
+        {
+            IQueryable<T> query = _context.Set<T>().Where(criteria);
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            return await query.ToListAsync();
+        }
     }
 }

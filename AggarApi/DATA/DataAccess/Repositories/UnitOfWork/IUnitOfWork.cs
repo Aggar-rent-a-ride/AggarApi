@@ -12,7 +12,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
     {
         IBaseRepository<AppUser> AppUsers { get; }
         IVehicleRepository Vehicles { get; }
-
+        IBaseRepository<Discount> Discounts { get; }
         Task<int> CommitAsync();
     }
 }

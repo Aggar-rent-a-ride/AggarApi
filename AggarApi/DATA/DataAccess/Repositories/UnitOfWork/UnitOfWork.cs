@@ -14,6 +14,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         private readonly AppDbContext _context;
         public IBaseRepository<AppUser> AppUsers { get; private set; }
         public IVehicleRepository Vehicles { get; private set; }
+        public IBaseRepository<Discount> Discounts { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -21,7 +22,6 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             AppUsers = new BaseRepository<AppUser>(_context);
             Vehicles = new VehicleRepository(_context);
         }
-
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
 
