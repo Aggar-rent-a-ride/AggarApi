@@ -33,8 +33,8 @@ namespace API.Controllers
             var result = await _authService.LoginAsync(loginDto);
             return StatusCode(result.StatusCode, result);
         }
-        [HttpPost("send-activation-code{userId}")]
-        public async Task<IActionResult> SendActivationCodeAsync(int userId)
+        [HttpPost("send-activation-code")]
+        public async Task<IActionResult> SendActivationCodeAsync([FromQuery] int userId)
         {
             var result = await _authService.SendActivationCodeAsync(userId);
             return StatusCode(result.StatusCode, result);
