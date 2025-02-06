@@ -84,5 +84,27 @@ namespace DATA.DataAccess.Repositories
 
             return await query.ToListAsync();
         }
+
+        public async Task<bool> CheckAllAsync(Expression<Func<T, bool>> criteria, string[] includes)
+        {
+            IQueryable<T> query = _context.Set<T>();
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            return await query.AllAsync(criteria);
+        }
+
+        public async Task<bool> CheckAnyAsync(Expression<Func<T, bool>> criteria, string[] includes)
+        {
+            IQueryable<T> query = _context.Set<T>();
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            return await query.AnyAsync(criteria);
+        }
     }
 }

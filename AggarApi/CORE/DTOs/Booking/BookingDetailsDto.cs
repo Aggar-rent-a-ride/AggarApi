@@ -9,9 +9,9 @@ namespace CORE.DTOs.Booking
 {
     public class BookingDetailsDto : CreateBookingDto
     {
+        public int TotalDays { get; set; }
         public decimal Price { get; set; }
         public decimal FinalPrice { get; set; }
-        public int TotalDays { get; set; }
         public decimal Discount { get; set; }
         public string? Notes { get; set; }
         public BookingStatus Status { get; set; }

@@ -17,20 +17,17 @@ namespace CORE.Services
         {
             _unitOfWork = unitOfWork;
         }
-
-        public Task<bool> CheckVehicleAvailabilityAsync(int vehicleId, DateTime startDate, DateTime endDate)
+        /*
+        private Task<bool> CheckVehicleAvailabilityAsync(int vehicleId, DateTime startDate, DateTime endDate)
         {
-            throw new NotImplementedException();
         }
 
         public Task<ResponseDto<CreateBookingDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int userId)
         {
-            throw new NotImplementedException();
         }
 
         public Task<ResponseDto<BookingDetailsDto>> GetBookingAsync(int bookingId)
         {
-            throw new NotImplementedException();
-        }
+        }*/
     }
 }
