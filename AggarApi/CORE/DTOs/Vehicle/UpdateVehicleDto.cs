@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DATA.Models.Enums;
 using System.Text.Json.Serialization;
 using DATA.Models;
+using CORE.DTOs.Discount;
 
 namespace CORE.DTOs.Vehicle
 {

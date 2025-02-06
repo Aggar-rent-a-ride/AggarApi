@@ -1,4 +1,5 @@
-﻿using DATA.Models;
+﻿using CORE.ValidationAttributes;
+using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,7 +13,7 @@ namespace CORE.DTOs.Auth
     {
         [Required]
         public string Name { get; set; }
-        [Required]
+        [Required, PastDateAttribute]
         public DateOnly DateOfBirth { get; set; }
         public string Username { get; set; }
         [Required, DataType(DataType.EmailAddress)]

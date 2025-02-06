@@ -1,11 +1,15 @@
-﻿using DATA.Models;
+﻿using CORE.DTOs.Discount;
+using DATA.Models;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -32,6 +36,5 @@ namespace CORE.DTOs.Vehicle
         public Address? Address { get; set; }
         public int? VehicleTypeId { get; set; }
         public int? VehicleBrandId { get; set; }
-        public ICollection<DiscountDto>? Discounts { get; set; }
     }
 }
