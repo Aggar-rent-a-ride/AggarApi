@@ -19,3 +19,5 @@ logs/
 *.suo
 *.cache
 *.userprefs
+.config/
+PublishProfiles/
