@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CORE.DTOs.Vehicle;
+using CORE.DTOs.Discount;
 using DATA.Models;
 using System;
 using System.Collections.Generic;
@@ -13,8 +13,11 @@ namespace CORE.AutoMapperProfiles
     {
         public DiscountProfile()
         {
-            CreateMap<Discount, DiscountDto>()
+            CreateMap<Discount, GetDiscountDto>()
                 .ForMember(dest => dest.DiscountedPricePerDay, opt => opt.MapFrom(src => decimal.Round(src.Vehicle.PricePerDay - (src.Vehicle.PricePerDay * src.DiscountPercentage / 100), 2, MidpointRounding.AwayFromZero)))
+                .ReverseMap();
+
+            CreateMap<Discount, CreateDiscountDto>()
                 .ReverseMap();
         }
     }

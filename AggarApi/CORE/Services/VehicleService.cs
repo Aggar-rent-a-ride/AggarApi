@@ -14,13 +14,13 @@ using Microsoft.Extensions.Options;
 using DATA.Constants;
 using AutoMapper;
 using CORE.Constants;
-using CORE.Constants;
 using CORE.Extensions;
 using Microsoft.EntityFrameworkCore;
 using CORE.Helpers;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DATA.Constants.Includes;
 using Microsoft.IdentityModel.Tokens;
+using CORE.DTOs.Discount;
 
 namespace CORE.Services
 {
@@ -78,7 +78,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
         {
-            if(renterId == null || renterId == 0)
+            if(renterId == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -144,7 +144,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
         {
-            string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages };
+            string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages, VehicleIncludes.Discounts };
             var vehicle = await _unitOfWork.Vehicles.FindAsync(v=>v.Id == vehicleId, includes);
             
             if(vehicle == null)
@@ -224,7 +224,7 @@ namespace CORE.Services
                     Message = "VehicleId is required"
                 };
 
-            if (renterId == null || renterId == 0)
+            if (renterId == null)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -271,7 +271,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId)
         {
-            if (renterId == null || renterId == 0)
+            if (renterId == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -297,7 +297,7 @@ namespace CORE.Services
             if(renterId != vehicle.RenterId)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.BadRequest,
+                    StatusCode = StatusCodes.Forbidden,
                     Message = "You are not the owner of this vehicle"
                 };
 
@@ -339,7 +339,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId)
         {
-            if(renterId == null || renterId == 0)
+            if(renterId == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -365,7 +365,7 @@ namespace CORE.Services
             if (renterId != vehicle.RenterId)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.BadRequest,
+                    StatusCode = StatusCodes.Forbidden,
                     Message = "You are not the owner of this vehicle"
                 };
             if(updateVehicleImagesDto.RemovedImagesPaths != null && updateVehicleImagesDto.RemovedImagesPaths.Count > 0)
@@ -404,6 +404,60 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Message = "Vehicle images updated successfully",
+                Data = updatedVehicleResult.Data
+            };
+        }
+        public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto updateVehicleDiscountsDto, int? renterId)
+        {
+            if (renterId == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "RenterId is required"
+                };
+
+            var includes = new string[] { VehicleIncludes.Discounts };
+            var vehicle = await _unitOfWork.Vehicles.FindAsync(v=>v.Id==updateVehicleDiscountsDto.VehicleId, includes);
+            
+            if (vehicle == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+
+            if (renterId != vehicle.RenterId)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.Forbidden,
+                    Message = "You are not the owner of this vehicle"
+                };
+
+            vehicle.Discounts = _mapper.Map<List<Discount>>(updateVehicleDiscountsDto.Discounts);
+
+            await _unitOfWork.Vehicles.AddOrUpdateAsync(vehicle);
+            var changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to update vehicle discounts"
+                };
+
+            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            
+            if (updatedVehicleResult.StatusCode != StatusCodes.OK)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Vehicle discounts updated but failed to retrieve it"
+                };
+
+            return new ResponseDto<GetVehicleDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Vehicle discounts updated successfully",
                 Data = updatedVehicleResult.Data
             };
         }

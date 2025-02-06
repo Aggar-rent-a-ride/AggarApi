@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CORE.DTOs.Vehicle;
+using CORE.DTOs.VehicleBrand;
 using DATA.Models;
 using System;
 using System.Collections.Generic;

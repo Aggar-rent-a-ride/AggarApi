@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CORE.DTOs.Vehicle
+namespace CORE.DTOs.Discount
 {
-    public class DiscountDto
+    public class CreateDiscountDto
     {
         public int DaysRequired { get; set; }
         public decimal DiscountPercentage { get; set; }
-        public decimal DiscountedPricePerDay { get; set; }
     }
 }

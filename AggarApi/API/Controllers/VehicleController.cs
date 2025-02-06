@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using CORE.Helpers;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
+using CORE.DTOs.Discount;
 
 namespace API.Controllers
 {
@@ -70,6 +71,14 @@ namespace API.Controllers
         {
             var renterId = UserHelpers.GetUserId(User);
             var response = await _vehicleService.UpdateVehicleImagesAsync(dto, renterId);
+            return StatusCode(response.StatusCode, response);
+        }
+        [Authorize(Roles = "Renter")]
+        [HttpPut("vehicle-discounts")]
+        public async Task<IActionResult> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto dto)
+        {
+            var renterId = UserHelpers.GetUserId(User);
+            var response = await _vehicleService.UpdateVehicleDiscountsAsync(dto, renterId);
             return StatusCode(response.StatusCode, response);
         }
     }

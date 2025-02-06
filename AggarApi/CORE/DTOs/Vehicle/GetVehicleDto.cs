@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using CORE.DTOs.Discount;
+using CORE.DTOs.VehicleBrand;
+using CORE.DTOs.VehicleType;
 using DATA.Models;
 using DATA.Models.Enums;
 
@@ -32,6 +35,7 @@ namespace CORE.DTOs.Vehicle
         public VehicleTypeDto VehicleType { get; set; }
         public VehicleBrandDto VehicleBrand { get; set; }
         public ICollection<string>? VehicleImages { get; set; }
+        public ICollection<GetDiscountDto> Discounts { get; set; }
 
     }
 }

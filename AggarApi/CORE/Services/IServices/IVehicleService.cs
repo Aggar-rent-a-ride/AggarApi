@@ -2,6 +2,7 @@
 using DATA.Models.Enums;
 ﻿using CORE.DTOs;
 using CORE.DTOs.Vehicle;
+using CORE.DTOs.Discount;
 
 namespace CORE.Services.IServices
 {
@@ -15,5 +16,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId);
+        Task<ResponseDto<GetVehicleDto>> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto updateVehicleDiscountsDto, int? renterId);
     }
 }
