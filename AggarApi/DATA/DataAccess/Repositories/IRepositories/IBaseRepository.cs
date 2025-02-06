@@ -15,5 +15,7 @@ namespace DATA.DataAccess.Repositories.IRepositories
         void Delete(T entity);
         void Attach(T entity);
         Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities);
+        Task<bool> CheckAllAsync(Expression<Func<T, bool>> criteria, string[] includes);
+        Task<bool> CheckAnyAsync(Expression<Func<T, bool>> criteria, string[] includes);
     }
 }
