@@ -10,9 +10,10 @@ namespace CORE.Services.IServices
 {
     public interface IBookingService
     {
-        //public Task<ResponseDto<CreateBookingDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int userId);
-        //public Task<ResponseDto<BookingDetailsDto>> GetBookingAsync(int bookingId);
+        public Task<ResponseDto<BookingDetailsDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int? customerId);
+        public Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int? userId);
         //public Task<ResponseDto<>> ConfirmBookingAsync(int bookingId);
-        //public Task<ResponseDto<>> CancelBookingAsync(int bookingId);
+        public Task<ResponseDto<object>> CancelBookingAsync(int bookingId, int? customerId);
+        public Task<ResponseDto<object>> ResponseBookingRequestAsync(int bookingId, int? renterId, bool isAccepted);
     }
 }

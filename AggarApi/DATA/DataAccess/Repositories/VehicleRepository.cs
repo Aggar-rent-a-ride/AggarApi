@@ -50,10 +50,10 @@ namespace DATA.DataAccess.Repositories
 
             if (searchKey is not null)
                 vehicles = vehicles.Where(v =>
-                    (v.Requirements != null && v.Requirements.Contains(searchKey)) ||
-                    (v.ExtraDetails != null && v.ExtraDetails.Contains(searchKey)) ||
-                    (v.Model != null && v.Model.Contains(searchKey)) ||
-                    (v.Color != null && v.Color.Contains(searchKey)));
+                    (v.Requirements != null && v.Requirements.ToLower().Contains(searchKey.ToLower())) ||
+                    (v.ExtraDetails != null && v.ExtraDetails.ToLower().Contains(searchKey.ToLower())) ||
+                    (v.Model != null && v.Model.ToLower().Contains(searchKey.ToLower())) ||
+                    (v.Color != null && v.Color.ToLower().Contains(searchKey.ToLower())));
 
             return vehicles;
         }
