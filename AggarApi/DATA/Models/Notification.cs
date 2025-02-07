@@ -7,7 +7,7 @@ namespace DATA.Models
         public int Id { get; set; }
         public int ReceiverId { get; set; }
         public int? TargetId { get; set; }
-        public DateTime SentAt { get; set; } = DateTime.Now;
+        public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public string Content { get; set; } = null!;
         public bool Seen { get; set; } = false;
 

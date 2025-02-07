@@ -1,4 +1,5 @@
-﻿using CORE.Constants;
+﻿using AutoMapper;
+using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Booking;
 using CORE.DTOs.Vehicle;
@@ -19,9 +20,11 @@ namespace CORE.Services
     public class BookingService : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public BookingService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         
         private bool CheckVehicleAvailability(Vehicle vehicle, DateTime startDate, DateTime endDate)
@@ -86,15 +89,8 @@ namespace CORE.Services
             }
 
             // discount
-            Booking newBooking = new Booking
-            {
-                VehicleId = createBookingDto.VehicleId,
-                StartDate = createBookingDto.StartDate,
-                EndDate = createBookingDto.EndDate,
-                Status = DATA.Models.Enums.BookingStatus.Pending,
-                CustomerId = customerId.Value,
-                Price = vehicle.PricePerDay * createBookingDto.EndDate.TotalDays(createBookingDto.StartDate),
-            };
+            Booking newBooking = _mapper.Map<Booking>(createBookingDto);
+            newBooking.Price = vehicle.PricePerDay * createBookingDto.EndDate.TotalDays(createBookingDto.StartDate);
 
             await _unitOfWork.Bookings.AddOrUpdateAsync(newBooking);
 
@@ -145,17 +141,7 @@ namespace CORE.Services
                     Message = "Booking not found"
                 };
 
-            BookingDetailsDto bookingDetailsDto = new BookingDetailsDto
-            {
-                VehicleImage = booking.Vehicle.MainImagePath,
-                VehicleId = booking.VehicleId,
-                StartDate = booking.StartDate,
-                EndDate = booking.EndDate,
-                TotalDays = booking.TotalDays,
-                Price = booking.Price,
-                Discount = booking.Discount,
-                FinalPrice = booking.FinalPrice,
-            };
+            BookingDetailsDto bookingDetailsDto = _mapper.Map<BookingDetailsDto>(booking);
 
             return new ResponseDto<BookingDetailsDto>
             {
