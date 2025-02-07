@@ -7,7 +7,7 @@
         public int ReceiverId { get; set; }
         public string Content { get; set; } = null!;
         public string? AttachmentPath { get; set; }
-        public DateTime SentAt { get; set; } = DateTime.Now;
+        public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public bool Seen { get; set; } = false;
 
         public AppUser Sender { get; set; } = null!;
