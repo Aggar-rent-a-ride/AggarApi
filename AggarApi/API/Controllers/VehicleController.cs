@@ -30,8 +30,8 @@ namespace API.Controllers
             return StatusCode(response.StatusCode, response);
         }
         [Authorize]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetVehicleByIdAsync(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetVehicleByIdAsync([FromQuery] int id)
         {
             var renterId = UserHelpers.GetUserId(User);
             var response = await _vehicleService.GetVehicleByIdAsync(id);
