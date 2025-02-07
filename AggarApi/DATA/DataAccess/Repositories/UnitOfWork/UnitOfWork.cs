@@ -15,6 +15,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<AppUser> AppUsers { get; private set; }
         public IVehicleRepository Vehicles { get; private set; }
         public IBaseRepository<Discount> Discounts { get; private set; }
+        public IBaseRepository<Booking> Bookings { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {

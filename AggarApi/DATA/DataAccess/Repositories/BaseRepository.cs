@@ -70,6 +70,17 @@ namespace DATA.DataAccess.Repositories
 
         public async Task<T?> GetAsync(int id) => await _context.Set<T>().FindAsync(id);
 
+        public async Task<T?> GetAsync(int id, string[] includes = null)
+        {
+            T? entity = await _context.Set<T>().FindAsync(id);
+
+            if (includes != null)
+                foreach (var include in includes)
+                    await _context.Entry(entity).Collection(include).LoadAsync();
+
+            return entity;
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize) =>
             _context.Set<T>()
             .Skip((pageNo - 1) * pageSize).Take(pageSize);
@@ -106,5 +117,6 @@ namespace DATA.DataAccess.Repositories
 
             return await query.AnyAsync(criteria);
         }
+
     }
 }

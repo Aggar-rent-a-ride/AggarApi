@@ -13,7 +13,7 @@ namespace CORE.DTOs.Booking
         public decimal Price { get; set; }
         public decimal FinalPrice { get; set; }
         public decimal Discount { get; set; }
-        public string? Notes { get; set; }
+        public string VehicleImage { get; set; }
         public BookingStatus Status { get; set; }
     }
 }
