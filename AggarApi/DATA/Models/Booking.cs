@@ -31,7 +31,7 @@ namespace DATA.Models
                 return Price - Price * (Discount / 100);
             }
         }
-        public Enums.BookingStatus Status { get; set; }
+        public Enums.BookingStatus Status { get; set; } = Enums.BookingStatus.Pending;
 
         public Customer Customer { get; set; } = null!;
         public Vehicle Vehicle { get; set; } = null!;
