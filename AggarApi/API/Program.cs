@@ -1,3 +1,4 @@
+using API.Hubs;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Email;
 using CORE.DTOs.Geoapify;
@@ -113,6 +114,23 @@ namespace API
                     ValidAudience = builder.Configuration["JWT:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+
+                        // Read the token for SignalR connections
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/Chat"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+
             });
             builder.Services.AddAuthorization();
 
@@ -135,6 +153,7 @@ namespace API
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
 
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
             app.MapOpenApi();
@@ -170,6 +189,7 @@ namespace API
 
 
             app.MapControllers();
+            app.MapHub<ChatHub>("/Chat");
 
             app.Run();
         }
