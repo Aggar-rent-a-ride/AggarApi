@@ -12,7 +12,7 @@ namespace CORE.AutoMapperProfiles
 {
     public class BookingProfile : Profile
     {
-        BookingProfile()
+        public BookingProfile()
         {
             CreateMap<CreateBookingDto, Booking>()
                 .ReverseMap();
