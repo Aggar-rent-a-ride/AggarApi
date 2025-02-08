@@ -21,3 +21,4 @@ logs/
 *.userprefs
 .config/
 PublishProfiles/
+wwwroot/
