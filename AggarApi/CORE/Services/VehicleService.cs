@@ -243,7 +243,7 @@ namespace CORE.Services
             else if(vehicle.RenterId != renterId)
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.BadRequest,
+                    StatusCode = StatusCodes.Forbidden,
                     Message = "You are not the owner of this vehicle"
                 };
 
