@@ -23,6 +23,9 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             _context = context;
             AppUsers = new BaseRepository<AppUser>(_context);
             Vehicles = new VehicleRepository(_context);
+            Discounts = new BaseRepository<Discount>(_context);
+            Bookings = new BaseRepository<Booking>(_context);
+            UserConnections = new BaseRepository<UserConnection>(_context);
         }
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
