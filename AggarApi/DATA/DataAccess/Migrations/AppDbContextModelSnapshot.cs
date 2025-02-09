@@ -534,6 +534,34 @@ namespace DATA.DataAccess.Migrations
                     b.UseTpcMappingStrategy();
                 });
 
+            modelBuilder.Entity("DATA.Models.UserConnection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ConnectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ConnectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DisconnectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserConnection");
+                });
+
             modelBuilder.Entity("DATA.Models.Vehicle", b =>
                 {
                     b.Property<int>("Id")
@@ -1170,6 +1198,17 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Rental");
                 });
 
+            modelBuilder.Entity("DATA.Models.UserConnection", b =>
+                {
+                    b.HasOne("DATA.Models.AppUser", "User")
+                        .WithMany("Connections")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DATA.Models.Vehicle", b =>
                 {
                     b.HasOne("DATA.Models.Renter", "Renter")
@@ -1367,6 +1406,8 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
+                    b.Navigation("Connections");
+
                     b.Navigation("Messages");
 
                     b.Navigation("Notifications");
