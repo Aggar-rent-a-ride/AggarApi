@@ -72,7 +72,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.Data.IsAuthenticated == false);
+            Assert.That(result.StatusCode != StatusCodes.Created);
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnValidationMessage_WhenUsernameExists()
@@ -86,7 +86,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.Data.IsAuthenticated == false);
+            Assert.That(result.StatusCode != StatusCodes.Created);
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnValidationMessage_WhenEmailExists()
@@ -100,7 +100,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.Data.IsAuthenticated == false);
+            Assert.That(result.StatusCode != StatusCodes.Created);
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnMessage_WhenUserCreationFails()
@@ -117,7 +117,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, null);
 
             // Assert
-            Assert.That(result.Data.IsAuthenticated == false);
+            Assert.That(result.StatusCode != StatusCodes.Created);
             Assert.That(result.Message == "Password too weak");
         }
         [Test]
@@ -140,7 +140,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, roles);
 
             // Assert
-            Assert.That(result.Data.IsAuthenticated == false);
+            Assert.That(result.StatusCode != StatusCodes.Created);
         }
         [Test]
         public async Task RegisterAsync_ShouldReturnSuccessMessage_WhenRegistrationSucceeds()
@@ -172,7 +172,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.RegisterAsync(registerDto, roles);
 
             // Assert
-            Assert.That(result.Data.IsAuthenticated == true);
+            Assert.That(result.StatusCode == StatusCodes.Created);
             Assert.That(result.Data.Roles, Is.EquivalentTo(roles));
             Assert.That(result.Data.Username == registerDto.Username);
             Assert.That(result.Data.Email == registerDto.Email);
