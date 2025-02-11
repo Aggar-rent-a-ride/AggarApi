@@ -1,4 +1,5 @@
 ﻿using CORE.Constants;
+using CORE.DTOs;
 using CORE.DTOs.Message;
 using CORE.Services.IServices;
 using DATA.Constants;
@@ -10,46 +11,43 @@ namespace API.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private readonly IUserConnectionService _connectionService;
         private readonly IMessageService _messageService;
 
-        public ChatHub(IUserConnectionService connectionService, IMessageService messageService)
+        public ChatHub(IMessageService messageService)
         {
-            _connectionService = connectionService;
             _messageService = messageService;
         }
         public override async Task OnConnectedAsync()
         {
-            if (int.TryParse(Context.UserIdentifier, out int userId) == false)
+            if(Context.UserIdentifier == null)
                 return;
 
-            var connection = await _connectionService.CreateUserConnectionAsync(userId, Context.ConnectionId);
-            
-            if (connection == null)
-                return;
+            await Groups.AddToGroupAsync(Context.ConnectionId, Context.UserIdentifier);
 
             await base.OnConnectedAsync();
         }
         public async Task SendMessageAsync(CreateMessageDto messageDto)
         {
-            var result = await _messageService.CreateMessageAsync(messageDto);
+            if(int.TryParse(Context.UserIdentifier, out int senderId) == false)
+            {
+                await Clients.Caller.SendAsync(SignalRMethods.ReceiveMessage, new ResponseDto<GetMessageDto> { StatusCode = CORE.Constants.StatusCodes.BadRequest, Message = "Invalid UserIdentifier", Data = new GetMessageDto {ClientMessageId = messageDto.ClientMessageId } });
+                return;
+            }
 
-            //either if saved to db or not, cuz if it wasn't saved the response dto.status code will be 500
-            await Clients.Caller.SendAsync(SignalRMethods.ReceiveMessage, result);
+            var result = await _messageService.CreateMessageAsync(messageDto, senderId);
 
             //send to reciever only if saved to db
             if (result.StatusCode == CORE.Constants.StatusCodes.Created) 
-            {
-                var receiverConnections = await _connectionService.GetAllUserConnectionsAsync(messageDto.ReceiverId);
-
-                if (receiverConnections != null && receiverConnections.Count != 0)
-                    await Clients.Clients(receiverConnections.Select(c => c.ConnectionId)).SendAsync(SignalRMethods.ReceiveMessage, result);
-            }
+                await Clients.Groups(new List<string> { messageDto.ReceiverId.ToString(), Context.UserIdentifier }).SendAsync(SignalRMethods.ReceiveMessage, result);
+            
+            //either if saved to db or not, cuz if it wasn't saved the response dto.status code will be 500
+            else
+                await Clients.Group(Context.UserIdentifier).SendAsync(SignalRMethods.ReceiveMessage, result);
         }
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var connection = await _connectionService.DisconnectAsync(Context.ConnectionId);
-
+            if(Context.UserIdentifier != null)
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, Context.UserIdentifier);
             await base.OnDisconnectedAsync(exception);
         }
     }

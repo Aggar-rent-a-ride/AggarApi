@@ -34,6 +34,5 @@ namespace DATA.Models
         public ICollection<Report>? TargetedReports { get; set; }
         public ICollection<AdminAction>? TargetedAdminActions { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; }
-        public ICollection<UserConnection> Connections { get; set; }
     }
 }
