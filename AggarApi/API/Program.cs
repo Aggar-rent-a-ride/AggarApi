@@ -149,7 +149,6 @@ namespace API
             builder.Services.AddScoped<IVehicleService, VehicleService>();
             builder.Services.AddScoped<IGeoapifyService, GeoapifyService>();
             builder.Services.AddScoped<IFileService, FileService>();
-            builder.Services.AddScoped<IUserConnectionService, UserConnectionService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
 

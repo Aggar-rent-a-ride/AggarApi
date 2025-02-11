@@ -26,7 +26,6 @@ namespace DATA.DataAccess.Context
         public DbSet<RecommendedBrand> RecommendedBrands { get; set; }
         public DbSet<RecommendedType> RecommendedTypes { get; set; }
 
-
         public AppDbContext() { }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

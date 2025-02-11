@@ -25,11 +25,11 @@ namespace CORE.Services
             _mapper = mapper;
             _userService = userService;
         }
-        private string? ValidateCreateMessageDto(CreateMessageDto dto)
+        private string? ValidateCreateMessageDto(CreateMessageDto dto, int senderId)
         {
             if (dto == null)
                 return "Message cannot be null";
-            if (dto.SenderId == 0)
+            if (senderId == 0)
                 return "Sender cannot be null";
             if (dto.ReceiverId == 0)
                 return "Receiver cannot be null";
@@ -39,9 +39,9 @@ namespace CORE.Services
                 return "ClientMessageId cannot be null";
             return null;
         }
-        public async Task<ResponseDto<GetMessageDto>> CreateMessageAsync(CreateMessageDto messageDto)
+        public async Task<ResponseDto<GetMessageDto>> CreateMessageAsync(CreateMessageDto messageDto, int senderId)
         {
-            if(ValidateCreateMessageDto(messageDto) is string error)
+            if(ValidateCreateMessageDto(messageDto, senderId) is string error)
                 return new ResponseDto<GetMessageDto>
                 {
                     Message = error,
@@ -49,8 +49,9 @@ namespace CORE.Services
                     Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId }
                 };
             var message = _mapper.Map<Message>(messageDto);
+            message.SenderId = senderId;
 
-            if (messageDto.SenderId == messageDto.ReceiverId)
+            if (senderId == messageDto.ReceiverId)
                 return new ResponseDto<GetMessageDto>
                 {
                     Message = "Sender and receiver cannot be the same",
@@ -58,7 +59,7 @@ namespace CORE.Services
                     Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId }
                 };
 
-            if(await _userService.CheckAllUsersExist(new List<int> { messageDto.SenderId, messageDto.ReceiverId }) == false)
+            if(await _userService.CheckAllUsersExist(new List<int> { senderId, messageDto.ReceiverId }) == false)
                 return new ResponseDto<GetMessageDto>
                 {
                     Message = "users do not exist",
