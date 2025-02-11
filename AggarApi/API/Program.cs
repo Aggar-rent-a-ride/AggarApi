@@ -151,6 +151,7 @@ namespace API
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IUserConnectionService, UserConnectionService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
