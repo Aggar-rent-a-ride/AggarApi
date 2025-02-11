@@ -19,6 +19,8 @@ namespace DATA.DataAccess.Context.Interceptors
             .WithMany(u=>u.Connections) 
             .HasForeignKey(uc => uc.UserId)
             .OnDelete(DeleteBehavior.Cascade);  // Delete connections if user is deleted
+
+            builder.HasIndex(uc => uc.ConnectionId);
         }
     }
 }
