@@ -4,6 +4,7 @@ using DATA.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATA.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250212174515_RemovingMessageInheritance")]
+    partial class RemovingMessageInheritance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,8 +286,8 @@ namespace DATA.DataAccess.Migrations
 
                     b.Property<string>("MessageType")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
 
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
@@ -307,8 +310,6 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("Messages", (string)null);
 
                     b.HasDiscriminator<string>("MessageType").HasValue("Message");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("DATA.Models.Notification", b =>
@@ -835,28 +836,6 @@ namespace DATA.DataAccess.Migrations
                     b.HasBaseType("DATA.Models.AppUser");
 
                     b.ToTable("Renters", (string)null);
-                });
-
-            modelBuilder.Entity("DATA.Models.ContentMessage", b =>
-                {
-                    b.HasBaseType("DATA.Models.Message");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasDiscriminator().HasValue("Content");
-                });
-
-            modelBuilder.Entity("DATA.Models.FileMessage", b =>
-                {
-                    b.HasBaseType("DATA.Models.Message");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasDiscriminator().HasValue("File");
                 });
 
             modelBuilder.Entity("CustomersFavoriteVehicles", b =>

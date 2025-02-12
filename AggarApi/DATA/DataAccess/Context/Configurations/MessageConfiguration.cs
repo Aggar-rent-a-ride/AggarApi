@@ -20,7 +20,11 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasForeignKey<Report>(r => r.TargetId)
                 .IsRequired(false);
 
-            builder.HasDiscriminator<string>("MessageType");
+            builder.HasDiscriminator(m=>m.MessageType)
+                .HasValue<ContentMessage>("Content")
+                .HasValue<FileMessage>("File");
+
+            builder.Property(m => m.MessageType).HasMaxLength(50);
 
             builder.ToTable("Messages");
         }
