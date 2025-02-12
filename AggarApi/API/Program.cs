@@ -19,6 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using Serilog;
+using Serilog.Formatting.Compact;
 using System;
 using System.Security.Claims;
 using System.Text;
@@ -34,19 +36,28 @@ namespace API
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
 
+            // Configure Serilog for file logging
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .CreateLogger();
+
+            // Use Serilog as the logging provider
+            builder.Host.UseSerilog();
+
             // Add services to the container.
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-
+            
+            /*
             // Register GeometryFactory for spatial operations
             builder.Services.AddSingleton<NtsGeometryServices>(NtsGeometryServices.Instance);
             builder.Services.AddSingleton<GeometryFactory>(provider =>
             {
                 NtsGeometryServices geometryServices = provider.GetRequiredService<NtsGeometryServices>();
                 return geometryServices.CreateGeometryFactory(srid: 4326);
-            });
+            });*/
 
             // register DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -192,6 +203,10 @@ namespace API
 
             app.MapControllers();
             app.MapHub<ChatHub>("/Chat");
+
+            app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
+
+            app.UseSerilogRequestLogging();
 
             app.Run();
         }
