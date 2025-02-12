@@ -20,6 +20,8 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasForeignKey<Report>(r => r.TargetId)
                 .IsRequired(false);
 
+            builder.HasDiscriminator<string>("MessageType");
+
             builder.ToTable("Messages");
         }
     }
