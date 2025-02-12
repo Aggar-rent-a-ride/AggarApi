@@ -9,8 +9,6 @@ namespace DATA.Models
         public string ClientMessageId { get; set; } = null!;
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
-        public string Content { get; set; } = null!;
-        public string? AttachmentPath { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public bool Seen { get; set; } = false;
 
@@ -18,5 +16,13 @@ namespace DATA.Models
         public AppUser Receiver { get; set; } = null!;
         public Notification? Notification { get; set; }
         public Report? Report { get; set; }
+    }
+    public class ContentMessage : Message
+    {
+        public string Content { get; set; } = null!;
+    }
+    public class FileMessage : Message
+    {
+        public string FilePath { get; set; } = null!;
     }
 }
