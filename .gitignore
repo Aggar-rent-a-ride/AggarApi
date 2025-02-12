@@ -22,3 +22,4 @@ logs/
 .config/
 PublishProfiles/
 wwwroot/
+Logs/
