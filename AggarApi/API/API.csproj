@@ -29,5 +29,9 @@
     <ProjectReference Include="..\CORE\CORE.csproj" />
     <ProjectReference Include="..\DATA\DATA.csproj" />
   </ItemGroup>
+	
+	<PropertyGroup>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
+	</PropertyGroup>
 
 </Project>

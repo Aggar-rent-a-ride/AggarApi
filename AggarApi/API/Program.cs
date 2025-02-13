@@ -3,6 +3,7 @@ using CORE.DTOs.Auth;
 using CORE.DTOs.Email;
 using CORE.DTOs.Geoapify;
 using CORE.DTOs.Paths;
+using CORE.Helpers;
 using CORE.Services;
 using CORE.Services.IServices;
 using DATA.DataAccess.Context;
@@ -151,6 +152,7 @@ namespace API
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddScoped<EmailTemplateRendererHelpers, EmailTemplateRendererHelpers>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
