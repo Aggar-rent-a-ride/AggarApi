@@ -163,7 +163,7 @@ namespace API
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
-            builder.Services.AddScoped<EmailTemplateRendererHelpers, EmailTemplateRendererHelpers>();
+            builder.Services.AddScoped<IEmailTemplateRendererService, EmailTemplateRendererService>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();

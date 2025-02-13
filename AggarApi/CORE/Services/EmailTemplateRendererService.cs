@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using CORE.Services.IServices;
+using Microsoft.AspNetCore.Hosting;
 using RazorLight;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace CORE.Helpers
 {
-    public class EmailTemplateRendererHelpers
+    public class EmailTemplateRendererService : IEmailTemplateRendererService
     {
         private readonly IWebHostEnvironment _env;
         private readonly RazorLightEngine _engine;
-        public EmailTemplateRendererHelpers(IWebHostEnvironment env)
+        public EmailTemplateRendererService(IWebHostEnvironment env)
         {
             _env = env;
             _engine = new RazorLightEngineBuilder()
