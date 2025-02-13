@@ -37,7 +37,7 @@ namespace CORE.Services
         private readonly IEmailService _emailService;
         private readonly IMemoryCache _memoryCache;
         private readonly IGeoapifyService _geoapifyService;
-        private readonly EmailTemplateRendererHelpers _emailTemplateRenderer;
+        private readonly IEmailTemplateRendererService _emailTemplateRendererService;
 
         public AuthService(IOptions<JwtConfig> jwt,
             UserManager<AppUser> userManager,
@@ -47,7 +47,7 @@ namespace CORE.Services
             IEmailService emailService,
             IMemoryCache memoryCache,
             IGeoapifyService geoapifyService,
-            EmailTemplateRendererHelpers emailTemplateRenderer)
+            IEmailTemplateRendererService emailTemplateRendererService)
         {
             _jwt = jwt;
             _userManager = userManager;
@@ -57,7 +57,7 @@ namespace CORE.Services
             _emailService = emailService;
             _memoryCache = memoryCache;
             _geoapifyService = geoapifyService;
-            _emailTemplateRenderer = emailTemplateRenderer;
+            _emailTemplateRendererService = emailTemplateRendererService;
         }
         private async Task<string?> ValidateRegistrationAsync(RegisterDto registerDto)
         {
@@ -275,7 +275,7 @@ namespace CORE.Services
                 return new ResponseDto<object> { Message = $"Your account is {user.Status.ToString().ToLower()}.", StatusCode = StatusCodes.BadRequest };
 
             var activationCode = GenerateActivationCode();
-            var emailSent = await _emailService.SendEmailAsync(user.Email, "Activate your account", await _emailTemplateRenderer.RenderTemplateAsync(Templates.AccountActivationEmail, new { Code = System.Web.HttpUtility.HtmlEncode(activationCode) }));
+            var emailSent = await _emailService.SendEmailAsync(user.Email, "Activate your account", await _emailTemplateRendererService.RenderTemplateAsync(Templates.AccountActivationEmail, new { Code = System.Web.HttpUtility.HtmlEncode(activationCode) }));
             if (emailSent == false)
                 return new ResponseDto<object> { Message = "Something went wrong. Please try again.", StatusCode =  StatusCodes.InternalServerError };
 

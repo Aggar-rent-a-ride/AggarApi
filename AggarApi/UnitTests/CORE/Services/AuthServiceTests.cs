@@ -32,6 +32,7 @@ namespace UnitTests.CORE.Services
         private Mock<IEmailService> _mockEmailService;
         private Mock<IMemoryCache> _mockMemoryCache;
         private Mock<IGeoapifyService> _mockGeoapifyService;
+        private Mock<IEmailTemplateRendererService> _mockEmailTemplateRendererService;
         private AuthService _authService;
         private Mock<UserManager<AppUser>> MockUserManager()
         {
@@ -50,6 +51,7 @@ namespace UnitTests.CORE.Services
             _mockEmailService = new Mock<IEmailService>();
             _mockMemoryCache = new Mock<IMemoryCache>();
             _mockGeoapifyService = new Mock<IGeoapifyService>();
+            _mockEmailTemplateRendererService = new Mock<IEmailTemplateRendererService>();
 
             _authService = new AuthService(
                 _mockJwtOptions.Object,
@@ -59,7 +61,8 @@ namespace UnitTests.CORE.Services
                 _mockUnitOfWork.Object,
                 _mockEmailService.Object,
                 _mockMemoryCache.Object,
-                _mockGeoapifyService.Object
+                _mockGeoapifyService.Object,
+                _mockEmailTemplateRendererService.Object
             );
         }
         [Test]
