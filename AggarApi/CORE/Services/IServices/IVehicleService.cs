@@ -12,7 +12,7 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId);
         Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, 
             string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, 
-            double? Rate, decimal? minPrice, decimal? maxPrice, int? year);
+            double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null);
         Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId);

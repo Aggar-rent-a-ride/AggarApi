@@ -7,6 +7,7 @@ using CORE.Helpers;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using CORE.DTOs.Discount;
+using DATA.Models;
 
 namespace API.Controllers
 {
@@ -47,6 +48,20 @@ namespace API.Controllers
             int userId = UserHelpers.GetUserId(User);
 
             ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [Authorize(Roles = "Customer")]
+        [HttpGet("get-vehicles-by-point")]
+        public async Task<IActionResult> GetNearestVehiclesByPointAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
+            [FromQuery] double latitude, [FromQuery] double longitude,
+            [FromQuery] string? searchKey,
+            [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
+            [FromQuery] double? Rate, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int? year)
+        {
+            int userId = UserHelpers.GetUserId(User);
+
+            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year, new Location { Latitude = latitude, Longitude = longitude });
             return StatusCode(result.StatusCode, result);
         }
         [Authorize(Roles = "Renter")]
