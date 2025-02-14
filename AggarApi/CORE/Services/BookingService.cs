@@ -36,8 +36,6 @@ namespace CORE.Services
             return result;
         }
 
-
-
         public async Task<ResponseDto<BookingDetailsDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int? customerId)
         {
             if (customerId.Value == 0 || !customerId.HasValue)
@@ -66,7 +64,6 @@ namespace CORE.Services
                 {
                     Message = "Vehicle not found",
                     StatusCode = StatusCodes.BadRequest,
-                    Data = null
                 };
             }
             else if (vehicle.Status != DATA.Models.Enums.VehicleStatus.Active)
@@ -74,8 +71,7 @@ namespace CORE.Services
                 return new ResponseDto<BookingDetailsDto>
                 {
                     Message = "Vehicle is out of service",
-                    StatusCode = StatusCodes.OK,
-                    Data = null
+                    StatusCode = StatusCodes.Conflict,
                 };
             }
             else if (!CheckVehicleAvailability(vehicle, createBookingDto.StartDate, createBookingDto.EndDate))
@@ -83,14 +79,27 @@ namespace CORE.Services
                 return new ResponseDto<BookingDetailsDto>
                 {
                     Message = "Vehicle is not available in this interval",
-                    StatusCode = StatusCodes.OK,
-                    Data = null
+                    StatusCode = StatusCodes.Conflict,
                 };
             }
 
-            // discount
             Booking newBooking = _mapper.Map<Booking>(createBookingDto);
+            
             newBooking.Price = vehicle.PricePerDay * createBookingDto.EndDate.TotalDays(createBookingDto.StartDate);
+            
+            Discount? discount = vehicle.Discounts?.
+                Where(d => d.DaysRequired <= newBooking.TotalDays)
+                .OrderByDescending(d => d.DiscountPercentage)
+                .FirstOrDefault();
+
+            if(discount != null)
+            {
+                newBooking.Discount = discount.DiscountPercentage;
+            }
+            else
+            {
+                newBooking.Discount = 0;
+            }
 
             await _unitOfWork.Bookings.AddOrUpdateAsync(newBooking);
 
@@ -119,7 +128,7 @@ namespace CORE.Services
             
         public async Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int? userId)
         {
-            if (!userId.HasValue)
+            if (!userId.HasValue || userId <= 0)
                 return new ResponseDto<BookingDetailsDto>
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -142,6 +151,11 @@ namespace CORE.Services
                 };
 
             BookingDetailsDto bookingDetailsDto = _mapper.Map<BookingDetailsDto>(booking);
+            bookingDetailsDto.VehicleImagePath = booking.Vehicle.MainImagePath;
+            bookingDetailsDto.VehicleModel = booking.Vehicle.Model;
+            bookingDetailsDto.VehicleYear = booking.Vehicle.Year;
+            bookingDetailsDto.VehicleBrand = booking.Vehicle.VehicleBrand?.Name;
+            bookingDetailsDto.VehicleType = booking.Vehicle.VehicleType?.Name;
 
             return new ResponseDto<BookingDetailsDto>
             {

@@ -15,5 +15,6 @@ namespace CORE.Services.IServices
         //public Task<ResponseDto<>> ConfirmBookingAsync(int bookingId);
         public Task<ResponseDto<object>> CancelBookingAsync(int bookingId, int? customerId);
         public Task<ResponseDto<object>> ResponseBookingRequestAsync(int bookingId, int? renterId, bool isAccepted);
+        //public Task<ResponseDto<PagedResultDto<BookingSummaryDto>>> GetBookingAsync(int userId, int pageIndex, int pageSize); // maybe in profile
     }
 }

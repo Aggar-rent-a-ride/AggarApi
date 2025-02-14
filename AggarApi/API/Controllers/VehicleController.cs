@@ -52,8 +52,8 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Customer")]
-        [HttpGet("get-vehicles-by-point")]
-        public async Task<IActionResult> GetNearestVehiclesByPointAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
+        [HttpGet("get-vehicles-by-location")]
+        public async Task<IActionResult> GetNearestVehiclesByLocationAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
             [FromQuery] double latitude, [FromQuery] double longitude,
             [FromQuery] string? searchKey,
             [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
