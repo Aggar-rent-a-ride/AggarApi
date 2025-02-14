@@ -160,17 +160,25 @@ namespace CORE.Services
                 Data = _mapper.Map<GetVehicleDto>(vehicle)
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year)
+        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null)
         {
+            if(userId == 0)
+                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "UserId is required"
+                };
+
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
                 return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
                 {
                     StatusCode = StatusCodes.BadRequest,
-                    Message = "Authentication Failed"
+                    Message = "User Not Found"
                 };
 
-            Location userLocation = user.Location;
+            if(location == null)
+                location = user.Location;
 
             pageNo = pageNo <= 0 ? 1 : pageNo;
 
@@ -188,10 +196,10 @@ namespace CORE.Services
                     Rate = v.Rate,
                     MainImagePath = v.MainImagePath,
                     Distance = (6371 * Math.Acos(
-                        Math.Cos(userLocation.Latitude * Math.PI / 180.0) *
+                        Math.Cos(location.Latitude * Math.PI / 180.0) *
                         Math.Cos(v.Location.Latitude * Math.PI / 180.0) *
-                        Math.Cos((v.Location.Longitude - userLocation.Longitude) * Math.PI / 180.0) +
-                        Math.Sin(userLocation.Latitude * Math.PI / 180.0) *
+                        Math.Cos((v.Location.Longitude - location.Longitude) * Math.PI / 180.0) +
+                        Math.Sin(location.Latitude * Math.PI / 180.0) *
                         Math.Sin(v.Location.Latitude * Math.PI / 180.0)
                     )),
                 })
