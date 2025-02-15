@@ -18,14 +18,16 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
+        private readonly IFileService _fileService;
 
-        public MessageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+        public MessageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IFileService fileService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
+            _fileService = fileService;
         }
-        private string? ValidateCreateMessageDto(CreateMessageDto dto, int senderId)
+        private async Task<string?> ValidateCreateMessageDto<T>(T dto, int senderId) where T : CreateMessageDto
         {
             if (dto == null)
                 return "Message cannot be null";
@@ -33,57 +35,81 @@ namespace CORE.Services
                 return "Sender cannot be null";
             if (dto.ReceiverId == 0)
                 return "Receiver cannot be null";
-            if (string.IsNullOrWhiteSpace(dto.Content))
-                return "Content cannot be null";
             if (dto.ClientMessageId == null)
                 return "ClientMessageId cannot be null";
+            if (senderId == dto.ReceiverId)
+                return "Sender and receiver cannot be the same";
+            if (dto is CreateContentMessageDto contentDto)
+            {
+                if (string.IsNullOrWhiteSpace(contentDto.Content))
+                    return "Content cannot be null";
+            }
+            if (dto is CreateFileMessageDto fileDto)
+            {
+                if (string.IsNullOrWhiteSpace(fileDto.FilePath))
+                    return "file cannot be null";
+                if (fileDto.Checksum == null)
+                    return "Checksum cannot be null";
+                if (fileDto.Checksum == _fileService.HashFile(fileDto.FilePath))
+                    return "Checksum does not match";
+            }
+            if (await _userService.CheckAllUsersExist(new List<int> { senderId, dto.ReceiverId }) == false)
+                return "users do not exist";
             return null;
         }
-        public async Task<ResponseDto<GetMessageDto>> CreateMessageAsync(CreateMessageDto messageDto, int senderId)
+        private async Task<ResponseDto<TGetDto>> BuildMessageDto<TGetDto, TCreateDto, TEntity>(TCreateDto messageDto, int senderId)
+            where TGetDto : GetMessageDto
+            where TCreateDto : CreateMessageDto
+            where TEntity : Message
         {
-            if(ValidateCreateMessageDto(messageDto, senderId) is string error)
-                return new ResponseDto<GetMessageDto>
+            if (await ValidateCreateMessageDto(messageDto, senderId) is string error)
+            {
+                if(messageDto is CreateFileMessageDto fileMessageDto)
+                    _fileService.DeleteFile(fileMessageDto?.FilePath);
+                return new ResponseDto<TGetDto>
                 {
                     Message = error,
                     StatusCode = StatusCodes.BadRequest,
-                    Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId }
+                    Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId } as TGetDto
                 };
-            var message = _mapper.Map<Message>(messageDto);
+            }
+
+            var message = _mapper.Map<TEntity>(messageDto);
             message.SenderId = senderId;
-
-            if (senderId == messageDto.ReceiverId)
-                return new ResponseDto<GetMessageDto>
-                {
-                    Message = "Sender and receiver cannot be the same",
-                    StatusCode = StatusCodes.BadRequest,
-                    Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId }
-                };
-
-            if(await _userService.CheckAllUsersExist(new List<int> { senderId, messageDto.ReceiverId }) == false)
-                return new ResponseDto<GetMessageDto>
-                {
-                    Message = "users do not exist",
-                    StatusCode = StatusCodes.BadRequest,
-                    Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId }
-                };
-
 
             await _unitOfWork.Messages.AddOrUpdateAsync(message);
             var changes = await _unitOfWork.CommitAsync();
 
             if (changes == 0)
-                return new ResponseDto<GetMessageDto>
+                return new ResponseDto<TGetDto>
                 {
                     Message = "Failed to send message",
                     StatusCode = StatusCodes.InternalServerError,
-                    Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId }
+                    Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId } as TGetDto
                 };
 
-            return new ResponseDto<GetMessageDto>
+            return new ResponseDto<TGetDto>
             {
                 StatusCode = StatusCodes.Created,
-                Data = _mapper.Map<GetMessageDto>(message),
-                Message = "Message sent successfully"
+                Data = _mapper.Map<TGetDto>(message),
+                Message = "message sent successfully"
+            };
+        }
+        public async Task<ResponseDto<TGet>> CreateMessageAsync<TCreate, TGet>(TCreate messageDto, int senderId)
+            where TCreate : CreateMessageDto
+            where TGet : GetMessageDto
+        {
+            if (messageDto is CreateContentMessageDto contentMessageDto)
+                return await BuildMessageDto<GetContentMessageDto, CreateContentMessageDto, ContentMessage>(contentMessageDto, senderId) as ResponseDto<TGet>;
+
+            else if (messageDto is CreateFileMessageDto fileMessageDto)
+                return await BuildMessageDto<GetFileMessageDto, CreateFileMessageDto, FileMessage>(fileMessageDto, senderId) as ResponseDto<TGet>;
+
+            return new ResponseDto<TGet>
+            {
+                Message = "Invalid message type",
+                StatusCode = StatusCodes.BadRequest,
+                Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId } as TGet
             };
         }
     }

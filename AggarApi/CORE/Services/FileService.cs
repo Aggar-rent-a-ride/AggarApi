@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using CORE.DTOs.Paths;
 using DATA.Constants;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Razor.Hosting;
 
 namespace CORE.Services
 {
@@ -79,6 +81,47 @@ namespace CORE.Services
                 return false;
             }
         }
+        public string? HashFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return null;
 
+            var completeFilePath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+
+            if (File.Exists(completeFilePath) == false)
+                return null;
+
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                var bytes = File.ReadAllBytes(completeFilePath);
+                var checksum = Convert.ToBase64String(sha256.ComputeHash(bytes));
+                return checksum;
+            }
+        }
+        public async Task<string?> CreateFile(string dir, string fileName, string fileExtension, List<string> allowedExtensions)
+        {
+            if(dir == null || fileName == null || fileExtension == null || allowedExtensions == null)
+                return null;
+
+            if (allowedExtensions.Contains(fileExtension) == false)
+                return null;
+
+            // Generate unique file name
+            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+            var uniqueFileName = $"{fileNameWithoutExt}_{Guid.NewGuid()}{fileExtension}";
+
+            // Ensure directory exists
+            var uploadDir = Path.Combine(_environment.WebRootPath, dir);
+            Directory.CreateDirectory(uploadDir);
+
+            // File paths
+            var newFilePath = Path.Combine(uploadDir, uniqueFileName);
+            var publicPath = $"/{dir}/{uniqueFileName}";
+
+            // Save the new file
+            File.Create(newFilePath).Close();
+
+            return publicPath;
+        }
     }
 }

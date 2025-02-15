@@ -10,6 +10,8 @@ namespace CORE.Services.IServices
 {
     public interface IMessageService
     {
-        Task<ResponseDto<GetMessageDto>> CreateMessageAsync(CreateMessageDto messageDto, int senderId);
+        Task<ResponseDto<TGet>> CreateMessageAsync<TCreate, TGet>(TCreate messageDto, int senderId)
+            where TCreate : CreateMessageDto
+            where TGet : GetMessageDto;
     }
 }
