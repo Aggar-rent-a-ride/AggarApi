@@ -15,6 +15,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IBaseRepository<Discount> Discounts { get; }
         IBaseRepository<Booking> Bookings { get; }
         IBaseRepository<Message> Messages { get; }
+        IBaseRepository<FileCache> FileCache { get; }
         Task<int> CommitAsync();
     }
 }

@@ -9,5 +9,6 @@ namespace DATA.Constants
     public static class SignalRMethods
     {
         public const string ReceiveMessage = "ReceiveMessage";
+        public const string UploadInitiationResponse = "UploadInitiationResponse";
     }
 }

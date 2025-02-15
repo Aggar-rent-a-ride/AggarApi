@@ -19,12 +19,4 @@ namespace DATA.Models
         public Report? Report { get; set; }
         
     }
-    public class ContentMessage : Message
-    {
-        public string Content { get; set; }
-    }
-    public class FileMessage : Message
-    {
-        public string FilePath { get; set; }
-    }
 }

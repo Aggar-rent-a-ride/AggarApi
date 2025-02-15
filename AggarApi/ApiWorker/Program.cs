@@ -10,7 +10,10 @@ namespace ApiWorker
 
             //builder.Services.AddHostedService<Worker>();
             builder.Services.AddHostedService(serviceProvider =>
-                new Worker(serviceProvider.GetService<ILogger<Worker>>(), serviceProvider.GetService<IConfiguration>()));
+                new RefreshTokenCleanupWorker(serviceProvider.GetService<ILogger<RefreshTokenCleanupWorker>>(), serviceProvider.GetService<IConfiguration>()));
+
+            builder.Services.AddHostedService(serviceProvider =>
+                new FileCacheCleanupWorker(serviceProvider.GetService<ILogger<FileCacheCleanupWorker>>(), serviceProvider.GetService<IConfiguration>()));
 
             var host = builder.Build();
             host.Run();

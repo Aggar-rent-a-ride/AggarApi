@@ -25,6 +25,7 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasValue<FileMessage>("File");
 
             builder.Property(m => m.MessageType).HasMaxLength(50);
+            builder.HasIndex(m => m.MessageType);
 
             builder.ToTable("Messages");
         }
