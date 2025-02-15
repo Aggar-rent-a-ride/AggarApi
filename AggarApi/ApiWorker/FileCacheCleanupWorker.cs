@@ -35,7 +35,7 @@ namespace ApiWorker
         {
             using var connection = new SqlConnection(constr);
 
-            var querySql = "select * from filecache where ExpiresOn<CURRENT_TIMESTAMP";
+            var querySql = "select * from filecache where ExpiresOn<GETUTCDATE()";
 
             var files = await connection.QueryAsync<FileCache>(querySql);
             if(files == null)

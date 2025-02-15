@@ -164,11 +164,15 @@ namespace API
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
             builder.Services.AddScoped<IEmailTemplateRendererService, EmailTemplateRendererService>();
+            builder.Services.AddScoped<IFileCacheService, FileCacheService>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
 
-            builder.Services.AddSignalR();
+            builder.Services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
 
             var app = builder.Build();
             app.MapOpenApi();

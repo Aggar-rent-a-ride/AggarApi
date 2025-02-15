@@ -9,5 +9,6 @@ namespace CORE.DTOs.Paths
     public class Paths
     {
         public string VehicleImages { get; set; }
+        public string MessageFiles { get; set; }
     }
 }

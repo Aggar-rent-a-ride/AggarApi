@@ -29,7 +29,7 @@ namespace ApiWorker
         {
             using var connection = new SqlConnection(constr);
 
-            var sql = "delete from RefreshToken where RevokedOn is not null or ExpiresOn<CURRENT_TIMESTAMP";
+            var sql = "delete from RefreshToken where RevokedOn is not null or ExpiresOn<GETUTCDATE()";
 
             await connection.ExecuteAsync(sql);
         }
