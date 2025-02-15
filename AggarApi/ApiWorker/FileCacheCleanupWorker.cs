@@ -46,7 +46,7 @@ namespace ApiWorker
                 if (File.Exists(file.Path))
                     File.Delete(file.Path);
             }
-            var deleteSql = "delete from filecache where id in @fileIds";
+            var deleteSql = "delete from filecache where id in @Ids";
             await connection.ExecuteAsync(deleteSql, new { Ids = files.Select(f => f.Id) });
         }
 
