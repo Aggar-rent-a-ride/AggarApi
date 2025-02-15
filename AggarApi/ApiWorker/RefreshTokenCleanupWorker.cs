@@ -3,12 +3,12 @@ using Microsoft.Data.SqlClient;
 
 namespace ApiWorker
 {
-    public class Worker : BackgroundService
+    public class RefreshTokenCleanupWorker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<RefreshTokenCleanupWorker> _logger;
         private readonly IConfiguration _configuration;
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration)
+        public RefreshTokenCleanupWorker(ILogger<RefreshTokenCleanupWorker> logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
@@ -25,13 +25,13 @@ namespace ApiWorker
                 await Task.Delay(delay, stoppingToken); ;//run script 1 time a day
             }
         }
-        private void DeleteRevokedOrExpiredRefreshTokens(string constr)
+        private async Task DeleteRevokedOrExpiredRefreshTokens(string constr)
         {
             using var connection = new SqlConnection(constr);
 
             var sql = "delete from RefreshToken where RevokedOn is not null or ExpiresOn<CURRENT_TIMESTAMP";
 
-            connection.Execute(sql);
+            await connection.ExecuteAsync(sql);
         }
     }
 }

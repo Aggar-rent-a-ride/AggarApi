@@ -17,6 +17,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<Discount> Discounts { get; private set; }
         public IBaseRepository<Booking> Bookings { get; private set; }
         public IBaseRepository<Message> Messages { get; private set; }
+        public IBaseRepository<FileCache> FileCache { get; private set; }
 
         public UnitOfWork(AppDbContext context)
         {
@@ -26,6 +27,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             Discounts = new BaseRepository<Discount>(_context);
             Bookings = new BaseRepository<Booking>(_context);
             Messages = new BaseRepository<Message>(_context);
+            FileCache = new BaseRepository<FileCache>(_context);
         }
 
         public async Task<int> CommitAsync() => await _context.SaveChangesAsync();

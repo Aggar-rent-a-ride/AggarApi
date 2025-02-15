@@ -25,6 +25,7 @@ namespace DATA.DataAccess.Context
         public DbSet<AdminAction> AdminActions { get; set; }
         public DbSet<RecommendedBrand> RecommendedBrands { get; set; }
         public DbSet<RecommendedType> RecommendedTypes { get; set; }
+        public DbSet<FileCache> FileCache { get; set; }
 
         public AppDbContext() { }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
