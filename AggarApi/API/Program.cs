@@ -172,6 +172,7 @@ namespace API
             builder.Services.AddSignalR(options =>
             {
                 options.EnableDetailedErrors = true;
+                options.MaximumReceiveMessageSize = 8 * 1024 * 1024;
             });
 
             var app = builder.Build();
