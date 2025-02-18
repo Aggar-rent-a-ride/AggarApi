@@ -34,6 +34,19 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://127.0.0.1:5500")
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials();
+                    });
+            });
+
+
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
 
@@ -176,6 +189,9 @@ namespace API
             });
 
             var app = builder.Build();
+            
+            app.UseCors("AllowAll");
+
             app.MapOpenApi();
 
             // Configure the HTTP request pipeline.
@@ -197,6 +213,7 @@ namespace API
                 context.Items["BaseUrl"] = baseUrl;
                 await next();
             });
+
 
             app.UseHttpsRedirection();
 

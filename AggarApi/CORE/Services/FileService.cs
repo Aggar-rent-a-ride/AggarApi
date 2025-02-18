@@ -11,6 +11,10 @@ using CORE.DTOs.Paths;
 using DATA.Constants;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Razor.Hosting;
+using CORE.DTOs;
+using CORE.DTOs.Message;
+using CORE.Constants;
+using StatusCodes = CORE.Constants.StatusCodes;
 
 namespace CORE.Services
 {
@@ -122,6 +126,38 @@ namespace CORE.Services
             File.Create(newFilePath).Close();
 
             return publicPath;
+        }
+        public async Task<ResponseDto<FileUploadProgressDto>> UploadFileAsync(string filePath, string bytesBase64, long maximumFileBytes)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || string.IsNullOrWhiteSpace(bytesBase64))
+                return new ResponseDto<FileUploadProgressDto> { Data = new FileUploadProgressDto { Progress = 0 }, StatusCode = StatusCodes.BadRequest, Message = "Invalid file path or bytes" };
+
+            var bytes = Convert.FromBase64String(bytesBase64);
+            try
+            {
+                var completeFilePath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+                if (File.Exists(completeFilePath) == false)
+                    return new ResponseDto<FileUploadProgressDto> { Data = new FileUploadProgressDto { Progress = 0 }, StatusCode = StatusCodes.BadRequest, Message = "File doesn't exist" };
+
+
+                await using (var stream = new FileStream(completeFilePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096, true))
+                {
+                    await stream.WriteAsync(bytes, 0, bytes.Length);
+                }
+
+                var fileLength = new FileInfo(completeFilePath).Length;
+                if(fileLength > maximumFileBytes)
+                {
+                    DeleteFile(filePath);
+                    return new ResponseDto<FileUploadProgressDto> { Data = new FileUploadProgressDto { Progress = 0 }, StatusCode = StatusCodes.BadRequest, Message = "File size exceeded" };
+                }
+
+                return new ResponseDto<FileUploadProgressDto> { Data = new FileUploadProgressDto { Progress = fileLength }, StatusCode = StatusCodes.OK };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<FileUploadProgressDto> { Data = new FileUploadProgressDto { Progress = 0 }, StatusCode = StatusCodes.InternalServerError, Message = ex.Message };
+            }
         }
     }
 }
