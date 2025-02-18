@@ -10,5 +10,6 @@ namespace DATA.Constants
     {
         public const string ReceiveMessage = "ReceiveMessage";
         public const string UploadInitiationResponse = "UploadInitiationResponse";
+        public const string ReceiveUploadingProgress = "ReceiveUploadingProgress";
     }
 }

@@ -4,6 +4,6 @@
     {
         public string FilePath { get; set; }
         public string? Checksum { get; set; }
-        public byte[]? Bytes { get; set; }
+        public string? BytesBase64 { get; set; }
     }
 }
