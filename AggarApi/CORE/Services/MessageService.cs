@@ -47,14 +47,14 @@ namespace CORE.Services
             if (dto is CreateFileMessageDto fileDto)
             {
                 if (string.IsNullOrWhiteSpace(fileDto.FilePath))
-                    return "file cannot be null";
+                    return "File cannot be null";
                 if (fileDto.Checksum == null)
                     return "Checksum cannot be null";
-                if (fileDto.Checksum == _fileService.HashFile(fileDto.FilePath))
+                if (fileDto.Checksum != _fileService.HashFile(fileDto.FilePath))
                     return "Checksum does not match";
             }
             if (await _userService.CheckAllUsersExist(new List<int> { senderId, dto.ReceiverId }) == false)
-                return "users do not exist";
+                return "Users do not exist";
             return null;
         }
         private async Task<ResponseDto<TGetDto>> BuildMessageDto<TGetDto, TCreateDto, TEntity>(TCreateDto messageDto, int senderId)
@@ -109,7 +109,7 @@ namespace CORE.Services
             {
                 Message = "Invalid message type",
                 StatusCode = StatusCodes.BadRequest,
-                Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId } as TGet
+                Data = new GetMessageDto { ClientMessageId = messageDto?.ClientMessageId } as TGet
             };
         }
     }
