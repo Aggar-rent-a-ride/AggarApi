@@ -15,5 +15,11 @@ namespace CORE.Helpers
 
             return (int)Math.Ceiling(countData / pageSize);
         }
+        public static string? ValidatePaging(int pageNo, int pageSize)
+        {
+            if (pageNo <= 0 || pageSize <= 0)
+                return "Invalid page number or page size";
+            return null;
+        }
     }
 }

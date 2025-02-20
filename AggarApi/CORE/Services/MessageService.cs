@@ -2,10 +2,13 @@
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Message;
+using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants.Enums;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,18 +30,24 @@ namespace CORE.Services
             _userService = userService;
             _fileService = fileService;
         }
+        private async Task<string?> ValidateSenderAndReceiver(int senderId, int receiverId)
+        {
+            if (senderId == 0)
+                return "Sender cannot be null";
+            if (receiverId == 0)
+                return "Receiver cannot be null";
+            if (senderId == receiverId)
+                return "Sender and receiver cannot be the same";
+            if (await _userService.CheckAllUsersExist(new List<int> { senderId, receiverId }) == false)
+                return "Users do not exist";
+            return null;
+        }
         private async Task<string?> ValidateCreateMessageDto<T>(T dto, int senderId) where T : CreateMessageDto
         {
             if (dto == null)
                 return "Message cannot be null";
-            if (senderId == 0)
-                return "Sender cannot be null";
-            if (dto.ReceiverId == 0)
-                return "Receiver cannot be null";
             if (dto.ClientMessageId == null)
                 return "ClientMessageId cannot be null";
-            if (senderId == dto.ReceiverId)
-                return "Sender and receiver cannot be the same";
             if (dto is CreateContentMessageDto contentDto)
             {
                 if (string.IsNullOrWhiteSpace(contentDto.Content))
@@ -53,8 +62,8 @@ namespace CORE.Services
                 if (fileDto.Checksum != _fileService.HashFile(fileDto.FilePath))
                     return "Checksum does not match";
             }
-            if (await _userService.CheckAllUsersExist(new List<int> { senderId, dto.ReceiverId }) == false)
-                return "Users do not exist";
+            if(await ValidateSenderAndReceiver(senderId, dto.ReceiverId) is string error)
+                return error;
             return null;
         }
         private async Task<ResponseDto<TGetDto>> BuildMessageDto<TGetDto, TCreateDto, TEntity>(TCreateDto messageDto, int senderId)
@@ -110,6 +119,60 @@ namespace CORE.Services
                 Message = "Invalid message type",
                 StatusCode = StatusCodes.BadRequest,
                 Data = new GetMessageDto { ClientMessageId = messageDto?.ClientMessageId } as TGet
+            };
+        }
+        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int senderId, int receiverId, DateTime dateTime, int pageSize)
+        {
+            if(pageSize <= 0)
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "Invalid page size",
+                    StatusCode = StatusCodes.BadRequest,
+                };
+
+            if(await ValidateSenderAndReceiver(senderId, receiverId) is string senderReceiverErorr)
+                return new ResponseDto<ArrayList>
+                {
+                    Message = senderReceiverErorr,
+                    StatusCode = StatusCodes.BadRequest,
+                };
+
+            var messages = await _unitOfWork.Messages.FindAsync(
+                m => ((m.SenderId == senderId && m.ReceiverId == receiverId) || (m.SenderId == receiverId && m.ReceiverId == senderId)) && m.SentAt < dateTime, 
+                1, //don't skip any messages
+                pageSize, 
+                sortingExpression: x => x.SentAt, 
+                sortingDirection: OrderBy.Descending);
+
+            if (messages == null || messages.Count() == 0)
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "No messages found",
+                    StatusCode = StatusCodes.NotFound,
+                };
+
+            var result = new ArrayList();
+
+            foreach (var msg in messages)
+            {
+                if(msg is ContentMessage contentMessage)
+                    result.Add(_mapper.Map<GetContentMessageDto>(contentMessage));
+                else if (msg is FileMessage fileMessage)
+                    result.Add(_mapper.Map<GetFileMessageDto>(fileMessage));
+            }
+
+            if(result.Count == 0)
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "No messages found",
+                    StatusCode = StatusCodes.NotFound,
+                };
+
+            return new ResponseDto<ArrayList>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result,
+                Message = "Messages retrieved successfully"
             };
         }
     }
