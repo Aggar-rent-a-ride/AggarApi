@@ -26,6 +26,7 @@ namespace DATA.DataAccess.Context.Configurations
 
             builder.Property(m => m.MessageType).HasMaxLength(50);
             builder.HasIndex(m => m.MessageType);
+            builder.HasIndex(m => m.SentAt);
 
             builder.ToTable("Messages");
         }

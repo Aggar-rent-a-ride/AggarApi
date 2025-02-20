@@ -1,4 +1,6 @@
 ﻿using Azure;
+using DATA.Constants;
+using DATA.Constants.Enums;
 using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -55,9 +57,17 @@ namespace DATA.DataAccess.Repositories
         }
 
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes, Expression<Func<T, object>> sortingExpression = null, OrderBy sortingDirection = OrderBy.Ascending)
         {
             IQueryable<T> query = _context.Set<T>().Where(criteria);
+            
+            if(sortingExpression != null)
+            {
+                if (sortingDirection == OrderBy.Ascending)
+                    query = query.OrderBy(sortingExpression);
+                else
+                    query = query.OrderByDescending(sortingExpression);
+            }
 
             if(includes != null)
                 foreach (var include in includes)
@@ -81,13 +91,33 @@ namespace DATA.DataAccess.Repositories
             return entity;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize) =>
-            _context.Set<T>()
-            .Skip((pageNo - 1) * pageSize).Take(pageSize);
+        public async Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize, Expression<Func<T, object>> sortingExpression = null, OrderBy sortingDirection = OrderBy.Ascending)
+        {
+            IQueryable<T> query = _context.Set<T>();
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
+            if (sortingExpression != null)
+            {
+                if (sortingDirection == OrderBy.Ascending)
+                    query = query.OrderBy(sortingExpression);
+                else
+                    query = query.OrderByDescending(sortingExpression);
+            }
+
+            return query.Skip((pageNo - 1) * pageSize).Take(pageSize);
+        }
+
+
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null, Expression<Func<T, object>> sortingExpression = null, OrderBy sortingDirection = OrderBy.Ascending)
         {
             IQueryable<T> query = _context.Set<T>().Where(criteria);
+
+            if (sortingExpression != null)
+            {
+                if (sortingDirection == OrderBy.Ascending)
+                    query = query.OrderBy(sortingExpression);
+                else
+                    query = query.OrderByDescending(sortingExpression);
+            }
 
             if (includes != null)
                 foreach (var include in includes)
@@ -117,6 +147,5 @@ namespace DATA.DataAccess.Repositories
 
             return await query.AnyAsync(criteria);
         }
-
     }
 }

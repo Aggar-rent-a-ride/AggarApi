@@ -1,6 +1,7 @@
 ﻿using CORE.DTOs;
 using CORE.DTOs.Message;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<TGet>> CreateMessageAsync<TCreate, TGet>(TCreate messageDto, int senderId)
             where TCreate : CreateMessageDto
             where TGet : GetMessageDto;
+        Task<ResponseDto<ArrayList>> GetMessagesAsync(int senderId, int receiverId, DateTime dateTime, int pageSize);
     }
 }
