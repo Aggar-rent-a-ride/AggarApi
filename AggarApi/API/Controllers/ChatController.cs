@@ -16,10 +16,10 @@ namespace API.Controllers
             _messageService = messageService;
         }
         [HttpGet("messages")]
-        public async Task<IActionResult> GetMessagesAsync([FromQuery] int receiverId, [FromQuery] DateTime dateTime, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetMessagesAsync([FromQuery] int userId, [FromQuery] DateTime dateTime, [FromQuery] int pageSize)
         {
-            var userId = UserHelpers.GetUserId(User);
-            var result = await _messageService.GetMessagesAsync(userId, receiverId, dateTime, pageSize);
+            var currentAuthenticatedUser = UserHelpers.GetUserId(User);
+            var result = await _messageService.GetMessagesAsync(currentAuthenticatedUser, userId, dateTime, pageSize);
 
             return StatusCode(result.StatusCode, result);
         }

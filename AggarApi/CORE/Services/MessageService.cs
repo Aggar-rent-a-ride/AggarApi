@@ -121,7 +121,7 @@ namespace CORE.Services
                 Data = new GetMessageDto { ClientMessageId = messageDto?.ClientMessageId } as TGet
             };
         }
-        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int senderId, int receiverId, DateTime dateTime, int pageSize)
+        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize)
         {
             if(pageSize <= 0)
                 return new ResponseDto<ArrayList>
@@ -130,7 +130,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                 };
 
-            if(await ValidateSenderAndReceiver(senderId, receiverId) is string senderReceiverErorr)
+            if(await ValidateSenderAndReceiver(userId1, userId2) is string senderReceiverErorr)
                 return new ResponseDto<ArrayList>
                 {
                     Message = senderReceiverErorr,
@@ -138,7 +138,7 @@ namespace CORE.Services
                 };
 
             var messages = await _unitOfWork.Messages.FindAsync(
-                m => ((m.SenderId == senderId && m.ReceiverId == receiverId) || (m.SenderId == receiverId && m.ReceiverId == senderId)) && m.SentAt < dateTime, 
+                m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt < dateTime, 
                 1, //don't skip any messages
                 pageSize, 
                 sortingExpression: x => x.SentAt, 

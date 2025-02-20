@@ -14,6 +14,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<TGet>> CreateMessageAsync<TCreate, TGet>(TCreate messageDto, int senderId)
             where TCreate : CreateMessageDto
             where TGet : GetMessageDto;
-        Task<ResponseDto<ArrayList>> GetMessagesAsync(int senderId, int receiverId, DateTime dateTime, int pageSize);
+        Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize);
     }
 }
