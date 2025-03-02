@@ -1,5 +1,6 @@
 using API.Hubs;
 using CORE.DTOs.Auth;
+using CORE.DTOs.Chat;
 using CORE.DTOs.Email;
 using CORE.DTOs.Geoapify;
 using CORE.DTOs.Paths;
@@ -45,7 +46,6 @@ namespace API
                               .AllowCredentials();
                     });
             });
-
 
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
@@ -175,7 +175,7 @@ namespace API
             builder.Services.AddScoped<IGeoapifyService, GeoapifyService>();
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IEmailTemplateRendererService, EmailTemplateRendererService>();
             builder.Services.AddScoped<IFileCacheService, FileCacheService>();
 

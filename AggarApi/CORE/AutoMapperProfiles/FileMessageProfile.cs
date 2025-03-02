@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.DTOs.Chat;
 using CORE.DTOs.Message;
 using DATA.Models;
 using System;
@@ -17,6 +18,9 @@ namespace CORE.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<CreateFileMessageDto, FileMessage>()
+                .ReverseMap();
+
+            CreateMap<FileMessage, ChatFileMessageDto>()
                 .ReverseMap();
         }
     }

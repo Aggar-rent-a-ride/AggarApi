@@ -10,7 +10,7 @@ namespace DATA.Models
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
-        public bool Seen { get; set; } = false;
+        public bool IsSeen { get; set; } = false;
         public string MessageType { get; set; }
 
         public AppUser Sender { get; set; } = null!;
