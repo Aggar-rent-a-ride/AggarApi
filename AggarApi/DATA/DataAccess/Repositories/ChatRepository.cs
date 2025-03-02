@@ -16,7 +16,7 @@ namespace DATA.DataAccess.Repositories
         {
         }
 
-        public async Task<IEnumerable<Message>> GetChatAsync(int authUserId, int pageNo, int pageSize)
+        public async Task<IEnumerable<Message>> GetLatestChatMessagesAsync(int authUserId, int pageNo, int pageSize)
         {
             // Create a SQL query that will work correctly
             var sql = @"

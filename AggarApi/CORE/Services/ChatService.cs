@@ -194,7 +194,7 @@ namespace CORE.Services
                 };
             }
 
-            var chatItems = await _unitOfWork.Chat.GetChatAsync(authUserId, pageNo, pageSize);
+            var chatItems = await _unitOfWork.Chat.GetLatestChatMessagesAsync(authUserId, pageNo, pageSize);
 
             if (chatItems == null || chatItems.Count() == 0)
             {
@@ -231,6 +231,28 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
                 Data = chatList,
                 Message = "Chat retrieved successfully"
+            };
+        }
+        public async Task<ResponseDto<object>> AcknowledgeMessagesAsync(int authUserId, HashSet<int> messageIds)
+        {
+            var messages = (await _unitOfWork.Chat.GetAllAsync(m => m.ReceiverId == authUserId && messageIds.Contains(m.Id) && m.IsSeen == false)).ToList();
+            
+            if (messages != null)
+                messages.ForEach(m => m.IsSeen = true);
+
+            var changes = await _unitOfWork.CommitAsync();
+            
+            if(changes == 0)
+                return new ResponseDto<object>
+                {
+                    Message = "Failed to acknowledge messages",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Messages acknowledged successfully"
             };
         }
     }

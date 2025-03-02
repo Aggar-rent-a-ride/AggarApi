@@ -34,5 +34,14 @@ namespace API.Controllers
 
             return StatusCode(result.StatusCode, result);
         }
+        [Authorize]
+        [HttpPut("ack")]
+        public async Task<IActionResult> AcknowledgeMessagesAsync([FromForm] HashSet<int> messageIds)
+        {
+            var currentAuthenticatedUser = UserHelpers.GetUserId(User);
+            var result = await _chatService.AcknowledgeMessagesAsync(currentAuthenticatedUser, messageIds);
+
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
