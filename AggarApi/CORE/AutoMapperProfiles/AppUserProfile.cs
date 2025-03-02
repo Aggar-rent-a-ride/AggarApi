@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CORE.DTOs.Auth;
+using CORE.DTOs.Chat;
 using DATA.Models;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,10 @@ namespace CORE.AutoMapperProfiles
                 .ForMember(dest=> dest.IsCustomer, opt=>opt.Ignore())
                 .ForMember(dest=> dest.AggreedTheTerms, opt=>opt.Ignore())
                 .ReverseMap();
+
+            CreateMap<AppUser, ChatUserDto>()
+                .ReverseMap();
+                
         }
     }
 }

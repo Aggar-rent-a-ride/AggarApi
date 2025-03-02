@@ -15,6 +15,6 @@ namespace CORE.DTOs.Message
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public DateTime SentAt { get; set; }
-        public bool Seen { get; set; } 
+        public bool IsSeen { get; set; } 
     }
 }

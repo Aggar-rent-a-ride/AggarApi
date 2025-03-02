@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.Chat;
 using CORE.DTOs.Message;
 using CORE.Helpers;
 using CORE.Services.IServices;
@@ -16,14 +17,14 @@ using System.Threading.Tasks;
 
 namespace CORE.Services
 {
-    public class MessageService : IMessageService
+    public class ChatService : IChatService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IFileService _fileService;
 
-        public MessageService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IFileService fileService)
+        public ChatService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IFileService fileService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -86,7 +87,7 @@ namespace CORE.Services
             var message = _mapper.Map<TEntity>(messageDto);
             message.SenderId = senderId;
 
-            await _unitOfWork.Messages.AddOrUpdateAsync(message);
+            await _unitOfWork.Chat.AddOrUpdateAsync(message);
             var changes = await _unitOfWork.CommitAsync();
 
             if (changes == 0)
@@ -137,7 +138,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                 };
 
-            var messages = await _unitOfWork.Messages.FindAsync(
+            var messages = await _unitOfWork.Chat.FindAsync(
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt < dateTime, 
                 1, //don't skip any messages
                 pageSize, 
@@ -173,6 +174,63 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
                 Data = result,
                 Message = "Messages retrieved successfully"
+            };
+        }
+        public async Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize)
+        {
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize) is string paginationError)
+                return new ResponseDto<ArrayList>
+                {
+                    Message = paginationError,
+                    StatusCode = StatusCodes.BadRequest,
+                };
+
+            if(authUserId == 0 || await _userService.CheckAnyAsync(authUserId) == false)
+            {
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "User does not exist",
+                    StatusCode = StatusCodes.NotFound,
+                };
+            }
+
+            var chatItems = await _unitOfWork.Chat.GetChatAsync(authUserId, pageNo, pageSize);
+
+            if (chatItems == null || chatItems.Count() == 0)
+            {
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "No chat found",
+                    StatusCode = StatusCodes.NotFound,
+                };
+            }
+            
+            var chatList = new ArrayList();
+            foreach (var item in chatItems)
+            {
+                var user = item.SenderId == authUserId ? _mapper.Map<ChatUserDto>(item.Receiver) : _mapper.Map<ChatUserDto>(item.Sender);
+                var lastUnseenMessageIds = await _unitOfWork.Chat.GetLatestUnseenMessagesIds(authUserId, user.Id);
+                if (item is ContentMessage contentMessage)
+                    chatList.Add(new ChatItemDto<ChatContentMessageDto>
+                    {
+                        UnseenMessageIds = lastUnseenMessageIds,
+                        User = user,
+                        LastMessage = _mapper.Map<ChatContentMessageDto>(contentMessage)
+                    });
+                else if (item is FileMessage fileMessage)
+                    chatList.Add(new ChatItemDto<ChatFileMessageDto>
+                    {
+                        UnseenMessageIds = lastUnseenMessageIds,
+                        User = user,
+                        LastMessage = _mapper.Map<ChatFileMessageDto>(fileMessage)
+                    });
+            }
+
+            return new ResponseDto<ArrayList>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = chatList,
+                Message = "Chat retrieved successfully"
             };
         }
     }

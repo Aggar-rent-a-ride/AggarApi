@@ -16,13 +16,13 @@ using System.Threading.Tasks;
 namespace UnitTests.CORE.Services
 {
     [TestFixture]
-    public class MessageServiceTests
+    public class ChatServiceTests
     {
         private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mapper;
         private Mock<IUserService> _userService;
         private Mock<IFileService> _fileService;
-        private MessageService _messageService;
+        private ChatService _messageService;
 
         [SetUp]
         public void Setup()
@@ -31,7 +31,7 @@ namespace UnitTests.CORE.Services
             _mapper = new Mock<IMapper>();
             _userService = new Mock<IUserService>();
             _fileService = new Mock<IFileService>();
-            _messageService = new MessageService(_mockUnitOfWork.Object, _mapper.Object, _userService.Object, _fileService.Object);
+            _messageService = new ChatService(_mockUnitOfWork.Object, _mapper.Object, _userService.Object, _fileService.Object);
         }
         [Test]
         public async Task CreateMessageAsync_NullDto_ReturnsErrorMessage()

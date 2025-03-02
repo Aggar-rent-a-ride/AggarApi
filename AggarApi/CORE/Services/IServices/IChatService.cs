@@ -1,4 +1,5 @@
 ﻿using CORE.DTOs;
+using CORE.DTOs.Chat;
 using CORE.DTOs.Message;
 using System;
 using System.Collections;
@@ -9,11 +10,12 @@ using System.Threading.Tasks;
 
 namespace CORE.Services.IServices
 {
-    public interface IMessageService
+    public interface IChatService
     {
         Task<ResponseDto<TGet>> CreateMessageAsync<TCreate, TGet>(TCreate messageDto, int senderId)
             where TCreate : CreateMessageDto
             where TGet : GetMessageDto;
         Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize);
+        Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize);
     }
 }

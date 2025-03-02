@@ -14,17 +14,17 @@ namespace API.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private readonly IMessageService _messageService;
+        private readonly IChatService _chatService;
         private readonly IFileService _fileService;
         private readonly IOptions<Paths> _paths;
         private readonly IFileCacheService _fileCacheService;
 
-        public ChatHub(IMessageService messageService, 
+        public ChatHub(IChatService chatService, 
             IFileService fileService, 
             IOptions<Paths> paths, 
             IFileCacheService fileCacheService)
         {
-            _messageService = messageService;
+            _chatService = chatService;
             _fileService = fileService;
             _paths = paths;
             _fileCacheService = fileCacheService;
@@ -47,7 +47,7 @@ namespace API.Hubs
                 return;
             }
 
-            var result = await _messageService.CreateMessageAsync<CreateContentMessageDto, GetContentMessageDto>(messageDto, senderId);
+            var result = await _chatService.CreateMessageAsync<CreateContentMessageDto, GetContentMessageDto>(messageDto, senderId);
 
             //send to reciever only if saved to db
             if (result.StatusCode == CORE.Constants.StatusCodes.Created) 
@@ -103,7 +103,7 @@ namespace API.Hubs
                 return;
             }
 
-            var result = await _messageService.CreateMessageAsync<CreateFileMessageDto, GetFileMessageDto>(dto, int.Parse(Context.UserIdentifier));
+            var result = await _chatService.CreateMessageAsync<CreateFileMessageDto, GetFileMessageDto>(dto, int.Parse(Context.UserIdentifier));
 
             //send to reciever only if saved to db
             if (result.StatusCode == CORE.Constants.StatusCodes.Created)

@@ -14,7 +14,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IVehicleRepository Vehicles { get; }
         IBaseRepository<Discount> Discounts { get; }
         IBaseRepository<Booking> Bookings { get; }
-        IBaseRepository<Message> Messages { get; }
+        IChatRepository Chat { get; }
         IBaseRepository<FileCache> FileCache { get; }
         Task<int> CommitAsync();
     }
