@@ -233,5 +233,27 @@ namespace CORE.Services
                 Message = "Chat retrieved successfully"
             };
         }
+        public async Task<ResponseDto<object>> AcknowledgeMessagesAsync(int authUserId, HashSet<int> messageIds)
+        {
+            var messages = (await _unitOfWork.Chat.GetAllAsync(m => m.ReceiverId == authUserId && messageIds.Contains(m.Id) && m.IsSeen == false)).ToList();
+            
+            if (messages != null)
+                messages.ForEach(m => m.IsSeen = true);
+
+            var changes = await _unitOfWork.CommitAsync();
+            
+            if(changes == 0)
+                return new ResponseDto<object>
+                {
+                    Message = "Failed to acknowledge messages",
+                    StatusCode = StatusCodes.InternalServerError,
+                };
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Messages acknowledged successfully"
+            };
+        }
     }
 }

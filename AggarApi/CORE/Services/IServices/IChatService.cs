@@ -17,5 +17,6 @@ namespace CORE.Services.IServices
             where TGet : GetMessageDto;
         Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize);
         Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize);
+        Task<ResponseDto<object>> AcknowledgeMessagesAsync(int authUserId, HashSet<int> messageIds);
     }
 }
