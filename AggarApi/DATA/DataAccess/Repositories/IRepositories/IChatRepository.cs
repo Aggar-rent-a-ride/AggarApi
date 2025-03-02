@@ -9,7 +9,7 @@ namespace DATA.DataAccess.Repositories.IRepositories
 {
     public interface IChatRepository : IBaseRepository<Message>
     {
-        Task<IEnumerable<Message>> GetChatAsync(int authUserId, int pageNo, int pageSize);
+        Task<IEnumerable<Message>> GetLatestChatMessagesAsync(int authUserId, int pageNo, int pageSize);
         Task<IEnumerable<int>> GetLatestUnseenMessagesIds(int userId1, int userId2);
     }
 }

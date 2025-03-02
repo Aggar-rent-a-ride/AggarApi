@@ -194,7 +194,7 @@ namespace CORE.Services
                 };
             }
 
-            var chatItems = await _unitOfWork.Chat.GetChatAsync(authUserId, pageNo, pageSize);
+            var chatItems = await _unitOfWork.Chat.GetLatestChatMessagesAsync(authUserId, pageNo, pageSize);
 
             if (chatItems == null || chatItems.Count() == 0)
             {
