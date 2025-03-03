@@ -1,4 +1,5 @@
-﻿using CORE.Helpers;
+﻿using CORE.DTOs.Chat;
+using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -42,6 +43,14 @@ namespace API.Controllers
             var currentAuthenticatedUser = UserHelpers.GetUserId(User);
             var result = await _chatService.AcknowledgeMessagesAsync(currentAuthenticatedUser, messageIds);
 
+            return StatusCode(result.StatusCode, result);
+        }
+        [Authorize]
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterMessagesAsync(MessageFilterDto filter)
+        {
+            var currentAuthenticatedUser = UserHelpers.GetUserId(User);
+            var result = await _chatService.FilterMessagesAsync(filter, currentAuthenticatedUser);
             return StatusCode(result.StatusCode, result);
         }
     }
