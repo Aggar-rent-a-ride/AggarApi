@@ -19,5 +19,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateFilter dateFilter);
         Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize);
         Task<ResponseDto<object>> AcknowledgeMessagesAsync(int authUserId, HashSet<int> messageIds);
+        Task<ResponseDto<ArrayList>> FilterMessagesAsync (MessageFilterDto filter, int authUserId);
     }
 }

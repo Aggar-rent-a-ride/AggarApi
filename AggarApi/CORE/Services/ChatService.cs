@@ -144,13 +144,13 @@ namespace CORE.Services
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt < dateTime,
                 1, //don't skip any messages
                 pageSize,
-                sortingExpression: x => x.SentAt,
+                sortingExpression: x => x.Id,
                 sortingDirection: OrderBy.Descending) :
                 await _unitOfWork.Chat.FindAsync(
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt > dateTime,
                 1, //don't skip any messages
                 pageSize,
-                sortingExpression: x => x.SentAt,
+                sortingExpression: x => x.Id,
                 sortingDirection: OrderBy.Descending);
 
             if (messages == null || messages.Count() == 0)
@@ -261,6 +261,49 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Message = "Messages acknowledged successfully"
+            };
+        }
+        public async Task<ResponseDto<ArrayList>> FilterMessagesAsync(MessageFilterDto filter, int authUserId)
+        {
+            if (PaginationHelpers.ValidatePaging(filter.PageNo, filter.PageSize) is string paginationError)
+                return new ResponseDto<ArrayList>
+                {
+                    Message = paginationError,
+                    StatusCode = StatusCodes.BadRequest,
+                };
+
+            if (authUserId == 0 || filter.UserId == 0 || await _userService.CheckAllUsersExist(new List<int> {authUserId, filter.UserId}) == false)
+            {
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "User does not exist",
+                    StatusCode = StatusCodes.NotFound,
+                };
+            }
+            var messages = await _unitOfWork.Chat.FilterMessagesAsync(authUserId,
+                filter.UserId,
+                filter.SearchQuery,
+                filter.Date,
+                filter.PageNo,
+                filter.PageSize,
+                sortingExpression: m => m.Id,
+                sortingDirection: OrderBy.Descending);
+
+            var result = new ArrayList();
+
+            foreach (var msg in messages)
+            {
+                if (msg is ContentMessage content)
+                    result.Add(_mapper.Map<GetContentMessageDto>(content));
+                else if (msg is FileMessage file)
+                    result.Add(_mapper.Map<GetFileMessageDto>(file));
+            }
+
+            return new ResponseDto<ArrayList>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result,
+                Message = "Messages retrieved successfully"
             };
         }
     }
