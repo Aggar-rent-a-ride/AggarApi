@@ -1,6 +1,7 @@
 ﻿using CORE.DTOs;
 using CORE.DTOs.Chat;
 using CORE.DTOs.Message;
+using DATA.Constants.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace CORE.Services.IServices
         Task<ResponseDto<TGet>> CreateMessageAsync<TCreate, TGet>(TCreate messageDto, int senderId)
             where TCreate : CreateMessageDto
             where TGet : GetMessageDto;
-        Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize);
+        Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateFilter dateFilter);
         Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize);
         Task<ResponseDto<object>> AcknowledgeMessagesAsync(int authUserId, HashSet<int> messageIds);
     }
