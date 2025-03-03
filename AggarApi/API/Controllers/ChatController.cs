@@ -1,5 +1,6 @@
 ﻿using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,10 @@ namespace API.Controllers
         }
         [Authorize]
         [HttpGet("messages")]
-        public async Task<IActionResult> GetMessagesAsync([FromQuery] int userId, [FromQuery] DateTime dateTime, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetMessagesAsync([FromQuery] int userId, [FromQuery] DateTime dateTime, [FromQuery] int pageSize, [FromQuery] DateFilter dateFilter = DateFilter.Before)
         {
             var currentAuthenticatedUser = UserHelpers.GetUserId(User);
-            var result = await _chatService.GetMessagesAsync(currentAuthenticatedUser, userId, dateTime, pageSize);
+            var result = await _chatService.GetMessagesAsync(currentAuthenticatedUser, userId, dateTime, pageSize, dateFilter);
 
             return StatusCode(result.StatusCode, result);
         }
