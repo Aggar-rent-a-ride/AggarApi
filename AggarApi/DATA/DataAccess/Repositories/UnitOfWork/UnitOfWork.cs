@@ -1,6 +1,7 @@
 ﻿using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.IRepositories;
 using DATA.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<UnitOfWork> _logger;
+
         public IBaseRepository<AppUser> AppUsers { get; private set; }
         public IVehicleRepository Vehicles { get; private set; }
         public IBaseRepository<Discount> Discounts { get; private set; }
@@ -19,9 +22,10 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<FileCache> FileCache { get; private set; }
         public IChatRepository Chat { get; private set; }
 
-        public UnitOfWork(AppDbContext context)
+        public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
+            _logger = logger;
             AppUsers = new BaseRepository<AppUser>(_context);
             Vehicles = new VehicleRepository(_context);
             Discounts = new BaseRepository<Discount>(_context);
@@ -30,7 +34,18 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             Chat = new ChatRepository(_context);
         }
 
-        public async Task<int> CommitAsync() => await _context.SaveChangesAsync();
+        public async Task<int> CommitAsync()
+        {
+            try
+            {
+                return await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return 0;
+        }
 
         public void Dispose()
         {
