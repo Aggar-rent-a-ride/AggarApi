@@ -8,12 +8,14 @@ using CORE.Services.IServices;
 using DATA.Constants.Enums;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CORE.Services
 {
@@ -23,13 +25,19 @@ namespace CORE.Services
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IFileService _fileService;
+        private readonly ILogger<ChatService> _logger;
 
-        public ChatService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IFileService fileService)
+        public ChatService(IUnitOfWork unitOfWork, 
+            IMapper mapper, 
+            IUserService userService, 
+            IFileService fileService,
+            ILogger<ChatService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
             _fileService = fileService;
+            _logger = logger;
         }
         private async Task<string?> ValidateSenderAndReceiver(int senderId, int receiverId)
         {
@@ -72,10 +80,17 @@ namespace CORE.Services
             where TCreateDto : CreateMessageDto
             where TEntity : Message
         {
+            _logger.LogInformation("Building message DTO for sender ID {SenderId}. Message type: {MessageType}", senderId, typeof(TCreateDto).Name);
+
             if (await ValidateCreateMessageDto(messageDto, senderId) is string error)
             {
-                if(messageDto is CreateFileMessageDto fileMessageDto)
+                _logger.LogWarning("Message validation failed for sender ID {SenderId}. Error: {Error}", senderId, error);
+
+                if (messageDto is CreateFileMessageDto fileMessageDto)
+                {
+                    _logger.LogInformation("Deleting file due to validation failure. File path: {FilePath}", fileMessageDto.FilePath);
                     _fileService.DeleteFile(fileMessageDto?.FilePath);
+                }
                 return new ResponseDto<TGetDto>
                 {
                     Message = error,
@@ -83,21 +98,27 @@ namespace CORE.Services
                     Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId } as TGetDto
                 };
             }
+            _logger.LogInformation("Message validation succeeded. Mapping DTO to entity.");
 
             var message = _mapper.Map<TEntity>(messageDto);
             message.SenderId = senderId;
 
+            _logger.LogInformation("Saving message to database.");
             await _unitOfWork.Chat.AddOrUpdateAsync(message);
             var changes = await _unitOfWork.CommitAsync();
 
             if (changes == 0)
+            {
+                _logger.LogError("Failed to save message for sender ID {SenderId}.", senderId);
                 return new ResponseDto<TGetDto>
                 {
                     Message = "Failed to send message",
                     StatusCode = StatusCodes.InternalServerError,
                     Data = new GetMessageDto { ClientMessageId = messageDto.ClientMessageId } as TGetDto
                 };
+            }
 
+            _logger.LogInformation("Message sent successfully for sender ID {SenderId}.", senderId);
             return new ResponseDto<TGetDto>
             {
                 StatusCode = StatusCodes.Created,
@@ -109,12 +130,21 @@ namespace CORE.Services
             where TCreate : CreateMessageDto
             where TGet : GetMessageDto
         {
+            _logger.LogInformation("Creating message from sender ID {SenderId}. Message type: {MessageType}", senderId, typeof(TCreate).Name);
+
             if (messageDto is CreateContentMessageDto contentMessageDto)
+            {
+                _logger.LogInformation("Processing content message.");
                 return await BuildMessageDto<GetContentMessageDto, CreateContentMessageDto, ContentMessage>(contentMessageDto, senderId) as ResponseDto<TGet>;
+            }
 
             else if (messageDto is CreateFileMessageDto fileMessageDto)
+            {
+                _logger.LogInformation("Processing file message.");
                 return await BuildMessageDto<GetFileMessageDto, CreateFileMessageDto, FileMessage>(fileMessageDto, senderId) as ResponseDto<TGet>;
+            }
 
+            _logger.LogWarning("Invalid message type received from sender ID {SenderId}.", senderId);
             return new ResponseDto<TGet>
             {
                 Message = "Invalid message type",
@@ -124,21 +154,30 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateFilter dateFilter)
         {
-            if(pageSize <= 0)
+            _logger.LogInformation("Retrieving messages between user {UserId1} and user {UserId2} with page size {PageSize} and date filter {DateFilter}.",
+                userId1, userId2, pageSize, dateFilter);
+
+            if (pageSize <= 0)
+            {
+                _logger.LogWarning("Invalid page size: {PageSize}.", pageSize);
                 return new ResponseDto<ArrayList>
                 {
                     Message = "Invalid page size",
                     StatusCode = StatusCodes.BadRequest,
                 };
+            }
 
             if(await ValidateSenderAndReceiver(userId1, userId2) is string senderReceiverErorr)
+            {
+                _logger.LogWarning("Sender and receiver validation failed: {Error}", senderReceiverErorr);
                 return new ResponseDto<ArrayList>
                 {
                     Message = senderReceiverErorr,
                     StatusCode = StatusCodes.BadRequest,
                 };
+            }
 
-
+            _logger.LogInformation("Fetching messages from database.");
             var messages = dateFilter == DateFilter.Before ?
                 await _unitOfWork.Chat.FindAsync(
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt < dateTime,
@@ -154,12 +193,16 @@ namespace CORE.Services
                 sortingDirection: OrderBy.Descending);
 
             if (messages == null || messages.Count() == 0)
+            {
+                _logger.LogWarning("No messages found between user {UserId1} and user {UserId2}.", userId1, userId2);
                 return new ResponseDto<ArrayList>
                 {
                     Message = "No messages found",
                     StatusCode = StatusCodes.NotFound,
                 };
+            }
 
+            _logger.LogInformation("Mapping retrieved messages to DTOs.");
             var result = new ArrayList();
 
             foreach (var msg in messages)
@@ -171,12 +214,16 @@ namespace CORE.Services
             }
 
             if(result.Count == 0)
+            {
+                _logger.LogWarning("Messages were retrieved but none were mappable to DTOs.");
                 return new ResponseDto<ArrayList>
                 {
                     Message = "No messages found",
                     StatusCode = StatusCodes.NotFound,
                 };
+            }
 
+            _logger.LogInformation("Successfully retrieved {MessageCount} messages between user {UserId1} and user {UserId2}.", result.Count, userId1, userId2);
             return new ResponseDto<ArrayList>
             {
                 StatusCode = StatusCodes.OK,
@@ -186,15 +233,21 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize)
         {
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize) is string paginationError)
+            _logger.LogInformation("Fetching chat for user {AuthUserId} with page {PageNo} and page size {PageSize}.", authUserId, pageNo, pageSize);
+
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize) is string paginationError)
+            {
+                _logger.LogWarning("Pagination validation failed: {Error}", paginationError);
                 return new ResponseDto<ArrayList>
                 {
                     Message = paginationError,
                     StatusCode = StatusCodes.BadRequest,
                 };
+            }
 
             if(authUserId == 0 || await _userService.CheckAnyAsync(authUserId) == false)
             {
+                _logger.LogWarning("User {AuthUserId} does not exist.", authUserId);
                 return new ResponseDto<ArrayList>
                 {
                     Message = "User does not exist",
@@ -202,17 +255,20 @@ namespace CORE.Services
                 };
             }
 
+            _logger.LogInformation("Retrieving latest chat messages for user {AuthUserId}.", authUserId);
             var chatItems = await _unitOfWork.Chat.GetLatestChatMessagesAsync(authUserId, pageNo, pageSize);
 
             if (chatItems == null || chatItems.Count() == 0)
             {
+                _logger.LogWarning("No chat found for user {AuthUserId}.", authUserId);
                 return new ResponseDto<ArrayList>
                 {
                     Message = "No chat found",
                     StatusCode = StatusCodes.NotFound,
                 };
             }
-            
+
+            _logger.LogInformation("Mapping chat messages to DTOs.");
             var chatList = new ArrayList();
             foreach (var item in chatItems)
             {
@@ -234,6 +290,7 @@ namespace CORE.Services
                     });
             }
 
+            _logger.LogInformation("Successfully retrieved {ChatCount} chat items for user {AuthUserId}.", chatList.Count, authUserId);
             return new ResponseDto<ArrayList>
             {
                 StatusCode = StatusCodes.OK,
@@ -243,20 +300,36 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<object>> AcknowledgeMessagesAsync(int authUserId, HashSet<int> messageIds)
         {
+            _logger.LogInformation("Acknowledging messages for user {AuthUserId} with message IDs: {MessageIds}", authUserId, string.Join(", ", messageIds));
+
             var messages = (await _unitOfWork.Chat.GetAllAsync(m => m.ReceiverId == authUserId && messageIds.Contains(m.Id) && m.IsSeen == false)).ToList();
-            
-            if (messages != null)
-                messages.ForEach(m => m.IsSeen = true);
+
+            if (messages == null || messages.Count == 0)
+            {
+                _logger.LogWarning("No unseen messages found for user {AuthUserId} with the given message IDs.", authUserId);
+                return new ResponseDto<object>
+                {
+                    Message = "No messages found to acknowledge",
+                    StatusCode = StatusCodes.NotFound,
+                };
+            }
+
+            _logger.LogInformation("Marking {MessageCount} messages as seen for user {AuthUserId}.", messages.Count, authUserId);
+            messages.ForEach(m => m.IsSeen = true);
 
             var changes = await _unitOfWork.CommitAsync();
             
             if(changes == 0)
+            {
+                _logger.LogError("Failed to acknowledge messages for user {AuthUserId}.", authUserId);
                 return new ResponseDto<object>
                 {
                     Message = "Failed to acknowledge messages",
                     StatusCode = StatusCodes.InternalServerError,
                 };
+            }
 
+            _logger.LogInformation("Successfully acknowledged {MessageCount} messages for user {AuthUserId}.", messages.Count, authUserId);
             return new ResponseDto<object>
             {
                 StatusCode = StatusCodes.OK,
@@ -265,21 +338,30 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<ArrayList>> FilterMessagesAsync(MessageFilterDto filter, int authUserId)
         {
+            _logger.LogInformation("Filtering messages for user {AuthUserId} with filter: {@Filter}", authUserId, filter);
+
             if (PaginationHelpers.ValidatePaging(filter.PageNo, filter.PageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
                 return new ResponseDto<ArrayList>
                 {
                     Message = paginationError,
                     StatusCode = StatusCodes.BadRequest,
                 };
+            }
 
             if (authUserId == 0 || filter.UserId == 0 || await _userService.CheckAllUsersExist(new List<int> {authUserId, filter.UserId}) == false)
             {
+                _logger.LogWarning("User validation failed. AuthUserId: {AuthUserId}, FilterUserId: {FilterUserId}", authUserId, filter.UserId);
                 return new ResponseDto<ArrayList>
                 {
                     Message = "User does not exist",
                     StatusCode = StatusCodes.NotFound,
                 };
             }
+
+            _logger.LogInformation("Fetching filtered messages between users {AuthUserId} and {FilterUserId}.", authUserId, filter.UserId);
+
             var messages = await _unitOfWork.Chat.FilterMessagesAsync(authUserId,
                 filter.UserId,
                 filter.SearchQuery,
@@ -288,6 +370,16 @@ namespace CORE.Services
                 filter.PageSize,
                 sortingExpression: m => m.Id,
                 sortingDirection: OrderBy.Descending);
+
+            if (messages == null || messages.Count() == 0)
+            {
+                _logger.LogInformation("No messages found for user {AuthUserId} with filter: {@Filter}", authUserId, filter);
+                return new ResponseDto<ArrayList>
+                {
+                    Message = "No messages found",
+                    StatusCode = StatusCodes.NotFound,
+                };
+            }
 
             var result = new ArrayList();
 
@@ -298,6 +390,8 @@ namespace CORE.Services
                 else if (msg is FileMessage file)
                     result.Add(_mapper.Map<GetFileMessageDto>(file));
             }
+
+            _logger.LogInformation("{MessageCount} messages retrieved successfully for user {AuthUserId}.", result.Count, authUserId);
 
             return new ResponseDto<ArrayList>
             {
