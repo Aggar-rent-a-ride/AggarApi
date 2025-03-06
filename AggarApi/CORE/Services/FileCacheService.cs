@@ -29,7 +29,7 @@ namespace CORE.Services
                 ExpiresOn = DateTime.UtcNow.AddSeconds(10)
             };
             
-            _unitOfWork.FileCache.AddOrUpdateAsync(file);
+            await _unitOfWork.FileCache.AddOrUpdateAsync(file);
             int changes = await _unitOfWork.CommitAsync();
 
             return changes > 0;
