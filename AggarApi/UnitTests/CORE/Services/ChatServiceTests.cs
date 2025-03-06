@@ -5,6 +5,7 @@ using CORE.Services;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -22,6 +23,7 @@ namespace UnitTests.CORE.Services
         private Mock<IMapper> _mapper;
         private Mock<IUserService> _userService;
         private Mock<IFileService> _fileService;
+        private Mock<ILogger<ChatService>> _mockLogger;
         private ChatService _messageService;
 
         [SetUp]
@@ -31,7 +33,8 @@ namespace UnitTests.CORE.Services
             _mapper = new Mock<IMapper>();
             _userService = new Mock<IUserService>();
             _fileService = new Mock<IFileService>();
-            _messageService = new ChatService(_mockUnitOfWork.Object, _mapper.Object, _userService.Object, _fileService.Object);
+            _mockLogger = new Mock<ILogger<ChatService>>();
+            _messageService = new ChatService(_mockUnitOfWork.Object, _mapper.Object, _userService.Object, _fileService.Object, _mockLogger.Object);
         }
         [Test]
         public async Task CreateMessageAsync_NullDto_ReturnsErrorMessage()
