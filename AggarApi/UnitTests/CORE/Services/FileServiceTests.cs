@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTests.CORE.Services
 {
@@ -15,12 +16,14 @@ namespace UnitTests.CORE.Services
     public class FileServiceTests
     {
         private Mock<IWebHostEnvironment> _mockEnvironment;
+        private Mock<ILogger<FileService>> _mockLogger;
         private FileService _fileService;
         [SetUp]
         public void Setup()
         {
             _mockEnvironment = new Mock<IWebHostEnvironment>();
-            _fileService = new FileService(_mockEnvironment.Object);
+            _mockLogger = new Mock<ILogger<FileService>>();
+            _fileService = new FileService(_mockEnvironment.Object, _mockLogger.Object);
             _mockEnvironment.Setup(env => env.WebRootPath).Returns("C:/FakeWebRoot");
         }
         [Test]

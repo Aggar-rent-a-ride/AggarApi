@@ -9,6 +9,7 @@ using DATA.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -33,7 +34,9 @@ namespace UnitTests.CORE.Services
         private Mock<IMemoryCache> _mockMemoryCache;
         private Mock<IGeoapifyService> _mockGeoapifyService;
         private Mock<IEmailTemplateRendererService> _mockEmailTemplateRendererService;
+        private Mock<ILogger<AuthService>> _mockLogger;
         private AuthService _authService;
+
         private Mock<UserManager<AppUser>> MockUserManager()
         {
             var store = new Mock<IUserStore<AppUser>>();
@@ -52,6 +55,7 @@ namespace UnitTests.CORE.Services
             _mockMemoryCache = new Mock<IMemoryCache>();
             _mockGeoapifyService = new Mock<IGeoapifyService>();
             _mockEmailTemplateRendererService = new Mock<IEmailTemplateRendererService>();
+            _mockLogger = new Mock<ILogger<AuthService>>(); // Add this line
 
             _authService = new AuthService(
                 _mockJwtOptions.Object,
@@ -62,7 +66,8 @@ namespace UnitTests.CORE.Services
                 _mockEmailService.Object,
                 _mockMemoryCache.Object,
                 _mockGeoapifyService.Object,
-                _mockEmailTemplateRendererService.Object
+                _mockEmailTemplateRendererService.Object,
+                _mockLogger.Object 
             );
         }
         [Test]
