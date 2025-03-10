@@ -2,7 +2,7 @@
 {
     public class RenterReview : Review
     {
-        public double Care { get; set; }
+        public double Care { get; set; } // vhiecle status after the rental
         public int RenterId { get; set; }
 
         public Renter Renter { get; set; } = null!;
