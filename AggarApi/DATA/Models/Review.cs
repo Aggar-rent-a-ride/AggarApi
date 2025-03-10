@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int RentalId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public double Behavior { get; set; }
         public double Punctuality { get; set; }
         public string? Comments { get; set; }
