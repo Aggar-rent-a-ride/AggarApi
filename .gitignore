@@ -22,4 +22,6 @@ logs/
 .config/
 PublishProfiles/
 wwwroot/
+!wwwroot/EmailTemplates/
 Logs/
+TestController.cs
