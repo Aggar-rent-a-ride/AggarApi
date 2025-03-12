@@ -13,6 +13,7 @@ using DATA.DataAccess.Repositories;
 using DATA.DataAccess.Repositories.IRepositories;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
@@ -35,18 +36,6 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll",
-                    policy =>
-                    {
-                        policy.WithOrigins("http://127.0.0.1:5500")
-                              .AllowAnyMethod()
-                              .AllowAnyHeader()
-                              .AllowCredentials();
-                    });
-            });
-
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
 
@@ -58,8 +47,17 @@ namespace API
             // Use Serilog as the logging provider
             builder.Host.UseSerilog();
 
-            // Add services to the container.
+            // Add Hangfire services
+            builder.Services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(builder.Configuration.GetConnectionString("Hangfire")));
 
+            // Add the processing server as IHostedService
+            builder.Services.AddHangfireServer();
+
+            // Add services to the container.
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
@@ -190,8 +188,6 @@ namespace API
 
             var app = builder.Build();
             
-            app.UseCors("AllowAll");
-
             app.MapOpenApi();
 
             // Configure the HTTP request pipeline.
@@ -214,10 +210,11 @@ namespace API
                 await next();
             });
 
-
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+
+            app.UseHangfireDashboard();
 
             app.UseRouting();
 
@@ -226,6 +223,9 @@ namespace API
 
 
             app.MapControllers();
+            app.MapHangfireDashboard();
+
+
             app.MapHub<ChatHub>("/Chat");
 
             app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
