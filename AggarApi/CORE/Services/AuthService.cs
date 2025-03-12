@@ -343,7 +343,7 @@ namespace CORE.Services
             var activationCode = GenerateActivationCode();
             _logger.LogDebug("Generated activation code for user {UserId}", userId);
 
-            var emailSent = await _emailService.SendEmailAsync(user.Email, "Activate your account", await _emailTemplateRendererService.RenderTemplateAsync(Templates.AccountActivationEmail, new { Code = System.Web.HttpUtility.HtmlEncode(activationCode) }));
+            var emailSent = await _emailService.SendEmailAsync(user.Email, EmailSubject.ActivateYourAccount, await _emailTemplateRendererService.RenderTemplateAsync(Templates.AccountActivationEmail, new { Code = System.Web.HttpUtility.HtmlEncode(activationCode) }));
             if (emailSent == false)
             {
                 _logger.LogError("Failed to send activation email to user {UserId} at {Email}",
@@ -552,8 +552,12 @@ namespace CORE.Services
                 _logger.LogError("Failed to update roles for user ID {UserId}: {Errors}", userId, errors);
                 return new ResponseDto<object> { Message = $"Failed to update roles: {errors}.", StatusCode = StatusCodes.InternalServerError };
             }
-
             _logger.LogInformation("Roles updated successfully for user ID {UserId}.", userId);
+            
+            //email notification
+            if (roles.Contains(Roles.Admin))
+                await _emailService.SendEmailAsync(user.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Your account was assigned to be an Admin"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.AssignedToAdmin) }));
+            
             return new ResponseDto<object> { StatusCode = StatusCodes.OK, Message = "Roles updated successfully." };
         }
     }
