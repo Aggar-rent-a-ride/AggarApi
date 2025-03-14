@@ -29,7 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\EmailTemplates\" />
     <Folder Include="wwwroot\Files\Messages\" />
+    <Folder Include="wwwroot\files\messages\" />
     <Folder Include="wwwroot\Images\Vehicles\" />
     <Folder Include="wwwroot\Images\VehicleBrands\" />
     <Folder Include="wwwroot\Images\VehicleTypes\" />
