@@ -20,6 +20,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<Discount> Discounts { get; private set; }
         public IBaseRepository<Booking> Bookings { get; private set; }
         public IBaseRepository<FileCache> FileCache { get; private set; }
+        public IBaseRepository<Renter> Renters { get; private set; }
         public IChatRepository Chat { get; private set; }
 
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
@@ -30,6 +31,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             Vehicles = new VehicleRepository(_context);
             Discounts = new BaseRepository<Discount>(_context);
             Bookings = new BaseRepository<Booking>(_context);
+            Renters = new BaseRepository<Renter>(_context);
             FileCache = new BaseRepository<FileCache>(_context);
             Chat = new ChatRepository(_context);
         }
