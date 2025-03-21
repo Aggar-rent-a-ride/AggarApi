@@ -11,6 +11,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
     public interface IUnitOfWork : IDisposable
     {
         IBaseRepository<AppUser> AppUsers { get; }
+        IBaseRepository<Renter> Renters { get; }
         IVehicleRepository Vehicles { get; }
         IBaseRepository<Discount> Discounts { get; }
         IBaseRepository<Booking> Bookings { get; }

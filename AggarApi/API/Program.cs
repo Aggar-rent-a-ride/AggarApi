@@ -4,6 +4,7 @@ using CORE.DTOs.Chat;
 using CORE.DTOs.Email;
 using CORE.DTOs.Geoapify;
 using CORE.DTOs.Paths;
+using CORE.DTOs.Payment;
 using CORE.Helpers;
 using CORE.Services;
 using CORE.Services.IServices;
@@ -161,6 +162,7 @@ namespace API
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.Configure<GeoapifyAddressRequest>(builder.Configuration.GetSection("GeoapifyAddressRequest"));
             builder.Services.Configure<Paths>(builder.Configuration.GetSection("Paths"));
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
