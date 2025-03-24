@@ -178,6 +178,8 @@ namespace API
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IEmailTemplateRendererService, EmailTemplateRendererService>();
             builder.Services.AddScoped<IFileCacheService, FileCacheService>();
+            builder.Services.AddScoped<IVehicleBrandService, VehicleBrandService>();
+            builder.Services.AddScoped<IVehicleTypeService, VehicleTypeService>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
