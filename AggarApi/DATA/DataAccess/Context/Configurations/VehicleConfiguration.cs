@@ -23,12 +23,14 @@ namespace DATA.DataAccess.Context.Configurations
             builder.HasOne(v => v.VehicleBrand)
                 .WithMany(v => v.Vehicles)
                 .HasForeignKey(v => v.VehicleBrandId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(true);
 
             builder.HasOne(v => v.VehicleType)
                 .WithMany(v => v.Vehicles)
                 .HasForeignKey(v => v.VehicleTypeId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(true);
 
             builder.Property(v => v.Status)
                 .HasConversion(
