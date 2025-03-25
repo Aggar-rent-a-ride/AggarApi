@@ -11,7 +11,7 @@ namespace DATA.DataAccess.Context.Configurations
         {
             builder.HasKey(v => v.Id);
 
-            builder.OwnsOne(v => v.Address);
+            //builder.OwnsOne(v => v.Address);
 
             builder.OwnsOne(v => v.Location);
 
