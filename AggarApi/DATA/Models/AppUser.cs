@@ -21,7 +21,7 @@ namespace DATA.Models
         public DateTime? ActivateIn { get; set; }
         public string? ImagePath { get; set; }
         public string? Bio { get; set; }
-        public Address? Address { get; set; }
+        public string Address { get; set; } = null!;
         public Location Location { get; set; } = null!;
 
         public bool IsDeleted { get; set; } = false;

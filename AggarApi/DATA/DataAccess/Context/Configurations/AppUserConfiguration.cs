@@ -33,7 +33,7 @@ namespace DATA.DataAccess.Context.Configurations
                 s => (UserStatus)Enum.Parse(typeof(UserStatus), s)
                 );
 
-            builder.OwnsOne(u => u.Address);
+            //builder.OwnsOne(u => u.Address);
 
             builder.OwnsOne(u => u.Location);
 
