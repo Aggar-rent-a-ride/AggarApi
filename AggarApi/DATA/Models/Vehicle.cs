@@ -22,8 +22,8 @@ namespace DATA.Models
         public Address? Address { get; set; }
         public Location Location { get; set; } = null!;
         public int WarningCount { get; set; } = 0;
-        public int? VehicleTypeId { get; set; }
-        public int? VehicleBrandId { get; set; }
+        public int VehicleTypeId { get; set; }
+        public int VehicleBrandId { get; set; }
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DateDeleted { get; set; }
@@ -31,8 +31,8 @@ namespace DATA.Models
         public Renter Renter { get; set; } = null!;
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<VehicleImage>? VehicleImages { get; set; }
-        public VehicleBrand? VehicleBrand { get; set; }
-        public VehicleType? VehicleType { get; set; }
+        public VehicleBrand VehicleBrand { get; set; } = null!;
+        public VehicleType VehicleType { get; set; } = null!;
         public ICollection<Customer>? FavoriteCustomers { get; set; }
         public ICollection<Report>? Reports { get; set; }
         public ICollection<Discount>? Discounts { get; set; }
