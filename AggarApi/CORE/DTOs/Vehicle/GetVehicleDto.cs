@@ -31,7 +31,7 @@ namespace CORE.DTOs.Vehicle
         public decimal PricePerDay { get; set; }
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
-        public Address? Address { get; set; }
+        public string? Address { get; set; }
         public Location Location { get; set; }
         public VehicleTypeDto VehicleType { get; set; }
         public VehicleBrandDto VehicleBrand { get; set; }
