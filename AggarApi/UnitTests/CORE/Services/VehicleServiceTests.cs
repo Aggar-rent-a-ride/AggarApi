@@ -102,6 +102,8 @@ namespace UnitTests.CORE.Services
                 MainImage = new Mock<Microsoft.AspNetCore.Http.IFormFile>().Object,
                 PricePerDay = 100,
                 Location = new Location(),
+                VehicleTypeId = 1,
+                VehicleBrandId = 1
             };
             _mockMapper.Setup(m => m.Map<Vehicle>(createVehicleDto)).Returns((Vehicle)null);
 
@@ -145,6 +147,8 @@ namespace UnitTests.CORE.Services
                 MainImage = new Mock<Microsoft.AspNetCore.Http.IFormFile>().Object,
                 PricePerDay = 100,
                 Location = new Location(),
+                VehicleBrandId = 1,
+                VehicleTypeId = 1
             };
             _mockMapper.Setup(m => m.Map<Vehicle>(createVehicleDto)).Returns(new Vehicle());
             _mockFileService
@@ -186,7 +190,10 @@ namespace UnitTests.CORE.Services
         public async Task UpdateVehicleAsync_ShouldReturnNotFound_WhenVehicleDoesNotExist()
         {
             // Arrange
-            var updateVehicleDto = new UpdateVehicleDto { Id = 1, NumOfPassengers = 1, Year = 1995, PricePerDay = 10, Location = new Location() };
+            var updateVehicleDto = new UpdateVehicleDto { Id = 1, NumOfPassengers = 1, Year = 1995, PricePerDay = 10, Location = new Location(),
+                VehicleTypeId = 1,
+                VehicleBrandId = 1
+            };
             _mockUnitOfWork.Setup(u => u.Vehicles.GetAsync(updateVehicleDto.Id)).ReturnsAsync((Vehicle)null);
 
             // Act
