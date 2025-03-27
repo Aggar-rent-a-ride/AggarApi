@@ -19,7 +19,7 @@ namespace DATA.Models
         public decimal PricePerDay { get; set; }
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
-        public string Address { get; set; } = null!;
+        public string? Address { get; set; }
         public Location Location { get; set; } = null!;
         public int WarningCount { get; set; } = 0;
         public int VehicleTypeId { get; set; }
