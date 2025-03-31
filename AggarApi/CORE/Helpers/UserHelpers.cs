@@ -19,5 +19,13 @@ namespace CORE.Helpers
             
             return userId;
         }
+        public static List<string>? GetUserRoles(ClaimsPrincipal User)
+        {
+            var rolesClaims = User?.FindAll(ClaimTypes.Role).ToList();
+
+            var roles = rolesClaims?.Select(c => c.Value).ToList();
+
+            return roles;
+        }
     }
 }
