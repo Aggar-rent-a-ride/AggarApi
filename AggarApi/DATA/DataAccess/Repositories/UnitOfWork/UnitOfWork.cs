@@ -25,6 +25,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<VehicleBrand> VehicleBrands { get; private set; }
         public IBaseRepository<VehicleType> VehicleTypes { get; private set; }
 
+        public IBaseRepository<Rental> Rentals { get; private set; }
 
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
@@ -39,6 +40,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             VehicleBrands = new BaseRepository<VehicleBrand>(_context);
             VehicleTypes = new BaseRepository<VehicleType>(_context);
             Chat = new ChatRepository(_context);
+            Rentals = new BaseRepository<Rental>(_context);
         }
 
         public async Task<int> CommitAsync()

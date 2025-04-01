@@ -19,6 +19,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IBaseRepository<FileCache> FileCache { get; }
         IBaseRepository<VehicleBrand> VehicleBrands { get; }
         IBaseRepository<VehicleType> VehicleTypes { get; }
+        IBaseRepository<Rental> Rentals { get; }
 
         Task<int> CommitAsync();
     }
