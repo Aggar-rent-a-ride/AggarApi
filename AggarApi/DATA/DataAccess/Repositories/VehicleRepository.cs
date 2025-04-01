@@ -57,5 +57,15 @@ namespace DATA.DataAccess.Repositories
 
             return vehicles;
         }
+    
+        public async Task<Vehicle?> GetVehicleByRentalIdAsync(int rentalId)
+        {
+            var rental = await _context.Rentals
+                .Include(r => r.Booking)
+                .ThenInclude(b => b.Vehicle)
+                .FirstOrDefaultAsync(r => r.Id == rentalId);
+
+            return rental?.Booking?.Vehicle;
+        }
     }
 }
