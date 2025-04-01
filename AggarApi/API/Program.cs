@@ -186,6 +186,9 @@ namespace API
             builder.Services.AddScoped<IFileCacheService, FileCacheService>();
             builder.Services.AddScoped<IVehicleBrandService, VehicleBrandService>();
             builder.Services.AddScoped<IVehicleTypeService, VehicleTypeService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IRentalService, RentalService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
