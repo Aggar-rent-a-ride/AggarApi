@@ -14,7 +14,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IBaseRepository<Renter> Renters { get; }
         IVehicleRepository Vehicles { get; }
         IBaseRepository<Discount> Discounts { get; }
-        IBaseRepository<Booking> Bookings { get; }
+        IBookingRepository Bookings { get; }
         IChatRepository Chat { get; }
         IBaseRepository<FileCache> FileCache { get; }
         IBaseRepository<VehicleBrand> VehicleBrands { get; }

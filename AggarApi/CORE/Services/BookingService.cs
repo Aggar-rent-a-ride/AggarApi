@@ -233,5 +233,22 @@ namespace CORE.Services
                 Message = "Faild to response booking"
             };
         }
+
+        public async Task<ResponseDto<BookingDetailsDto>> GetBookingByRentalIdAsync(int rentalId)
+        {
+            var booking = await _unitOfWork.Bookings.GetBookingByRentalIdAsync(rentalId);
+            if (booking == null)
+                return new ResponseDto<BookingDetailsDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Booking not found"
+                };
+
+            return new ResponseDto<BookingDetailsDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<BookingDetailsDto>(booking),
+            };
+        }
     }
 }
