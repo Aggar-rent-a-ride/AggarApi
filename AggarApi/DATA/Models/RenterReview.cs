@@ -4,7 +4,7 @@ namespace DATA.Models
 {
     public class RenterReview : Review
     {
-        [Precision(1, 1)]
+        [Precision(2, 1)]
         public double Care { get; set; } // vhiecle status after the rental
         public int RenterId { get; set; }
 

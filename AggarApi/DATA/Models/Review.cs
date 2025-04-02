@@ -7,9 +7,9 @@ namespace DATA.Models
         public int Id { get; set; }
         public int RentalId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        [Precision(1, 1)]
+        [Precision(2, 1)]
         public double Behavior { get; set; }
-        [Precision(1, 1)]
+        [Precision(2, 1)]
         public double Punctuality { get; set; }
         public string? Comments { get; set; }
 

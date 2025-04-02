@@ -4,7 +4,7 @@ namespace DATA.Models
 {
     public class CustomerReview : Review
     {
-        [Precision(1, 1)]
+        [Precision(2, 1)]
         public double Truthfulness { get; set; }
         public int CustomerId { get; set; }
 
