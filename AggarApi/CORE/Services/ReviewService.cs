@@ -145,7 +145,7 @@ namespace CORE.Services
             }
 
             _logger.LogDebug("Fetching rental data for rental {RentalId}", reviewDto.RentalId);
-            var rentalResponse = await _rentalService.GetRentalByIdIncludingBookingThenIncludingVehicleAsync(reviewDto.RentalId);
+            var rentalResponse = await _rentalService.GetReviewRentalValidationProperties(reviewDto.RentalId);
             
             if(rentalResponse.StatusCode != StatusCodes.OK)
             {
