@@ -1,0 +1,76 @@
+﻿using AutoMapper;
+using CORE.Constants;
+using CORE.DTOs;
+using CORE.DTOs.Rental;
+using CORE.Services.IServices;
+using DATA.DataAccess.Repositories.UnitOfWork;
+using DATA.Models;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CORE.Services
+{
+    public class RentalService : IRentalService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly ILogger<RentalService> _logger;
+
+        public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
+        {
+            _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);
+
+            var rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+            if (rental == null)
+            {
+                _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
+                return new ResponseDto<GetRentalDto?>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Rental not found."
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved rental with ID: {RentalId}", rentalId);
+            return new ResponseDto<GetRentalDto?>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<GetRentalDto>(rental)
+            };
+        }
+
+        public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId)
+        {
+            _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);
+
+            var rental = await _unitOfWork.Rentals.GetRentalByIdIncludingBookingThenIncludingVehicleAsync(rentalId);
+            if (rental == null)
+            {
+                _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
+                return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Rental not found."
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved rental with ID: {RentalId}", rentalId);
+            return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = rental
+            };
+        }
+    }
+}

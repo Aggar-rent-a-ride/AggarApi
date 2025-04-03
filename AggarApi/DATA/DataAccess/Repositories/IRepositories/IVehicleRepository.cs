@@ -11,5 +11,6 @@ namespace DATA.DataAccess.Repositories.IRepositories
     public interface IVehicleRepository : IBaseRepository<Vehicle>
     {
         public IQueryable<Vehicle> GetNearestVehicles(int? brandId, int? typeId, VehicleTransmission? transmission, string? searchKey, decimal? minPrice, decimal? maxPrice, int? year, double? rate);
+        Task<Vehicle?> GetVehicleByRentalIdAsync(int rentalId);
     }
 }

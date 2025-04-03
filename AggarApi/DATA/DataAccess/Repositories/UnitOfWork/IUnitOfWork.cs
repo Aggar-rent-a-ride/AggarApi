@@ -14,12 +14,19 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IBaseRepository<Renter> Renters { get; }
         IVehicleRepository Vehicles { get; }
         IBaseRepository<Discount> Discounts { get; }
-        IBaseRepository<Booking> Bookings { get; }
+        IBookingRepository Bookings { get; }
         IChatRepository Chat { get; }
         IBaseRepository<FileCache> FileCache { get; }
         IBaseRepository<VehicleBrand> VehicleBrands { get; }
         IBaseRepository<VehicleType> VehicleTypes { get; }
+        IRentalRepository Rentals { get; }
+        IBaseRepository<RenterReview> RenterReviews { get; }
+        IBaseRepository<CustomerReview> CustomerReviews { get; }
 
         Task<int> CommitAsync();
+
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

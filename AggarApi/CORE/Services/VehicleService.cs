@@ -469,5 +469,22 @@ namespace CORE.Services
                 Data = updatedVehicleResult.Data
             };
         }
+
+        public async Task<ResponseDto<GetVehicleDto>> GetVehicleByRentalIdAsync(int rentalId)
+        {
+            var vehicle = await _unitOfWork.Vehicles.GetVehicleByRentalIdAsync(rentalId);
+            if (vehicle == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+
+            return new ResponseDto<GetVehicleDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<GetVehicleDto>(vehicle)
+            };
+        }
     }
 }
