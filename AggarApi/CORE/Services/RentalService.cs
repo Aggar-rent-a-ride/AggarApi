@@ -4,6 +4,7 @@ using CORE.DTOs;
 using CORE.DTOs.Rental;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
+using DATA.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,29 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = _mapper.Map<GetRentalDto>(rental)
+            };
+        }
+
+        public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId)
+        {
+            _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);
+
+            var rental = await _unitOfWork.Rentals.GetRentalByIdIncludingBookingThenIncludingVehicleAsync(rentalId);
+            if (rental == null)
+            {
+                _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
+                return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Rental not found."
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved rental with ID: {RentalId}", rentalId);
+            return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = rental
             };
         }
     }

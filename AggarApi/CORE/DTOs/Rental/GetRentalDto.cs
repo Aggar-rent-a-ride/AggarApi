@@ -1,4 +1,6 @@
-﻿using DATA.Models;
+﻿using CORE.DTOs.Booking;
+using CORE.DTOs.Vehicle;
+using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +15,7 @@ namespace CORE.DTOs.Rental
         public int BookingId { get; set; }
         public int CustomerReviewId { get; set; }
         public int RenterReviewId { get; set; }
+        public GetBookingByRentalIdDto Booking { get; set; }
+        public GetVehicleDto Vehicle { get; set; }
     }
 }

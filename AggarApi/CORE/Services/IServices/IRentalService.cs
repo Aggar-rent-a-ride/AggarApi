@@ -1,5 +1,6 @@
 ﻿using CORE.DTOs;
 using CORE.DTOs.Rental;
+using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace CORE.Services.IServices
     public interface IRentalService
     {
         Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId);
+        Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId);
     }
 }
