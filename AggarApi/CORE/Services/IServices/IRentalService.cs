@@ -12,6 +12,6 @@ namespace CORE.Services.IServices
     public interface IRentalService
     {
         Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId);
-        Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId);
+        Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetReviewRentalValidationProperties(int rentalId);
     }
 }

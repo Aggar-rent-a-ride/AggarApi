@@ -41,11 +41,15 @@ namespace CORE.Services
             {
                 if (reviewDto.Care == null || reviewDto.Care < 1 || reviewDto.Care > 5)
                     errors.Add("Care rate must be between 1 and 5");
+                if (reviewDto.Truthfulness != null)
+                    errors.Add("Truthfulness rate must be null for renter review");
             }
             else
             {
                 if (reviewDto.Truthfulness == null || reviewDto.Truthfulness < 1 || reviewDto.Truthfulness > 5)
                     errors.Add("Truthfulness rate must be between 1 and 5");
+                if (reviewDto.Care != null)
+                    errors.Add("Care rate must be null for customer review");
             }
             return errors.Count > 0 ? string.Join(", ", errors) : null;
         }
@@ -145,7 +149,7 @@ namespace CORE.Services
             }
 
             _logger.LogDebug("Fetching rental data for rental {RentalId}", reviewDto.RentalId);
-            var rentalResponse = await _rentalService.GetRentalByIdIncludingBookingThenIncludingVehicleAsync(reviewDto.RentalId);
+            var rentalResponse = await _rentalService.GetReviewRentalValidationProperties(reviewDto.RentalId);
             
             if(rentalResponse.StatusCode != StatusCodes.OK)
             {
@@ -178,55 +182,34 @@ namespace CORE.Services
             _logger.LogDebug("Adding review to database for rental {RentalId}", reviewDto.RentalId);
 
             var reviewRentalCreationResponse = await _rentalReviewService.CreateReviewUpdateRentalAsync(review, role, review.RentalId);
+
             if (reviewRentalCreationResponse.StatusCode != StatusCodes.OK)
             {
-                _logger.LogError("Failed to update rental review ID for rental {RentalId}: {ErrorMessage}",
-                    reviewDto.RentalId, reviewRentalCreationResponse.Message);
-                
-                await _unitOfWork.RollbackTransactionAsync();
-
+                _logger.LogWarning("Failed to add review to database for rental {RentalId} by user {UserId}: {ErrorMessage}",
+                    reviewDto.RentalId, userId, reviewRentalCreationResponse.Message);
                 return new ResponseDto<GetReviewDto>
                 {
-                    StatusCode = StatusCodes.InternalServerError,
-                    Message = "Something went while commiting the rental"
-                };
-            }
-
-            try
-            {
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Failed to commit transaction for rental {RentalId}: {ErrorMessage}",
-                    reviewDto.RentalId, ex.Message);
-
-                return new ResponseDto<GetReviewDto>
-                {
-                    StatusCode = StatusCodes.InternalServerError,
-                    Message = "Failed to commit transaction"
+                    StatusCode = reviewRentalCreationResponse.StatusCode,
+                    Message = reviewRentalCreationResponse.Message
                 };
             }
 
             _logger.LogInformation("Successfully created review for rental {RentalId} by user {UserId}",
             reviewDto.RentalId, userId);
-
-            var result = new GetReviewDto
-            {
-                Id = review.Id,
-                CreatedAt = review.CreatedAt,
-                Behavior = review.Behavior,
-                Punctuality = review.Punctuality,
-                Comments = review.Comments,
-                RentalId = review.RentalId,
-                Care = reviewDto.Care,
-                Truthfulness = reviewDto.Truthfulness,
-            };
-
             return new ResponseDto<GetReviewDto>
             {
                 StatusCode = StatusCodes.Created,
-                Data = result
+                Data = new GetReviewDto
+                {
+                    Id = review.Id,
+                    CreatedAt = review.CreatedAt,
+                    Behavior = review.Behavior,
+                    Punctuality = review.Punctuality,
+                    Comments = review.Comments,
+                    RentalId = review.RentalId,
+                    Care = reviewDto.Care,
+                    Truthfulness = reviewDto.Truthfulness,
+                }
             };
         }
     }

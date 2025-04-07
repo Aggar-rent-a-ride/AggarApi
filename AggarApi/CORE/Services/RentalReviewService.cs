@@ -1,5 +1,6 @@
 ﻿using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.Review;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
@@ -60,6 +61,9 @@ namespace CORE.Services
                 rental.RenterReviewId = review.Id;
 
             await _unitOfWork.CommitAsync();
+
+
+            await _unitOfWork.CommitTransactionAsync();
 
             _logger.LogInformation("Successfully updated rental review ID: {ReviewId} for rental ID: {RentalId}", review.Id, rentalId);
             return new ResponseDto<object>

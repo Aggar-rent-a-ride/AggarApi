@@ -50,7 +50,7 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId)
+        public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetReviewRentalValidationProperties(int rentalId)
         {
             _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);
 
