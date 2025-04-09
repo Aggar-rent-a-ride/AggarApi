@@ -24,6 +24,9 @@ namespace CORE.AutoMapperProfiles
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.ImagePath))
                 .ReverseMap();
+
+            CreateMap<CustomerReview, GetReviewDto>()
+                .ReverseMap();
         }
     }
 }
