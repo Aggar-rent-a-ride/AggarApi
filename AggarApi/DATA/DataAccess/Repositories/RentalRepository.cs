@@ -58,5 +58,21 @@ namespace DATA.DataAccess.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Rental>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize)
+        {
+            return await _context.Rentals
+                .Where(r => r.Booking.VehicleId == vehicleId)
+                .Select(r => new Rental
+                {
+                    Id = r.Id,
+                    CustomerReviewId = r.CustomerReviewId,
+                    RenterReviewId = r.RenterReviewId,
+                    BookingId = r.BookingId
+                })
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
     }
 }

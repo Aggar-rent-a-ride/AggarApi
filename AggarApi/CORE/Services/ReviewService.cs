@@ -230,8 +230,8 @@ namespace CORE.Services
                     Message = paginationError
                 };
             }
-            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
 
+            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
             if (userRentalsResponse.StatusCode != StatusCodes.OK)
             {
                 _logger.LogWarning("Failed to retrieve rentals for user {UserId}: {ErrorMessage}",
@@ -316,6 +316,64 @@ namespace CORE.Services
 
             _logger.LogInformation("Successfully retrieved review with ID {ReviewId}", reviewId);
             return new ResponseDto<GetReviewDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize)
+        {
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            var vehicleRentalsResponse = await _rentalService.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize);
+            if (vehicleRentalsResponse.StatusCode != StatusCodes.OK)
+            {
+                _logger.LogWarning("Failed to retrieve rentals for vehicle {VehicleId}: {ErrorMessage}",
+                    vehicleId, vehicleRentalsResponse.Message);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = vehicleRentalsResponse.StatusCode,
+                    Message = vehicleRentalsResponse.Message
+                };
+            }
+
+            var rentals = vehicleRentalsResponse.Data;
+            if (rentals == null || rentals.Any() == false)
+            {
+                _logger.LogInformation("No rentals found for vehicle {VehicleId}", vehicleId);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No rentals found for this vehicle"
+                };
+            }
+
+            var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
+            var includes = new List<string> { CustomerReviewIncludes.Customer };
+            var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
+            var result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
+
+            if (result.Count == 0)
+            {
+                _logger.LogInformation("No reviews found for vehicle {VehicleId}", vehicleId);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No reviews found for this vehicle"
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved reviews for vehicle {VehicleId}", vehicleId);
+            return new ResponseDto<IEnumerable<SummarizedReviewDto>>
             {
                 StatusCode = StatusCodes.OK,
                 Data = result

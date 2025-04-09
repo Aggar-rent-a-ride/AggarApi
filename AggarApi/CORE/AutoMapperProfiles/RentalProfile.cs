@@ -25,6 +25,8 @@ namespace CORE.AutoMapperProfiles
 
             CreateMap<Vehicle, GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking.GetRentalsByUserIdDtoVehicle>();
 
+            CreateMap<Rental, GetRentalsByVehicleIdDto>();
+
         }
     }
 }

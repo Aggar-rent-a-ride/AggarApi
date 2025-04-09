@@ -14,5 +14,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetReviewDto>> CreateReviewAsync(CreateReviewDto reviewDto, int userId, string role);
         Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize);
         Task<ResponseDto<GetReviewDto>> GetReviewAsync(int reviewId);
+        Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize);
     }
 }

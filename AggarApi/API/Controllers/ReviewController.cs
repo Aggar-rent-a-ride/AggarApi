@@ -62,5 +62,12 @@ namespace API.Controllers
 
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("vehicle-reviews"), Authorize]
+        public async Task<IActionResult> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize)
+        {
+            var result = await _reviewService.GetVehicleReviewsAsync(vehicleId, pageNo, pageSize);
+
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
