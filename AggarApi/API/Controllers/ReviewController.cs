@@ -55,5 +55,12 @@ namespace API.Controllers
 
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet, Authorize]
+        public async Task<IActionResult> GetReviewAsync(int reviewId)
+        {
+            var result = await _reviewService.GetReviewAsync(reviewId);
+
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

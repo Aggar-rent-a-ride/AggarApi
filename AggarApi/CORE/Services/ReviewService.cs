@@ -289,5 +289,37 @@ namespace CORE.Services
                 Data = result
             };
         }
+
+        public async Task<ResponseDto<GetReviewDto>> GetReviewAsync(int reviewId)
+        {
+            _logger.LogInformation("Received request to get review with ID {ReviewId}", reviewId);
+
+            GetReviewDto result = null;
+
+            result = _mapper.Map<GetReviewDto>(await _unitOfWork.CustomerReviews.GetAsync(reviewId));
+
+            if(result == null)
+            {
+                _logger.LogInformation("No customer review found with ID {ReviewId}", reviewId);
+                result = _mapper.Map<GetReviewDto>(await _unitOfWork.RenterReviews.GetAsync(reviewId));
+            }
+
+            if(result == null)
+            {
+                _logger.LogWarning("No review found with ID {ReviewId}", reviewId);
+                return new ResponseDto<GetReviewDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No review found with this ID"
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved review with ID {ReviewId}", reviewId);
+            return new ResponseDto<GetReviewDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result
+            };
+        }
     }
 }
