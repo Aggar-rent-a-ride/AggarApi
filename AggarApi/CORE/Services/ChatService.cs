@@ -235,7 +235,7 @@ namespace CORE.Services
         {
             _logger.LogInformation("Fetching chat for user {AuthUserId} with page {PageNo} and page size {PageSize}.", authUserId, pageNo, pageSize);
 
-            if (PaginationHelpers.ValidatePaging(pageNo, pageSize) is string paginationError)
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
             {
                 _logger.LogWarning("Pagination validation failed: {Error}", paginationError);
                 return new ResponseDto<ArrayList>
@@ -340,7 +340,7 @@ namespace CORE.Services
         {
             _logger.LogInformation("Filtering messages for user {AuthUserId} with filter: {@Filter}", authUserId, filter);
 
-            if (PaginationHelpers.ValidatePaging(filter.PageNo, filter.PageSize) is string paginationError)
+            if (PaginationHelpers.ValidatePaging(filter.PageNo, filter.PageSize, 100) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
                 return new ResponseDto<ArrayList>

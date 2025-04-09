@@ -15,10 +15,14 @@ namespace CORE.Helpers
 
             return (int)Math.Ceiling(countData / pageSize);
         }
-        public static string? ValidatePaging(int pageNo, int pageSize)
+        public static string? ValidatePaging(int pageNo, int pageSize, int maxPageSize)
         {
-            if (pageNo <= 0 || pageSize <= 0)
-                return "Invalid page number or page size";
+            if (pageNo <= 0)
+                return "Page number must be greater than 0";
+            if (pageSize <= 0)
+                return "Page size must be greater than 0";
+            if (pageSize > maxPageSize)
+                return $"Page size must be less than or equal to {maxPageSize}";
             return null;
         }
     }
