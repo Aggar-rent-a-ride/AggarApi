@@ -221,7 +221,7 @@ namespace CORE.Services
 
         public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize)
         {
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize) is string paginationError)
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
                 return new ResponseDto<IEnumerable<SummarizedReviewDto>>

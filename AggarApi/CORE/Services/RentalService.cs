@@ -2,6 +2,7 @@
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
+using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
@@ -52,6 +53,18 @@ namespace CORE.Services
 
         public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize)
         {
+            _logger.LogInformation("Getting rentals for user with ID: {UserId}", userId);
+
+            if(PaginationHelpers.ValidatePaging(userId, pageSize, 100) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
             var rentals = await _unitOfWork.Rentals.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
             if (rentals == null || rentals.Any() == false)
             {
