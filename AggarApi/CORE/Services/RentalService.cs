@@ -50,6 +50,27 @@ namespace CORE.Services
             };
         }
 
+        public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize)
+        {
+            var rentals = await _unitOfWork.Rentals.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
+            if (rentals == null || rentals.Any() == false)
+            {
+                _logger.LogWarning("No rentals found for user with ID: {UserId}", userId);
+                return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No rentals found."
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved rentals for user with ID: {UserId}", userId);
+            return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<IEnumerable<GetRentalsByUserIdDto>>(rentals)
+            };
+        }
+
         public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetReviewRentalValidationProperties(int rentalId)
         {
             _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);

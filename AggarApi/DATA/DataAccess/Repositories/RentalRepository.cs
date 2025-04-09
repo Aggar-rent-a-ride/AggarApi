@@ -32,5 +32,31 @@ namespace DATA.DataAccess.Repositories
                 : (result.Id, result.CustomerReviewId, result.RenterReviewId,
                    result.CustomerId, result.RenterId);
         }
+
+        public async Task<IEnumerable<Rental>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize)
+        {
+            return await _context.Rentals
+                .Where(r => r.Booking.CustomerId == userId || r.Booking.Vehicle.RenterId == userId)
+                .Select(r=> new Rental
+                {
+                    Id = r.Id,
+                    CustomerReviewId = r.CustomerReviewId,
+                    RenterReviewId = r.RenterReviewId,
+                    BookingId = r.BookingId,
+                    Booking = new Booking
+                    {
+                        Id = r.Booking.Id,
+                        CustomerId = r.Booking.CustomerId,
+                        Vehicle = new Vehicle
+                        {
+                            Id = r.Booking.Vehicle.Id,
+                            RenterId = r.Booking.Vehicle.RenterId
+                        }
+                    }
+                })
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
     }
 }

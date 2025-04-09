@@ -10,6 +10,5 @@
         public Booking Booking { get; set; } = null!;
         public CustomerReview? CustomerReview { get; set; }
         public RenterReview? RenterReview { get; set; }
-
     }
 }

@@ -20,7 +20,7 @@ namespace API.Controllers
             _reviewService = reviewService;
         }
         [HttpPost, Authorize(Roles = "Customer, Renter")]
-        public async Task<IActionResult> CreateReview(CreateReviewDto reviewDto)
+        public async Task<IActionResult> CreateReviewAsync(CreateReviewDto reviewDto)
         {
             var userId = UserHelpers.GetUserId(User);
             var roles = UserHelpers.GetUserRoles(User);
@@ -44,6 +44,14 @@ namespace API.Controllers
                 });
 
             var result = await _reviewService.CreateReviewAsync(reviewDto, userId, role);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("user-reviews"), Authorize]
+        public async Task<IActionResult> GetUserReviewsAsync(int userId, int pageNo, int pageSize)
+        {
+            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
 
             return StatusCode(result.StatusCode, result);
         }

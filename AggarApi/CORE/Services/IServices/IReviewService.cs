@@ -12,5 +12,6 @@ namespace CORE.Services.IServices
     public interface IReviewService
     {
         Task<ResponseDto<GetReviewDto>> CreateReviewAsync(CreateReviewDto reviewDto, int userId, string role);
+        Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize);
     }
 }

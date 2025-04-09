@@ -1,8 +1,11 @@
-﻿using CORE.Constants;
+﻿using AutoMapper;
+using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
 using CORE.DTOs.Review;
+using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.AspNetCore.Razor.Language.Intermediate;
@@ -10,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,13 +25,15 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ReviewService> _logger;
         private readonly IRentalReviewService _rentalReviewService;
+        private readonly IMapper _mapper;
 
-        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService)
+        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper)
         {
             _rentalService = rentalService;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _rentalReviewService = rentalReviewService;
+            _mapper = mapper;
         }
 
         private string? CheckReviewRates(CreateReviewDto reviewDto, string role)
@@ -210,6 +216,77 @@ namespace CORE.Services
                     Care = reviewDto.Care,
                     Truthfulness = reviewDto.Truthfulness,
                 }
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize)
+        {
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
+
+            if (userRentalsResponse.StatusCode != StatusCodes.OK)
+            {
+                _logger.LogWarning("Failed to retrieve rentals for user {UserId}: {ErrorMessage}",
+                    userId, userRentalsResponse.Message);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = userRentalsResponse.StatusCode,
+                    Message = userRentalsResponse.Message
+                };
+            }
+            
+            var rentals = userRentalsResponse.Data;
+            if (rentals == null || rentals.Any() == false)
+            {
+                _logger.LogInformation("No rentals found for user {UserId}", userId);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No rentals found for this user"
+                };
+            }
+
+            var result = new List<SummarizedReviewDto>();
+            if (rentals.First().Booking.CustomerId == userId)
+            {
+                //get renter reviews on that customer
+                var renterReviewsIds = rentals.Select(r => r.RenterReviewId).ToHashSet();
+                var includes = new List<string> { RenterReviewIncludes.Renter };
+                var reviews = await _unitOfWork.RenterReviews.FindAsync(r => renterReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
+                result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
+            }
+            else
+            {
+                //get customer reviews on that renter
+                var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
+                var includes = new List<string> { CustomerReviewIncludes.Customer };
+                var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
+                result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
+            }
+
+            if (result.Count == 0)
+            {
+                _logger.LogInformation("No reviews found for user {UserId}", userId);
+                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No reviews found for this user"
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved reviews for user {UserId}", userId);
+            return new ResponseDto<IEnumerable<SummarizedReviewDto>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result
             };
         }
     }
