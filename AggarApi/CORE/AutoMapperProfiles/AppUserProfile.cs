@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
+using CORE.DTOs.Review;
 using DATA.Models;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,10 @@ namespace CORE.AutoMapperProfiles
 
             CreateMap<AppUser, ChatUserDto>()
                 .ReverseMap();
-                
+
+            CreateMap<AppUser, ReviewerDto>()
+                .ReverseMap();
+
         }
     }
 }
