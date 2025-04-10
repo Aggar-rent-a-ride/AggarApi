@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.AppUser;
 using CORE.DTOs.Chat;
 using CORE.DTOs.Message;
 using CORE.Helpers;
@@ -282,7 +283,7 @@ namespace CORE.Services
             var chatList = new ArrayList();
             foreach (var item in chatItems)
             {
-                var user = item.SenderId == authUserId ? _mapper.Map<ChatUserDto>(item.Receiver) : _mapper.Map<ChatUserDto>(item.Sender);
+                var user = item.SenderId == authUserId ? _mapper.Map<SummerizedUserDto>(item.Receiver) : _mapper.Map<SummerizedUserDto>(item.Sender);
                 var lastUnseenMessageIds = await _unitOfWork.Chat.GetLatestUnseenMessagesIds(authUserId, user.Id);
                 if (item is ContentMessage contentMessage)
                     chatList.Add(new ChatItemDto<ChatContentMessageDto>
