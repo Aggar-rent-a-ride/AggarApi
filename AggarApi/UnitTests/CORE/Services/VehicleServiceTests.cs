@@ -30,6 +30,7 @@ namespace UnitTests.CORE.Services
         private Paths _paths;
         private Mock<IVehicleRepository> _mockVehicleRepository;
         private VehicleService _vehicleService;
+        private Mock<IReviewService> _mockReviewService;
 
         [SetUp]
         public void SetUp()
@@ -40,6 +41,7 @@ namespace UnitTests.CORE.Services
             _mockMapper = new Mock<IMapper>();
             _mockGeoapifyService = new Mock<IGeoapifyService>();
             _mockVehicleRepository = new Mock<IVehicleRepository>();
+            _mockReviewService = new Mock<IReviewService>();
 
             _paths = new Paths { VehicleImages = "vehicle_images" };
             _mockPaths.Setup(p => p.Value).Returns(_paths);
@@ -48,7 +50,8 @@ namespace UnitTests.CORE.Services
                  _mockFileService.Object,
                  _mockPaths.Object,
                  _mockMapper.Object,
-                 _mockGeoapifyService.Object
+                 _mockGeoapifyService.Object,
+                _mockReviewService.Object
              );
             _mockUnitOfWork.Setup(u=>u.Vehicles).Returns(_mockVehicleRepository.Object);
         }

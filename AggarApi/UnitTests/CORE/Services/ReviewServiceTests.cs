@@ -143,7 +143,7 @@ namespace UnitTests.CORE.Services
             var userId = 1;
             var pageNo = 1;
             var pageSize = 10;
-            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize))
+            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize, 100))
                 .ReturnsAsync(new ResponseDto<IEnumerable<GetRentalsByUserIdDto>> { StatusCode = StatusCodes.BadRequest });
             // Act
             var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
@@ -157,7 +157,7 @@ namespace UnitTests.CORE.Services
             var userId = 1;
             var pageNo = 1;
             var pageSize = 10;
-            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize))
+            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize, 100))
                 .ReturnsAsync(new ResponseDto<IEnumerable<GetRentalsByUserIdDto>> { StatusCode = StatusCodes.OK, Data = new List<GetRentalsByUserIdDto>() });
             // Act
             var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
@@ -177,7 +177,7 @@ namespace UnitTests.CORE.Services
                 new GetRentalsByUserIdDto { Id = 1, BookingId = 1, CustomerReviewId = 0, RenterReviewId = 0, Booking = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking { Id = 1, CustomerId = 1, Vehicle = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking.GetRentalsByUserIdDtoVehicle { Id = 1, RenterId = 1 } } },
                 new GetRentalsByUserIdDto { Id = 2, BookingId = 2, CustomerReviewId = 0, RenterReviewId = 0, Booking = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking { Id = 2, CustomerId = 1, Vehicle = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking.GetRentalsByUserIdDtoVehicle { Id = 2, RenterId = 2 } } }
             };
-            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize))
+            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize, 100))
                 .ReturnsAsync(new ResponseDto<IEnumerable<GetRentalsByUserIdDto>> { StatusCode = StatusCodes.OK, Data = rentals });
             _mockRentalService.Setup(r => r.GetRentalByIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(new ResponseDto<GetRentalDto?> { StatusCode = StatusCodes.BadRequest });
@@ -208,7 +208,7 @@ namespace UnitTests.CORE.Services
                 new GetRentalsByUserIdDto { Id = 1, BookingId = 1, CustomerReviewId = 0, RenterReviewId = 0, Booking = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking { Id = 1, CustomerId = 1, Vehicle = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking.GetRentalsByUserIdDtoVehicle { Id = 1, RenterId = 1 } } },
                 new GetRentalsByUserIdDto { Id = 2, BookingId = 2, CustomerReviewId = 0, RenterReviewId = 0, Booking = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking { Id = 2, CustomerId = 1, Vehicle = new GetRentalsByUserIdDto.GetRentalsByUserIdDtoBooking.GetRentalsByUserIdDtoVehicle { Id = 2, RenterId = 2 } } }
             };
-            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize))
+            _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize, 100))
                 .ReturnsAsync(new ResponseDto<IEnumerable<GetRentalsByUserIdDto>> { StatusCode = StatusCodes.OK, Data = rentals });
             _mockRentalService.Setup(r => r.GetRentalByIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(new ResponseDto<GetRentalDto?> { StatusCode = StatusCodes.BadRequest });
