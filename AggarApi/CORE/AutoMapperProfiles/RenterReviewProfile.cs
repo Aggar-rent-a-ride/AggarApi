@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.DTOs.AppUser;
 using CORE.DTOs.Review;
 using DATA.Models;
 using System;
@@ -19,7 +20,7 @@ namespace CORE.AutoMapperProfiles
                 .ForMember(dest => dest.Reviewer, opt => opt.MapFrom(src => src.Renter))
                 .ReverseMap();
 
-            CreateMap<Renter, ReviewerDto>()
+            CreateMap<Renter, SummerizedUserDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.ImagePath))

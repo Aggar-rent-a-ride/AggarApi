@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.DTOs.AppUser;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
 using CORE.DTOs.Review;
@@ -22,12 +23,8 @@ namespace CORE.AutoMapperProfiles
                 .ForMember(dest=> dest.AggreedTheTerms, opt=>opt.Ignore())
                 .ReverseMap();
 
-            CreateMap<AppUser, ChatUserDto>()
+            CreateMap<AppUser, SummerizedUserDto>()
                 .ReverseMap();
-
-            CreateMap<AppUser, ReviewerDto>()
-                .ReverseMap();
-
         }
     }
 }
