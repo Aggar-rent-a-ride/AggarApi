@@ -219,9 +219,9 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize)
+        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100)
         {
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
                 return new ResponseDto<IEnumerable<SummarizedReviewDto>>
@@ -231,7 +231,7 @@ namespace CORE.Services
                 };
             }
 
-            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
+            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize, maxPageSize);
             if (userRentalsResponse.StatusCode != StatusCodes.OK)
             {
                 _logger.LogWarning("Failed to retrieve rentals for user {UserId}: {ErrorMessage}",
@@ -322,9 +322,9 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize)
+        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100)
         {
-            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
                 return new ResponseDto<IEnumerable<SummarizedReviewDto>>
@@ -334,7 +334,7 @@ namespace CORE.Services
                 };
             }
 
-            var vehicleRentalsResponse = await _rentalService.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize);
+            var vehicleRentalsResponse = await _rentalService.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize, maxPageSize);
             if (vehicleRentalsResponse.StatusCode != StatusCodes.OK)
             {
                 _logger.LogWarning("Failed to retrieve rentals for vehicle {VehicleId}: {ErrorMessage}",
@@ -377,6 +377,44 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = result
+            };
+        }
+
+        public async Task<ResponseDto<double?>> GetVehicleTotalRateAsync(int vehicleId)
+        {
+            _logger.LogInformation("Received request to get total rate for vehicle {VehicleId}", vehicleId);
+
+            var vehicleReviewsResponse = await GetVehicleReviewsAsync(vehicleId, 1, Int32.MaxValue, Int32.MaxValue);
+
+            if (vehicleReviewsResponse.StatusCode != StatusCodes.OK)
+            {
+                _logger.LogWarning("Failed to retrieve reviews for vehicle {VehicleId}: {ErrorMessage}",
+                    vehicleId, vehicleReviewsResponse.Message);
+                return new ResponseDto<double?>
+                {
+                    StatusCode = vehicleReviewsResponse.StatusCode,
+                    Message = vehicleReviewsResponse.Message
+                };
+            }
+            var reviews = vehicleReviewsResponse.Data;
+            if (reviews == null || reviews.Any() == false)
+            {
+                _logger.LogInformation("No reviews found for vehicle {VehicleId}", vehicleId);
+                return new ResponseDto<double?>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No reviews found for this vehicle"
+                };
+            }
+
+            var totalRate = Math.Round(reviews.Average(r => r.Rate), 1);
+
+            _logger.LogInformation("Successfully retrieved total rate for vehicle {VehicleId}: {TotalRate}",
+                vehicleId, totalRate);
+            return new ResponseDto<double?>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = totalRate
             };
         }
     }

@@ -37,6 +37,5 @@ namespace CORE.DTOs.Vehicle
         public VehicleBrandDto VehicleBrand { get; set; }
         public ICollection<string>? VehicleImages { get; set; }
         public ICollection<GetDiscountDto> Discounts { get; set; }
-
     }
 }

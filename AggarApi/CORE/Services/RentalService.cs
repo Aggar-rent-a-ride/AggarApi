@@ -51,11 +51,11 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize)
+        public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100)
         {
             _logger.LogInformation("Getting rentals for user with ID: {UserId}", userId);
 
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
                 return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
@@ -84,11 +84,11 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize)
+        public async Task<ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100)
         {
             _logger.LogInformation("Getting rentals for vehicle with ID: {VehicleId}", vehicleId);
 
-            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
                 return new ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>
