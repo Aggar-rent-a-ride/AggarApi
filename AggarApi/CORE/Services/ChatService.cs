@@ -152,7 +152,7 @@ namespace CORE.Services
                 Data = new GetMessageDto { ClientMessageId = messageDto?.ClientMessageId } as TGet
             };
         }
-        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateFilter dateFilter)
+        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateFilter dateFilter, int maxPageSize = 100)
         {
             _logger.LogInformation("Retrieving messages between user {UserId1} and user {UserId2} with page size {PageSize} and date filter {DateFilter}.",
                 userId1, userId2, pageSize, dateFilter);
@@ -167,7 +167,17 @@ namespace CORE.Services
                 };
             }
 
-            if(await ValidateSenderAndReceiver(userId1, userId2) is string senderReceiverErorr)
+            if (pageSize > maxPageSize)
+            {
+                _logger.LogWarning("Page size exceeds maximum limit: {PageSize}.", pageSize);
+                return new ResponseDto<ArrayList>
+                {
+                    Message = $"Page size must be less than or equal to {maxPageSize}",
+                    StatusCode = StatusCodes.BadRequest,
+                };
+            }
+
+            if (await ValidateSenderAndReceiver(userId1, userId2) is string senderReceiverErorr)
             {
                 _logger.LogWarning("Sender and receiver validation failed: {Error}", senderReceiverErorr);
                 return new ResponseDto<ArrayList>
@@ -231,11 +241,11 @@ namespace CORE.Services
                 Message = "Messages retrieved successfully"
             };
         }
-        public async Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize)
+        public async Task<ResponseDto<ArrayList>> GetChatAsync(int authUserId, int pageNo, int pageSize, int maxPageSize = 100)
         {
             _logger.LogInformation("Fetching chat for user {AuthUserId} with page {PageNo} and page size {PageSize}.", authUserId, pageNo, pageSize);
 
-            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, 100) is string paginationError)
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Pagination validation failed: {Error}", paginationError);
                 return new ResponseDto<ArrayList>
@@ -336,11 +346,11 @@ namespace CORE.Services
                 Message = "Messages acknowledged successfully"
             };
         }
-        public async Task<ResponseDto<ArrayList>> FilterMessagesAsync(MessageFilterDto filter, int authUserId)
+        public async Task<ResponseDto<ArrayList>> FilterMessagesAsync(MessageFilterDto filter, int authUserId, int maxPageSize = 100)
         {
             _logger.LogInformation("Filtering messages for user {AuthUserId} with filter: {@Filter}", authUserId, filter);
 
-            if (PaginationHelpers.ValidatePaging(filter.PageNo, filter.PageSize, 100) is string paginationError)
+            if (PaginationHelpers.ValidatePaging(filter.PageNo, filter.PageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
                 return new ResponseDto<ArrayList>

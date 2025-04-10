@@ -51,11 +51,11 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize)
+        public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100)
         {
             _logger.LogInformation("Getting rentals for user with ID: {UserId}", userId);
 
-            if(PaginationHelpers.ValidatePaging(userId, pageSize, 100) is string paginationError)
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
                 return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
@@ -81,6 +81,39 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = _mapper.Map<IEnumerable<GetRentalsByUserIdDto>>(rentals)
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            _logger.LogInformation("Getting rentals for vehicle with ID: {VehicleId}", vehicleId);
+
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            var rentals = await _unitOfWork.Rentals.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize);
+            if (rentals == null || rentals.Any() == false)
+            {
+                _logger.LogWarning("No rentals found for vehicle with ID: {VehicleId}", vehicleId);
+                return new ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "No rentals found."
+                };
+            }
+
+            _logger.LogInformation("Successfully retrieved rentals for vehicle with ID: {VehicleId}", vehicleId);
+            return new ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<IEnumerable<GetRentalsByVehicleIdDto>>(rentals)
             };
         }
 
