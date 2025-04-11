@@ -74,5 +74,80 @@ namespace DATA.DataAccess.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Rental>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize)
+        {
+            return await _context.Rentals
+                .Include(r => r.RenterReview)
+                .Include(r => r.CustomerReview)
+                .Where(r => r.Booking.CustomerId == userId || r.Booking.Vehicle.RenterId == userId)
+                .Select(r => new Rental
+                {
+                    Id = r.Id,
+                    Booking = new Booking
+                    {
+                        StartDate = r.Booking.StartDate,
+                        EndDate = r.Booking.EndDate,
+                        Price = r.Booking.Price,
+                        Status = r.Booking.Status,
+                        Discount = r.Booking.Discount,
+                        Customer = new Customer
+                        {
+                            Id = r.Booking.Customer.Id,
+                            Name = r.Booking.Customer.Name,
+                            ImagePath = r.Booking.Customer.ImagePath,
+                        },
+                        Vehicle = new Vehicle
+                        {
+                            Id = r.Booking.Vehicle.Id,
+                            PricePerDay = r.Booking.Vehicle.PricePerDay,
+                            MainImagePath = r.Booking.Vehicle.MainImagePath,
+                            Address = r.Booking.Vehicle.Address,
+                            Renter = new Renter
+                            {
+                                Id = r.Booking.Vehicle.Renter.Id,
+                                Name = r.Booking.Vehicle.Renter.Name,
+                                ImagePath = r.Booking.Vehicle.Renter.ImagePath,
+                            }
+                        },
+                    },
+                    RenterReview = r.RenterReview == null? null : new RenterReview
+                    {
+                        Id = r.RenterReview.Id,
+                        CreatedAt = r.RenterReview.CreatedAt,
+                        RentalId = r.RenterReview.RentalId,
+                        Behavior = r.RenterReview.Behavior,
+                        Punctuality = r.RenterReview.Punctuality,
+                        Care = r.RenterReview.Care,
+                        Comments = r.RenterReview.Comments,
+                        Renter = new Renter
+                        {
+                            Id = r.RenterReview.Renter.Id,
+                            Name = r.RenterReview.Renter.Name,
+                            ImagePath = r.RenterReview.Renter.ImagePath,
+                        }
+                    },
+                    CustomerReview = r.CustomerReview == null? null : new CustomerReview
+                    {
+                        Id = r.CustomerReview.Id,
+                        CreatedAt = r.CustomerReview.CreatedAt,
+                        RentalId = r.CustomerReview.RentalId,
+                        Behavior = r.CustomerReview.Behavior,
+                        Punctuality = r.CustomerReview.Punctuality,
+                        Truthfulness = r.CustomerReview.Truthfulness,
+                        Comments = r.CustomerReview.Comments,
+                        Customer = new Customer
+                        {
+                            Id = r.CustomerReview.Customer.Id,
+                            Name = r.CustomerReview.Customer.Name,
+                            ImagePath = r.CustomerReview.Customer.ImagePath,
+                        }
+                    },
+                })
+                .OrderByDescending(r=>r.Booking.StartDate)
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
     }
 }

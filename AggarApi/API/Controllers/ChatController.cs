@@ -29,7 +29,7 @@ namespace API.Controllers
         }
         [Authorize]
         [HttpGet("chat")]
-        public async Task<IActionResult> GetChatAsync([FromQuery] int pageNo, [FromQuery] int pageSize)
+        public async Task<IActionResult> GetChatAsync([FromQuery] int pageNo = 1, [FromQuery] int pageSize = 10)
         {
             var currentAuthenticatedUser = UserHelpers.GetUserId(User);
             var result = await _chatService.GetChatAsync(currentAuthenticatedUser, pageNo, pageSize);

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CORE.DTOs.Rental.RentalHistoryItemDto;
 
 namespace CORE.AutoMapperProfiles
 {
@@ -25,6 +26,8 @@ namespace CORE.AutoMapperProfiles
 
             CreateMap<AppUser, SummerizedUserDto>()
                 .ReverseMap();
+
+            CreateMap<AppUser, UserDetails>();
         }
     }
 }
