@@ -12,5 +12,6 @@ namespace DATA.DataAccess.Repositories.IRepositories
         Task<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId);
         Task<IEnumerable<Rental>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize);
         Task<IEnumerable<Rental>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize);
+        Task<IEnumerable<Rental>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize);
     }
 }

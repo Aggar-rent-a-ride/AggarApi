@@ -49,7 +49,7 @@ namespace API.Controllers
         }
 
         [HttpGet("user-reviews"), Authorize]
-        public async Task<IActionResult> GetUserReviewsAsync(int userId, int pageNo, int pageSize)
+        public async Task<IActionResult> GetUserReviewsAsync(int userId, int pageNo = 1, int pageSize = 10)
         {
             var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
 
@@ -63,7 +63,7 @@ namespace API.Controllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpGet("vehicle-reviews"), Authorize]
-        public async Task<IActionResult> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize)
+        public async Task<IActionResult> GetVehicleReviewsAsync(int vehicleId, int pageNo = 1, int pageSize = 10)
         {
             var result = await _reviewService.GetVehicleReviewsAsync(vehicleId, pageNo, pageSize);
 

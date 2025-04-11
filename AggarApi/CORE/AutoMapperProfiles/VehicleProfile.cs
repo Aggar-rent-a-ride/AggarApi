@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CORE.DTOs.Rental.RentalHistoryItemDto;
 
 namespace CORE.AutoMapperProfiles
 {
@@ -34,6 +35,7 @@ namespace CORE.AutoMapperProfiles
                 .ReverseMap()
                 .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)));
 
+            CreateMap<Vehicle, VehicleDetails>();
         }
     }
 }
