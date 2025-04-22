@@ -17,7 +17,7 @@ namespace DATA.DataAccess.Context.Configurations
                 s => (ReportStatus)Enum.Parse(typeof(ReportStatus), s)
                 );
 
-            builder.Property(r => r.TargeType)
+            builder.Property(r => r.TargetType)
                 .HasConversion(
                 t => t.ToString(),
                 t => (TargetType)Enum.Parse(typeof(TargetType), t)
