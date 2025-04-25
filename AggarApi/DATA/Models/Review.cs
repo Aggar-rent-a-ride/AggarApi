@@ -15,6 +15,5 @@ namespace DATA.Models
 
         public Notification? Notification { get; set; }
         public Rental Rental { get; set; } = null!;
-        public ICollection<Report>? Reports { get; set; }
     }
 }

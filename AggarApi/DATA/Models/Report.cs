@@ -10,7 +10,7 @@
         public Enums.ReportStatus Status { get; set; }
         public AppUser Reporter { get; set; } = null!;
 
-        public Enums.TargetType? TargeType { get; set; }
+        public Enums.TargetType TargetType { get; set; }
         public Message? TargetMessage { get; set; }
         public RenterReview? TargetRenterReview { get; set; }
         public CustomerReview? TargetCustomerReview { get; set; }

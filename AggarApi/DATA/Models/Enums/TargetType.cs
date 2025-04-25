@@ -4,11 +4,9 @@
     {
         None,
         Message,
-        AdminAction,
         CustomerReview,
         RenterReview,
         User,
-        Vehicle,
-        Booking
+        Vehicle
     }
 }

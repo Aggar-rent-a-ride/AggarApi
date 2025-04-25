@@ -8,10 +8,6 @@ namespace DATA.DataAccess.Context.Configurations
     {
         public void Configure(EntityTypeBuilder<Admin> builder)
         {
-            builder.HasMany(a => a.Actions)
-                .WithOne(a => a.Admin)
-                .HasForeignKey(a => a.AdminId)
-                .IsRequired(true);
 
             builder.ToTable("Admins");
         }

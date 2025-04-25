@@ -22,7 +22,6 @@ namespace DATA.DataAccess.Context
         public DbSet<RenterReview> RenterReviews { get; set; }
         public DbSet<Booking> bookings { get; set; }
         public DbSet<Rental> Rentals { get; set; }
-        public DbSet<AdminAction> AdminActions { get; set; }
         public DbSet<RecommendedBrand> RecommendedBrands { get; set; }
         public DbSet<RecommendedType> RecommendedTypes { get; set; }
         public DbSet<FileCache> FileCache { get; set; }

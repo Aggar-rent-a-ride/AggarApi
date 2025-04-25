@@ -4,7 +4,6 @@
     {
         Pending,
         Reviewed,
-        ActionTaken,
         Rejected
     }
 }

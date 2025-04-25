@@ -460,9 +460,6 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("ReporterId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReviewId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -476,8 +473,6 @@ namespace DATA.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ReporterId");
-
-                    b.HasIndex("ReviewId");
 
                     b.HasIndex("TargetId")
                         .IsUnique()
@@ -1034,10 +1029,6 @@ namespace DATA.DataAccess.Migrations
                         .HasForeignKey("ReporterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("AggarApi.Models.Review", null)
-                        .WithMany("Reports")
-                        .HasForeignKey("ReviewId");
 
                     b.HasOne("AggarApi.Models.AppUser", "TargetUser")
                         .WithMany("TargetedReports")
