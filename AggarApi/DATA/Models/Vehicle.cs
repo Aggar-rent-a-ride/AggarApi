@@ -21,7 +21,6 @@ namespace DATA.Models
         public string? ExtraDetails { get; set; }
         public string? Address { get; set; }
         public Location Location { get; set; } = null!;
-        public int WarningCount { get; set; } = 0;
         public int VehicleTypeId { get; set; }
         public int VehicleBrandId { get; set; }
 
