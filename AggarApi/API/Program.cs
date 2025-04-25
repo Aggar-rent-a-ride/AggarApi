@@ -164,7 +164,7 @@ namespace API
 
             });
             builder.Services.AddAuthorization();
-
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JWT"));
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.Configure<GeoapifyAddressRequest>(builder.Configuration.GetSection("GeoapifyAddressRequest"));
