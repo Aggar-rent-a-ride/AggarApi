@@ -27,7 +27,6 @@ namespace DATA.Models
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DateDeleted { get; set; }
-
         public Renter Renter { get; set; } = null!;
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<VehicleImage>? VehicleImages { get; set; }
