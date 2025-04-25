@@ -25,6 +25,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Serilog;
 using Serilog.Formatting.Compact;
+using Stripe;
 using System;
 using System.Security.Claims;
 using System.Text;
@@ -170,6 +171,8 @@ namespace API
             builder.Services.Configure<Paths>(builder.Configuration.GetSection("Paths"));
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
+            StripeConfiguration.ApiKey = "sk_test_51QzlxRLiWNEAMEsfjrFuHkNa7PsMPBzXJvX4fyMjgSyPB4fs0dW0agdisBuQlv1yXZ5WftnP1sjsfKlK8bPzzH8c00wMhcalwd";//builder.Configuration["Stripe:SecretKey"];
+
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
@@ -179,14 +182,14 @@ namespace API
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IVehicleService, VehicleService>();
             builder.Services.AddScoped<IGeoapifyService, GeoapifyService>();
-            builder.Services.AddScoped<IFileService, FileService>();
+            builder.Services.AddScoped<IFileService, CORE.Services.FileService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IEmailTemplateRendererService, EmailTemplateRendererService>();
             builder.Services.AddScoped<IFileCacheService, FileCacheService>();
             builder.Services.AddScoped<IVehicleBrandService, VehicleBrandService>();
             builder.Services.AddScoped<IVehicleTypeService, VehicleTypeService>();
-            builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IReviewService, CORE.Services.ReviewService>();
             builder.Services.AddScoped<IRentalService, RentalService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<IRentalReviewService, RentalReviewService>();
