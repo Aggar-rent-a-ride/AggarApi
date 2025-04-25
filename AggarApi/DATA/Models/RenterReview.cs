@@ -9,5 +9,6 @@ namespace DATA.Models
         public int RenterId { get; set; }
 
         public Renter Renter { get; set; } = null!;
+        public ICollection<Report>? Reports { get; set; }
     }
 }

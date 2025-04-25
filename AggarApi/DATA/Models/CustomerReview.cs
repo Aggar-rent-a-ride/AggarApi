@@ -9,5 +9,6 @@ namespace DATA.Models
         public int CustomerId { get; set; }
 
         public Customer Customer { get; set; } = null!;
+        public ICollection<Report>? Reports { get; set; }
     }
 }
