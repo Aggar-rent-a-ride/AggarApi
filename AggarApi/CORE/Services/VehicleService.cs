@@ -31,14 +31,16 @@ namespace CORE.Services
         private readonly IOptions<Paths> _paths;
         private readonly IMapper _mapper;
         private readonly IGeoapifyService _geoapifyService;
+        private readonly IReviewService _reviewService;
 
-        public VehicleService(IUnitOfWork unitOfWork, IFileService fileService, IOptions<Paths> paths, IMapper mapper, IGeoapifyService geoapifyService)
+        public VehicleService(IUnitOfWork unitOfWork, IFileService fileService, IOptions<Paths> paths, IMapper mapper, IGeoapifyService geoapifyService, IReviewService reviewService)
         {
             _unitOfWork = unitOfWork;
             _fileService = fileService;
             _paths = paths;
             _mapper = mapper;
             _geoapifyService = geoapifyService;
+            _reviewService = reviewService;
         }
         private string? ValidateCreateVehicleDto(CreateVehicleDto dto)
         {
@@ -154,10 +156,13 @@ namespace CORE.Services
                     Message = "Vehicle not found"
                 };
 
+
+            var result = _mapper.Map<GetVehicleDto>(vehicle);
+            result.Rate = (await _reviewService.GetVehicleTotalRateAsync(vehicle.Id)).Data;
             return new ResponseDto<GetVehicleDto>
             {
                 StatusCode = StatusCodes.OK,
-                Data = _mapper.Map<GetVehicleDto>(vehicle)
+                Data = result
             };
         }
         public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null)
@@ -467,6 +472,24 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
                 Message = "Vehicle discounts updated successfully",
                 Data = updatedVehicleResult.Data
+            };
+        }
+        public async Task<ResponseDto<GetVehicleDto>> GetVehicleByRentalIdAsync(int rentalId)
+        {
+            var vehicle = await _unitOfWork.Vehicles.GetVehicleByRentalIdAsync(rentalId);
+            if (vehicle == null)
+                return new ResponseDto<GetVehicleDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Vehicle not found"
+                };
+
+            var result = _mapper.Map<GetVehicleDto>(vehicle);
+            result.Rate = (await _reviewService.GetVehicleTotalRateAsync(vehicle.Id)).Data;
+            return new ResponseDto<GetVehicleDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result
             };
         }
     }

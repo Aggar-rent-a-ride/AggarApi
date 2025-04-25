@@ -19,6 +19,9 @@ namespace CORE.AutoMapperProfiles
 
             CreateMap<BookingDetailsDto, Booking>()
                 .ReverseMap();
+
+            CreateMap<GetBookingByRentalIdDto, Booking>()
+                .ReverseMap();
         }
     }
 }

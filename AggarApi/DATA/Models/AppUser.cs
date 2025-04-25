@@ -13,7 +13,7 @@ namespace DATA.Models
         {
             get => DateTime.Today.Year - DateOfBirth.Year;
         }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool AggreedTheTerms { get; set; }
         public double? Rate { get; set; }
         public Enums.UserStatus Status { get; set; } = Enums.UserStatus.Inactive;

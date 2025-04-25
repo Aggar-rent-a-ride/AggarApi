@@ -11,7 +11,7 @@ namespace CORE.DTOs.Chat
         public int UserId { get; set; }
         public string? SearchQuery { get; set; }
         public DateTime? Date { get; set; }
-        public int PageSize { get; set; }
-        public int PageNo { get; set; }
+        public int PageSize { get; set; } = 10;
+        public int PageNo { get; set; } = 1;
     }
 }

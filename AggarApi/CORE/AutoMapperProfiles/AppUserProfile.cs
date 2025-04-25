@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
+using CORE.DTOs.AppUser;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
+using CORE.DTOs.Review;
 using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CORE.DTOs.Rental.RentalHistoryItemDto;
 
 namespace CORE.AutoMapperProfiles
 {
@@ -21,9 +24,10 @@ namespace CORE.AutoMapperProfiles
                 .ForMember(dest=> dest.AggreedTheTerms, opt=>opt.Ignore())
                 .ReverseMap();
 
-            CreateMap<AppUser, ChatUserDto>()
+            CreateMap<AppUser, SummerizedUserDto>()
                 .ReverseMap();
-                
+
+            CreateMap<AppUser, UserDetails>();
         }
     }
 }

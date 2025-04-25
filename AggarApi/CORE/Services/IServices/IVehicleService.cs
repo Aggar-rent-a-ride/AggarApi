@@ -17,5 +17,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto updateVehicleDiscountsDto, int? renterId);
+        Task<ResponseDto<GetVehicleDto>> GetVehicleByRentalIdAsync(int rentalId);
     }
 }

@@ -4,6 +4,7 @@ using DATA.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATA.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402100940_UpdatedPrecisionOfRatesInReviewTable")]
+    partial class UpdatedPrecisionOfRatesInReviewTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,8 +246,8 @@ namespace DATA.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<double>("Behavior")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
@@ -256,15 +259,15 @@ namespace DATA.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Punctuality")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<int>("RentalId")
                         .HasColumnType("int");
 
                     b.Property<double>("Truthfulness")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.HasKey("Id");
 
@@ -452,12 +455,12 @@ namespace DATA.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<double>("Behavior")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<double>("Care")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
@@ -466,8 +469,8 @@ namespace DATA.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<double>("Punctuality")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<int>("RentalId")
                         .HasColumnType("int");
@@ -538,8 +541,8 @@ namespace DATA.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
                     b.Property<double>("Behavior")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
@@ -551,8 +554,8 @@ namespace DATA.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<double>("Punctuality")
-                        .HasPrecision(2, 1)
-                        .HasColumnType("float(2)");
+                        .HasPrecision(1, 1)
+                        .HasColumnType("float(1)");
 
                     b.Property<int>("RentalId")
                         .HasColumnType("int");
