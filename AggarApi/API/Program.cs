@@ -208,17 +208,21 @@ namespace API
             app.MapOpenApi();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-            else
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/openapi/v1.json", "v1");
-                    options.RoutePrefix = string.Empty;
-                });
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+            //else
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI(options => {
+            //        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+            //        options.RoutePrefix = string.Empty;
+            //    });
+            //}
 
             app.Use(async (context, next) =>
             {
