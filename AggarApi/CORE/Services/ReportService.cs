@@ -56,16 +56,6 @@ namespace CORE.Services
                 if (await _unitOfWork.CustomerReviews.CheckAnyAsync(t => t.Id == targetId, null) == false)
                     return "Customer review not found";
             }
-            else if (type == TargetType.Booking)
-            {
-                if (await _unitOfWork.Bookings.CheckAnyAsync(t => t.Id == targetId, null) == false)
-                    return "Booking not found";
-            }
-            else if (type == TargetType.AdminAction)
-            {
-                if (await _unitOfWork.AdminActions.CheckAnyAsync(t => t.Id == targetId, null) == false)
-                    return "Admin action not found";
-            }
             return null;
         }
         public async Task<ResponseDto<object>> CreateReportAsync(CreateReportDto reportDto, int reporterId)
