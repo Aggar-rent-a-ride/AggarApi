@@ -649,8 +649,7 @@ namespace DATA.DataAccess.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TargeType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReviewId = table.Column<int>(type: "int", nullable: true)
+                    TargeType = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -680,11 +679,6 @@ namespace DATA.DataAccess.Migrations
                         name: "FK_Reports_RenterReviews_TargetId",
                         column: x => x.TargetId,
                         principalTable: "RenterReviews",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Reports_Review_ReviewId",
-                        column: x => x.ReviewId,
-                        principalTable: "Review",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Reports_Vehicles_TargetId",

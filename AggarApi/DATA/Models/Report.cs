@@ -6,11 +6,11 @@
         public int ReporterId { get; set; }
         public int? TargetId { get; set; }
         public string? Description { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public Enums.ReportStatus Status { get; set; } = Enums.ReportStatus.Pending;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public Enums.ReportStatus Status { get; set; }
         public AppUser Reporter { get; set; } = null!;
 
-        public Enums.TargetType? TargetType { get; set; }
+        public Enums.TargetType TargetType { get; set; }
         public Message? TargetMessage { get; set; }
         public RenterReview? TargetRenterReview { get; set; }
         public CustomerReview? TargetCustomerReview { get; set; }

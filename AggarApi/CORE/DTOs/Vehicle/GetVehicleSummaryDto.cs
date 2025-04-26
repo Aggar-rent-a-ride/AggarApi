@@ -11,8 +11,8 @@ namespace CORE.DTOs.Vehicle
     {
         public int Id { get; set; }
         public double Distance { get; set; }
-        public string? Brand { get; set; }
-        public string? Type { get; set; }
+        public string Brand { get; set; } = null!;
+        public string Type { get; set; } = null!;
         public string? Model { get; set; }
         public int Year { get; set; }
         public decimal PricePerDay { get; set; }

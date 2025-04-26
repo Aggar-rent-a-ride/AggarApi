@@ -31,10 +31,6 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<RenterReview> RenterReviews { get; private set; }
         public IBaseRepository<CustomerReview> CustomerReviews { get; private set; }
 
-        public IBaseRepository<Report> Reports { get; private set; }
-
-        public IBaseRepository<AdminAction> AdminActions { get; private set; }
-
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
@@ -51,8 +47,6 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             Rentals = new RentalRepository(_context);
             RenterReviews = new BaseRepository<RenterReview>(_context);
             CustomerReviews = new BaseRepository<CustomerReview>(_context);
-            Reports = new BaseRepository<Report>(_context);
-            AdminActions = new BaseRepository<AdminAction>(_context);
         }
 
         public async Task<int> CommitAsync()
@@ -64,8 +58,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                throw;
             }
+            return 0;
         }
 
         public async Task BeginTransactionAsync()

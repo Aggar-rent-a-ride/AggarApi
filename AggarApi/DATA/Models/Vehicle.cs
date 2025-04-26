@@ -21,13 +21,11 @@ namespace DATA.Models
         public string? ExtraDetails { get; set; }
         public string? Address { get; set; }
         public Location Location { get; set; } = null!;
-        public int WarningCount { get; set; } = 0;
         public int VehicleTypeId { get; set; }
         public int VehicleBrandId { get; set; }
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DateDeleted { get; set; }
-
         public Renter Renter { get; set; } = null!;
         public ICollection<Booking>? Bookings { get; set; }
         public ICollection<VehicleImage>? VehicleImages { get; set; }

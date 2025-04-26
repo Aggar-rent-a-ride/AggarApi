@@ -4,6 +4,7 @@ using DATA.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATA.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250425094333_Update Vehicle Types")]
+    partial class UpdateVehicleTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,6 +40,43 @@ namespace DATA.DataAccess.Migrations
                     b.HasIndex("VehicleId");
 
                     b.ToTable("CustomersFavoriteVehicles");
+                });
+
+            modelBuilder.Entity("DATA.Models.AdminAction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DueTo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TargetUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("AdminActions", (string)null);
                 });
 
             modelBuilder.Entity("DATA.Models.AppUser", b =>
@@ -465,20 +505,24 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("ReporterId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ReviewId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargeType")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("TargetId")
                         .HasColumnType("int");
 
-                    b.Property<string>("TargetType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ReporterId");
+
+                    b.HasIndex("ReviewId");
 
                     b.HasIndex("TargetId")
                         .IsUnique()
@@ -592,6 +636,9 @@ namespace DATA.DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("VehicleTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WarningCount")
                         .HasColumnType("int");
 
                     b.Property<int>("Year")
@@ -877,6 +924,25 @@ namespace DATA.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DATA.Models.AdminAction", b =>
+                {
+                    b.HasOne("DATA.Models.Admin", "Admin")
+                        .WithMany("Actions")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DATA.Models.AppUser", "TargetUser")
+                        .WithMany("TargetedAdminActions")
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("TargetUser");
+                });
+
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
                     b.OwnsOne("DATA.Models.Location", "Location", b1 =>
@@ -1004,6 +1070,10 @@ namespace DATA.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DATA.Models.AdminAction", "TargetAdminAction")
+                        .WithOne("Notification")
+                        .HasForeignKey("DATA.Models.Notification", "TargetId");
+
                     b.HasOne("DATA.Models.Booking", "TargetBooking")
                         .WithOne("Notification")
                         .HasForeignKey("DATA.Models.Notification", "TargetId");
@@ -1021,6 +1091,8 @@ namespace DATA.DataAccess.Migrations
                         .HasForeignKey("DATA.Models.Notification", "TargetId");
 
                     b.Navigation("Reciver");
+
+                    b.Navigation("TargetAdminAction");
 
                     b.Navigation("TargetBooking");
 
@@ -1088,6 +1160,10 @@ namespace DATA.DataAccess.Migrations
                         .HasForeignKey("ReporterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DATA.Models.Review", null)
+                        .WithMany("Reports")
+                        .HasForeignKey("ReviewId");
 
                     b.HasOne("DATA.Models.AppUser", "TargetUser")
                         .WithMany("TargetedReports")
@@ -1331,6 +1407,11 @@ namespace DATA.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DATA.Models.AdminAction", b =>
+                {
+                    b.Navigation("Notification");
+                });
+
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
                     b.Navigation("Messages");
@@ -1340,6 +1421,8 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("ReceivedMessages");
 
                     b.Navigation("Reports");
+
+                    b.Navigation("TargetedAdminActions");
 
                     b.Navigation("TargetedReports");
                 });
@@ -1379,6 +1462,11 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Reports");
                 });
 
+            modelBuilder.Entity("DATA.Models.Review", b =>
+                {
+                    b.Navigation("Reports");
+                });
+
             modelBuilder.Entity("DATA.Models.Vehicle", b =>
                 {
                     b.Navigation("Bookings");
@@ -1396,6 +1484,11 @@ namespace DATA.DataAccess.Migrations
             modelBuilder.Entity("DATA.Models.VehicleType", b =>
                 {
                     b.Navigation("Vehicles");
+                });
+
+            modelBuilder.Entity("DATA.Models.Admin", b =>
+                {
+                    b.Navigation("Actions");
                 });
 
             modelBuilder.Entity("DATA.Models.Customer", b =>

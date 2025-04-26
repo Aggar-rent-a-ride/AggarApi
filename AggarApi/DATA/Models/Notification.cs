@@ -16,7 +16,6 @@ namespace DATA.Models
         public TargetType? Target { get; set; }
         public Booking? TargetBooking { get; set; }
         public Message? TargetMessage { get; set; }
-        public AdminAction? TargetAdminAction { get; set; }
         public RenterReview? TargetRenterReview { get; set; }
         public CustomerReview? TargetCustomerReview { get; set; }
     }
