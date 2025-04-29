@@ -327,7 +327,7 @@ namespace CORE.Services
             if (user == null)
             {
                 _logger.LogWarning("Activation code request failed: User not found. User ID: {UserId}", userId);
-                return new ResponseDto<object> { Message = "User not found.", StatusCode = StatusCodes.NotFound };
+                return new ResponseDto<object> { Message = "User not found.", StatusCode = StatusCodes.BadRequest };
             }
 
             _logger.LogDebug("User found: {UserId}, Email: {Email}, Status: {Status}",
@@ -367,7 +367,7 @@ namespace CORE.Services
             if (user == null)
             {
                 _logger.LogWarning("Account activation failed: User not found. User ID: {UserId}", dto.UserId);
-                return new ResponseDto<AuthDto> { Message = "User not found.", StatusCode = StatusCodes.NotFound };
+                return new ResponseDto<AuthDto> { Message = "User not found.", StatusCode = StatusCodes.BadRequest };
             }
 
             _logger.LogDebug("User found for activation: {UserId}, Email: {Email}, Status: {Status}",
@@ -540,7 +540,7 @@ namespace CORE.Services
             if (user == null)
             {
                 _logger.LogWarning("User with ID {UserId} not found.", userId);
-                return new ResponseDto<object> { Message = "User not found.", StatusCode = StatusCodes.NotFound };
+                return new ResponseDto<object> { Message = "User not found.", StatusCode = StatusCodes.BadRequest };
             }
 
             _logger.LogInformation("User found. Updating roles: {Roles}", string.Join(", ", roles));

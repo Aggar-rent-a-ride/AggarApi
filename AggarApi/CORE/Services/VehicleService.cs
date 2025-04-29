@@ -152,7 +152,7 @@ namespace CORE.Services
             if(vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
 
@@ -250,7 +250,7 @@ namespace CORE.Services
             if (vehicle == null)
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
             else if(vehicle.RenterId != renterId)
@@ -303,7 +303,7 @@ namespace CORE.Services
             if (vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
             
@@ -371,7 +371,7 @@ namespace CORE.Services
             if (vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
 
@@ -435,7 +435,7 @@ namespace CORE.Services
             if (vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
 
@@ -480,7 +480,7 @@ namespace CORE.Services
             if (vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
 

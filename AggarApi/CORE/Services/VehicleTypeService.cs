@@ -30,15 +30,7 @@ namespace CORE.Services
         public async Task<ResponseDto<List<VehicleTypeDto>>> GetAllAsync()
         {
             var types = await _unitOfWork.VehicleTypes.GetAllAsync(t => t.Id > 0);
-            if(types == null)
-            {
-                _logger.LogError("No types found");
-                return new ResponseDto<List<VehicleTypeDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No types found"
-                };
-            }
+
             _logger.LogInformation("All types fetched successfully");
 
             var dto = _mapper.Map<List<VehicleTypeDto>>(types);

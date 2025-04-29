@@ -203,16 +203,6 @@ namespace CORE.Services
                 sortingExpression: x => x.Id,
                 sortingDirection: OrderBy.Descending);
 
-            if (messages == null || messages.Count() == 0)
-            {
-                _logger.LogWarning("No messages found between user {UserId1} and user {UserId2}.", userId1, userId2);
-                return new ResponseDto<ArrayList>
-                {
-                    Message = "No messages found",
-                    StatusCode = StatusCodes.NotFound,
-                };
-            }
-
             _logger.LogInformation("Mapping retrieved messages to DTOs.");
             var result = new ArrayList();
 
@@ -222,16 +212,6 @@ namespace CORE.Services
                     result.Add(_mapper.Map<GetContentMessageDto>(contentMessage));
                 else if (msg is FileMessage fileMessage)
                     result.Add(_mapper.Map<GetFileMessageDto>(fileMessage));
-            }
-
-            if(result.Count == 0)
-            {
-                _logger.LogWarning("Messages were retrieved but none were mappable to DTOs.");
-                return new ResponseDto<ArrayList>
-                {
-                    Message = "No messages found",
-                    StatusCode = StatusCodes.NotFound,
-                };
             }
 
             _logger.LogInformation("Successfully retrieved {MessageCount} messages between user {UserId1} and user {UserId2}.", result.Count, userId1, userId2);
@@ -262,22 +242,12 @@ namespace CORE.Services
                 return new ResponseDto<ArrayList>
                 {
                     Message = "User does not exist",
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.Unauthorized,
                 };
             }
 
             _logger.LogInformation("Retrieving latest chat messages for user {AuthUserId}.", authUserId);
             var chatItems = await _unitOfWork.Chat.GetLatestChatMessagesAsync(authUserId, pageNo, pageSize);
-
-            if (chatItems == null || chatItems.Count() == 0)
-            {
-                _logger.LogWarning("No chat found for user {AuthUserId}.", authUserId);
-                return new ResponseDto<ArrayList>
-                {
-                    Message = "No chat found",
-                    StatusCode = StatusCodes.NotFound,
-                };
-            }
 
             _logger.LogInformation("Mapping chat messages to DTOs.");
             var chatList = new ArrayList();
@@ -321,7 +291,7 @@ namespace CORE.Services
                 return new ResponseDto<object>
                 {
                     Message = "No messages found to acknowledge",
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                 };
             }
 
@@ -367,7 +337,7 @@ namespace CORE.Services
                 return new ResponseDto<ArrayList>
                 {
                     Message = "User does not exist",
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                 };
             }
 
@@ -381,16 +351,6 @@ namespace CORE.Services
                 filter.PageSize,
                 sortingExpression: m => m.Id,
                 sortingDirection: OrderBy.Descending);
-
-            if (messages == null || messages.Count() == 0)
-            {
-                _logger.LogInformation("No messages found for user {AuthUserId} with filter: {@Filter}", authUserId, filter);
-                return new ResponseDto<ArrayList>
-                {
-                    Message = "No messages found",
-                    StatusCode = StatusCodes.NotFound,
-                };
-            }
 
             var result = new ArrayList();
 
