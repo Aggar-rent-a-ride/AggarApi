@@ -40,7 +40,7 @@ namespace CORE.Services
                 _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
                 return new ResponseDto<GetRentalDto?>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Rental not found."
                 };
             }
@@ -68,15 +68,6 @@ namespace CORE.Services
             }
 
             var rentals = await _unitOfWork.Rentals.GetRentalsByUserIdAsync(userId, pageNo, pageSize);
-            if (rentals == null || rentals.Any() == false)
-            {
-                _logger.LogWarning("No rentals found for user with ID: {UserId}", userId);
-                return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No rentals found."
-                };
-            }
 
             _logger.LogInformation("Successfully retrieved rentals for user with ID: {UserId}", userId);
             return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
@@ -101,15 +92,6 @@ namespace CORE.Services
             }
 
             var rentals = await _unitOfWork.Rentals.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize);
-            if (rentals == null || rentals.Any() == false)
-            {
-                _logger.LogWarning("No rentals found for vehicle with ID: {VehicleId}", vehicleId);
-                return new ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No rentals found."
-                };
-            }
 
             _logger.LogInformation("Successfully retrieved rentals for vehicle with ID: {VehicleId}", vehicleId);
             return new ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>
@@ -129,7 +111,7 @@ namespace CORE.Services
                 _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
                 return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Rental not found."
                 };
             }
@@ -170,15 +152,7 @@ namespace CORE.Services
             }
             
             var rentals = await _unitOfWork.Rentals.GetUserRentalHistoryAsync(userId, pageNo, pageSize);
-            if (rentals == null || rentals.Any() == false)
-            {
-                _logger.LogWarning("No rental history found for user with ID: {UserId}", userId);
-                return new ResponseDto<IEnumerable<RentalHistoryItemDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No rental history found."
-                };
-            }
+
             _logger.LogInformation("Successfully retrieved rental history for user with ID: {UserId}", userId);
 
             var result = new List<RentalHistoryItemDto>();

@@ -249,7 +249,7 @@ namespace CORE.Services
                 _logger.LogInformation("No rentals found for user {UserId}", userId);
                 return new ResponseDto<IEnumerable<SummarizedReviewDto>>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "No rentals found for this user"
                 };
             }
@@ -270,16 +270,6 @@ namespace CORE.Services
                 var includes = new List<string> { CustomerReviewIncludes.Customer };
                 var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
                 result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
-            }
-
-            if (result.Count == 0)
-            {
-                _logger.LogInformation("No reviews found for user {UserId}", userId);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No reviews found for this user"
-                };
             }
 
             _logger.LogInformation("Successfully retrieved reviews for user {UserId}", userId);
@@ -309,7 +299,7 @@ namespace CORE.Services
                 _logger.LogWarning("No review found with ID {ReviewId}", reviewId);
                 return new ResponseDto<GetReviewDto>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "No review found with this ID"
                 };
             }
@@ -352,7 +342,7 @@ namespace CORE.Services
                 _logger.LogInformation("No rentals found for vehicle {VehicleId}", vehicleId);
                 return new ResponseDto<IEnumerable<SummarizedReviewDto>>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "No rentals found for this vehicle"
                 };
             }
@@ -361,16 +351,6 @@ namespace CORE.Services
             var includes = new List<string> { CustomerReviewIncludes.Customer };
             var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
             var result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
-
-            if (result.Count == 0)
-            {
-                _logger.LogInformation("No reviews found for vehicle {VehicleId}", vehicleId);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No reviews found for this vehicle"
-                };
-            }
 
             _logger.LogInformation("Successfully retrieved reviews for vehicle {VehicleId}", vehicleId);
             return new ResponseDto<IEnumerable<SummarizedReviewDto>>
@@ -397,15 +377,6 @@ namespace CORE.Services
                 };
             }
             var reviews = vehicleReviewsResponse.Data;
-            if (reviews == null || reviews.Any() == false)
-            {
-                _logger.LogInformation("No reviews found for vehicle {VehicleId}", vehicleId);
-                return new ResponseDto<double?>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No reviews found for this vehicle"
-                };
-            }
 
             var totalRate = Math.Round(reviews.Average(r => r.Rate), 1);
 

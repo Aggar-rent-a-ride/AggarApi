@@ -29,15 +29,7 @@ namespace CORE.Services
         public async Task<ResponseDto<List<VehicleBrandDto>>> GetAllAsync()
         {
             var brands = await _unitOfWork.VehicleBrands.GetAllAsync(b => b.Id > 0);
-            if(brands == null)
-            {
-                _logger.LogError("No brands found");
-                return new ResponseDto<List<VehicleBrandDto>>
-                {
-                    StatusCode = StatusCodes.NotFound,
-                    Message = "No brands found"
-                };
-            }
+
             _logger.LogInformation("All brands fetched successfully");
 
             var dto = _mapper.Map<List<VehicleBrandDto>>(brands);

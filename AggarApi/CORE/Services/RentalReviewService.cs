@@ -42,7 +42,7 @@ namespace CORE.Services
                 _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.NotFound,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "Rental not found."
                 };
             }
