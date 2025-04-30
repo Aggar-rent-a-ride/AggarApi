@@ -221,7 +221,7 @@ namespace UnitTests.CORE.Services
             Assert.That(result != null);
         }
         [Test]
-        public async Task SendActivationCodeAsync_ShouldReturnNotFound_WhenUserIsNull()
+        public async Task SendActivationCodeAsync_ShouldReturnBadRequest_WhenUserIsNull()
         {
             // Arrange 
             _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync((AppUser) null);
@@ -230,7 +230,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.SendActivationCodeAsync(5);
 
             // Assert
-            Assert.That(result.StatusCode == StatusCodes.NotFound);
+            Assert.That(result.StatusCode == StatusCodes.BadRequest);
         }
         [Test]
         public async Task SendActivationCodeAsync_ShouldReturnBadRequest_WhenUserStatusIsNotInactive()
@@ -257,7 +257,7 @@ namespace UnitTests.CORE.Services
             Assert.That(result.StatusCode == StatusCodes.InternalServerError);
         }
         [Test]
-        public async Task ActivateAccountAsync_ShouldReturnUserNotFound_WhenUserIsNull()
+        public async Task ActivateAccountAsync_ShouldReturnUserBadRequest_WhenUserIsNull()
         {
             // Arrange 
             _mockUnitOfWork.Setup(m => m.AppUsers.GetAsync(It.IsAny<int>())).ReturnsAsync((AppUser)null);
@@ -267,7 +267,7 @@ namespace UnitTests.CORE.Services
             var result = await _authService.ActivateAccountAsync(dto);
 
             // Assert
-            Assert.That(result.StatusCode == StatusCodes.NotFound);
+            Assert.That(result.StatusCode == StatusCodes.BadRequest);
         }
         [Test]
         public async Task ActivateAccountAsync_ShouldReturnMessage_WhenUserIsNotInactive()
