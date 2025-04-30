@@ -163,10 +163,10 @@ namespace UnitTests.CORE.Services
             var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
             Assert.That("No rentals found for this user", Is.EqualTo(result.Message));
-            Assert.That(StatusCodes.NotFound, Is.EqualTo(result.StatusCode));
+            Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
         [Test]
-        public async Task GetUserReviewsAsync_ShouldReturnBadRequest_WhenEmptyResult()
+        public async Task GetUserReviewsAsync_ShouldReturnSuccess_WhenEmptyResult()
         {
             // Arrange
             var userId = 1;
@@ -194,7 +194,7 @@ namespace UnitTests.CORE.Services
             // Act
             var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
-            Assert.That("No reviews found for this user", Is.EqualTo(result.Message));
+            Assert.That(result.Data, Is.Empty);
         }
         [Test]
         public async Task GetUserReviewsAsync_ShouldSucceed()

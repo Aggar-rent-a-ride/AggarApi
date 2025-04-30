@@ -190,7 +190,7 @@ namespace UnitTests.CORE.Services
             Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
         [Test]
-        public async Task UpdateVehicleAsync_ShouldReturnNotFound_WhenVehicleDoesNotExist()
+        public async Task UpdateVehicleAsync_ShouldReturnBadRequest_WhenVehicleDoesNotExist()
         {
             // Arrange
             var updateVehicleDto = new UpdateVehicleDto { Id = 1, NumOfPassengers = 1, Year = 1995, PricePerDay = 10, Location = new Location(),
@@ -203,7 +203,7 @@ namespace UnitTests.CORE.Services
             var result = await _vehicleService.UpdateVehicleAsync(updateVehicleDto, 1);
 
             // Assert
-            Assert.That(StatusCodes.NotFound, Is.EqualTo(result.StatusCode));
+            Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.BadRequest));
         }
     }
 }
