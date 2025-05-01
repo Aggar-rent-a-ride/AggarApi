@@ -58,12 +58,6 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasForeignKey(r => r.ReporterId)
                 .IsRequired(true);
 
-            builder.HasMany(u => u.TargetedReports)
-                .WithOne(r => r.TargetUser)
-                .HasForeignKey(r => r.TargetId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired(true);
-
             builder.OwnsMany(u => u.RefreshTokens)
                 .HasIndex(r => r.Token)
                 .IsUnique(true);

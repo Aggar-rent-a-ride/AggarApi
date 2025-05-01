@@ -6,17 +6,21 @@ namespace DATA.Models
     {
         public int Id { get; set; }
         public int ReceiverId { get; set; }
-        public int? TargetId { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public string Content { get; set; } = null!;
         public bool Seen { get; set; } = false;
-
         public AppUser Reciver { get; set; } = null!;
 
-        public TargetType? Target { get; set; }
+        public TargetType TargetType { get; set; }
+        public int? TargetBookingId { get; set; }
+        public int? TargetRentalId { get; set; }
+        public int? TargetCustomerReviewId { get; set; }
+        public int? TargetRenterReviewId { get; set; }
+        public int? TargetMessageId { get; set; }
+        public Rental? TargetRental { get; set; }
         public Booking? TargetBooking { get; set; }
-        public Message? TargetMessage { get; set; }
-        public RenterReview? TargetRenterReview { get; set; }
         public CustomerReview? TargetCustomerReview { get; set; }
+        public RenterReview? TargetRenterReview { get; set; }
+        public Message? TargetMessage { get; set; }
     }
 }

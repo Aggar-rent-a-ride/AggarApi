@@ -11,7 +11,6 @@ namespace DATA.DataAccess.Context.Configurations
             builder.HasKey(r => r.Id);
 
 
-
             builder.ToTable("Rentals");
         }
     }

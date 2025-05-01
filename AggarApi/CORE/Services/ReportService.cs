@@ -5,9 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Report;
+using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
@@ -31,7 +34,7 @@ namespace CORE.Services
                 return "Target type is required";
             else if (type == TargetType.None)
                 return null;
-            else if (type == TargetType.User)
+            else if (type == TargetType.AppUser)
             {
                 if (await _unitOfWork.AppUsers.CheckAnyAsync(t => t.Id == targetId, null) == false)
                     return "User not found";
@@ -58,6 +61,38 @@ namespace CORE.Services
             }
             return null;
         }
+
+        private void SetReportTarget(Report report, CreateReportDto reportDto)
+        {
+            report.TargetType = reportDto.TargetType;
+
+            switch (reportDto.TargetType)
+            {
+                case TargetType.CustomerReview:
+                    report.TargetCustomerReviewId = reportDto.TargetId;
+                    break;
+
+                case TargetType.RenterReview:
+                    report.TargetRenterReviewId = reportDto.TargetId;
+                    break;
+
+                case TargetType.AppUser:
+                    report.TargetAppUserId = reportDto.TargetId;
+                    break;
+
+                case TargetType.Vehicle:
+                    report.TargetVehicleId = reportDto.TargetId;
+                    break;
+
+                case TargetType.Message:
+                    report.TargetMessageId = reportDto.TargetId;
+                    break;
+
+                default:
+                    break;
+            };
+        }
+
         public async Task<ResponseDto<object>> CreateReportAsync(CreateReportDto reportDto, int reporterId)
         {
             if(await CheckTargetExists(reportDto.TargetId, reportDto.TargetType) is string error)
@@ -69,6 +104,7 @@ namespace CORE.Services
 
             var report = _mapper.Map<Report>(reportDto);
             report.ReporterId = reporterId;
+            SetReportTarget(report, reportDto); // check here
             await _unitOfWork.Reports.AddOrUpdateAsync(report);
             var changes = await _unitOfWork.CommitAsync();
             

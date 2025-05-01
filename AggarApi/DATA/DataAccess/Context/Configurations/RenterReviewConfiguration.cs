@@ -15,16 +15,6 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasForeignKey<RenterReview>(r => r.RentalId)
                 .IsRequired(true);
 
-            builder.HasOne(r => r.Notification)
-                .WithOne(n => n.TargetRenterReview)
-                .HasForeignKey<Notification>(n => n.TargetId)
-                .IsRequired(false);
-
-            builder.HasMany(r => r.Reports)
-                .WithOne(r => r.TargetRenterReview)
-                .HasForeignKey(r => r.TargetId)
-                .IsRequired(false);
-
             builder.ToTable("RenterReviews");
         }
     }

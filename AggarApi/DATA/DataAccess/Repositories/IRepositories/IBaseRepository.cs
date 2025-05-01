@@ -7,6 +7,7 @@ namespace DATA.DataAccess.Repositories.IRepositories
     public interface IBaseRepository<T> where T : class
     {
         Task<T?> GetAsync(int id);
+        Task<T?> GetFirstAsync();
         Task<T?> GetAsync(int id, string[] includes=null);
         Task<IEnumerable<T>> GetAllAsync(int pageNo, int pageSize, Expression<Func<T, object>> sortingExpression = null, OrderBy sortingDirection = OrderBy.Ascending);
         Task<int> CountAsync();

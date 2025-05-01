@@ -193,6 +193,7 @@ namespace API
             builder.Services.AddScoped<IRentalService, RentalService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<IRentalReviewService, RentalReviewService>();
+            builder.Services.AddScoped<IReportService, ReportService>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();

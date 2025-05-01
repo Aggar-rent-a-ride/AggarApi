@@ -6,7 +6,9 @@
         Message,
         CustomerReview,
         RenterReview,
-        User,
-        Vehicle
+        AppUser,
+        Vehicle,
+        Booking,
+        Rental
     }
 }

@@ -15,7 +15,7 @@ namespace DATA.Models
         public AppUser Sender { get; set; } = null!;
         public AppUser Receiver { get; set; } = null!;
         public Notification? Notification { get; set; }
-        public Report? Report { get; set; }
+        public ICollection<Report>? Reports { get; set; }
         
     }
 }
