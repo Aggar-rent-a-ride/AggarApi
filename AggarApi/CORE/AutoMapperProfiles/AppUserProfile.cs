@@ -28,6 +28,7 @@ namespace CORE.AutoMapperProfiles
                 .ReverseMap();
 
             CreateMap<AppUser, UserDetails>();
+            CreateMap<AppUser, SummerizedUserWithRateDto>();
         }
     }
 }

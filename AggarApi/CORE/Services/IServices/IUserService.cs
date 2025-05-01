@@ -1,4 +1,6 @@
-﻿using DATA.Models;
+﻿using CORE.DTOs;
+using CORE.DTOs.AppUser;
+using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +13,6 @@ namespace CORE.Services.IServices
     {
         Task<bool> CheckAnyAsync(int userId);
         Task<bool> CheckAllUsersExist(List<int> userIds);
+        Task<ResponseDto<IEnumerable<SummerizedUserWithRateDto>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100);
     }
 }
