@@ -50,11 +50,6 @@ namespace DATA.DataAccess.Context.Configurations
                 s => (VehicleTransmission)Enum.Parse(typeof(VehicleTransmission), s)
                 );
 
-            builder.HasMany(v => v.Reports)
-                .WithOne(r => r.TargetVehicle)
-                .HasForeignKey(r => r.TargetId)
-                .IsRequired(false);
-
             builder.OwnsMany(v => v.Discounts)
                 .WithOwner(d => d.Vehicle);
 

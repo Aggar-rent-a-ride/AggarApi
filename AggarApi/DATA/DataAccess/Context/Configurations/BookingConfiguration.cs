@@ -29,11 +29,6 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasForeignKey<Rental>(r => r.BookingId)
                 .IsRequired(false);
 
-            builder.HasOne(b => b.Notification)
-                .WithOne(n => n.TargetBooking)
-                .HasForeignKey<Notification>(n => n.TargetId)
-                .IsRequired(false);
-
             builder.ToTable("Bookings");
         }
     }

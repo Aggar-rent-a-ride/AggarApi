@@ -10,16 +10,6 @@ namespace DATA.DataAccess.Context.Configurations
         {
             builder.HasKey(m => m.Id);
 
-            builder.HasOne(m => m.Notification)
-                .WithOne(n => n.TargetMessage)
-                .HasForeignKey<Notification>(n => n.TargetId)
-                .IsRequired(false);
-
-            builder.HasOne(m => m.Report)
-                .WithOne(r => r.TargetMessage)
-                .HasForeignKey<Report>(r => r.TargetId)
-                .IsRequired(false);
-
             builder.HasDiscriminator(m=>m.MessageType)
                 .HasValue<ContentMessage>("Content")
                 .HasValue<FileMessage>("File");

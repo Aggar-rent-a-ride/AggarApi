@@ -147,5 +147,7 @@ namespace DATA.DataAccess.Repositories
 
             return await query.AnyAsync(criteria);
         }
+
+        public async Task<T?> GetFirstAsync() => await _context.Set<T>().FirstOrDefaultAsync();
     }
 }

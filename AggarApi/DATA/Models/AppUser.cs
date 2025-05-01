@@ -31,7 +31,7 @@ namespace DATA.Models
         public ICollection<Message>? Messages { get; set; }
         public ICollection<Message>? ReceivedMessages { get; set; }
         public ICollection<Report>? Reports { get; set; }
-        public ICollection<Report>? TargetedReports { get; set; }
+        public ICollection<Report>? TargetReports { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 }

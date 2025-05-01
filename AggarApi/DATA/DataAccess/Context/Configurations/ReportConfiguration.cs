@@ -19,9 +19,39 @@ namespace DATA.DataAccess.Context.Configurations
 
             builder.Property(r => r.TargetType)
                 .HasConversion(
-                t => t.ToString(),
-                t => (TargetType)Enum.Parse(typeof(TargetType), t)
+                s => s.ToString(),
+                s => (TargetType)Enum.Parse(typeof(TargetType), s)
                 );
+
+            builder.HasOne(r => r.TargetAppUser)
+                .WithMany(a => a.TargetReports)
+                .HasForeignKey(r => r.TargetAppUserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(r => r.TargetVehicle)
+                .WithMany(a => a.Reports)
+                .HasForeignKey(r => r.TargetVehicleId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(r => r.TargetRenterReview)
+                .WithMany(a => a.Reports)
+                .HasForeignKey(r => r.TargetRenterReviewId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(r => r.TargetCustomerReview)
+                .WithMany(a => a.Reports)
+                .HasForeignKey(r => r.TargetCustomerReviewId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(r => r.TargetMessage)
+                .WithMany(a => a.Reports)
+                .HasForeignKey(r => r.TargetMessageId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.ToTable("Reports");
         }
