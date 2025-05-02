@@ -21,12 +21,12 @@ namespace CORE.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ResponseDto<StripeAccountCreation>> CreateStripeAccountAsync(int renterId)
+        public async Task<ResponseDto<StripeAccountCreationDto>> CreateStripeAccountAsync(int renterId)
         {
             Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
             if(renter == null)
             {
-                return new ResponseDto<StripeAccountCreation>
+                return new ResponseDto<StripeAccountCreationDto>
                 {
                     Message = "No Renter with this Id",
                     StatusCode = StatusCodes.InternalServerError
@@ -56,6 +56,7 @@ namespace CORE.Services
                     Individual = new AccountIndividualOptions
                     {
                         FirstName = renter.Name,
+                        LastName = renter.Name,
                         Dob = new DobOptions
                         {
                             Day = renter.DateOfBirth.Day,
@@ -67,7 +68,7 @@ namespace CORE.Services
                         {
                             City = renter.Name
                         },
-                        SsnLast4 = "0002", // Test SSN (US only)
+                        SsnLast4 = "0002",
                         Verification = new AccountIndividualVerificationOptions
                         {
                             Document = new AccountIndividualVerificationDocumentOptions
@@ -75,7 +76,6 @@ namespace CORE.Services
                                 Front = "file_identity_document_success",
                             }
                         }
-
                     },
                     Settings = new AccountSettingsOptions
                     {
@@ -119,12 +119,12 @@ namespace CORE.Services
                     externalAccountOptions
                 );
 
-                return new ResponseDto<StripeAccountCreation>
+                return new ResponseDto<StripeAccountCreationDto>
                 {
-                    Data = {
-                    StripeAccountId = stripeAccount.Id,
-                    BankAccountId = bankAccount.Id,
-                    IsVerified = stripeAccount.Capabilities?.Transfers == "active"
+                    Data = new StripeAccountCreationDto{
+                        StripeAccountId = stripeAccount.Id,
+                        BankAccountId = bankAccount.Id,
+                        IsVerified = stripeAccount.Capabilities?.Transfers == "active"
                     },
                     StatusCode = StatusCodes.OK,
                 };

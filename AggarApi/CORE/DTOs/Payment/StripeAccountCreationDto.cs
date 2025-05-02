@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CORE.DTOs.Payment
 {
-    public class StripeAccountCreation
+    public class StripeAccountCreationDto
     {
         public string StripeAccountId { get; set; }
         public string BankAccountId { get; set; }
