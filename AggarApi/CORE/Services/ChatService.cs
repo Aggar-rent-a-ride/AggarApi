@@ -194,14 +194,16 @@ namespace CORE.Services
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt < dateTime,
                 1, //don't skip any messages
                 pageSize,
-                sortingExpression: x => x.Id,
+                sortingExpression: x => x.SentAt,
                 sortingDirection: OrderBy.Descending) :
                 await _unitOfWork.Chat.FindAsync(
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt > dateTime,
                 1, //don't skip any messages
                 pageSize,
-                sortingExpression: x => x.Id,
+                sortingExpression: x => x.SentAt,
                 sortingDirection: OrderBy.Descending);
+
+            messages = messages.Reverse();
 
             _logger.LogInformation("Mapping retrieved messages to DTOs.");
             var result = new ArrayList();
