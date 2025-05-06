@@ -165,7 +165,7 @@ namespace CORE.Services
                 Data = result
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null)
+        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, int pageNo, int pageSize, bool byNearest, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null)
         {
             if(userId == 0)
                 return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
@@ -187,9 +187,9 @@ namespace CORE.Services
 
             pageNo = pageNo <= 0 ? 1 : pageNo;
 
-            IQueryable<Vehicle> vehicles = _unitOfWork.Vehicles.GetNearestVehicles(brandId, typeId, transmission, searchKey, minPrice, maxPrice, year, Rate);
+            IQueryable<Vehicle> vehicles = _unitOfWork.Vehicles.GetVehicles(brandId, typeId, transmission, searchKey, minPrice, maxPrice, year, Rate);
 
-            List<GetVehicleSummaryDto> data = await vehicles
+            var vehiclesSummary = vehicles
                 .Select(v => new GetVehicleSummaryDto
                 {
                     Id = v.Id,
@@ -208,10 +208,15 @@ namespace CORE.Services
                         Math.Sin(v.Location.Latitude * Math.PI / 180.0)
                     )),
                 })
-                .OrderBy(dto => dto.Distance)
                 .Skip((pageNo - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+                .Take(pageSize);
+
+            if (byNearest)
+            {
+                vehiclesSummary.OrderBy(dto => dto.Distance);
+            }
+
+            var data = await vehiclesSummary.ToListAsync();
 
             var pagedData = new PagedResultDto<GetVehicleSummaryDto>
             {

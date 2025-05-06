@@ -10,7 +10,8 @@ namespace CORE.Services.IServices
     {
         Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId);
-        Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetNearestVehiclesAsync(int userId, int pageNo, int pageSize, 
+        Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, int pageNo, int pageSize,
+            bool byNearest,
             string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, 
             double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null);
         Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId);
