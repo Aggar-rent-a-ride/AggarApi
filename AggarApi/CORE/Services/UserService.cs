@@ -7,8 +7,10 @@ using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,6 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
-
         public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;

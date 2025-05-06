@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
@@ -26,14 +27,16 @@ namespace CORE.Services
         private readonly ILogger<ReviewService> _logger;
         private readonly IRentalReviewService _rentalReviewService;
         private readonly IMapper _mapper;
+        private readonly UserRatingUpdateJob _ratingUpdateJob;
 
-        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper)
+        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, UserRatingUpdateJob ratingUpdateJob)
         {
             _rentalService = rentalService;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _rentalReviewService = rentalReviewService;
             _mapper = mapper;
+            _ratingUpdateJob = ratingUpdateJob;
         }
 
         private string? CheckReviewRates(CreateReviewDto reviewDto, string role)
@@ -81,10 +84,12 @@ namespace CORE.Services
                     _logger.LogWarning("User {UserId} attempted to create review for rental {RentalId} they don't own", userId, reviewDto.RentalId);
                     return new ResponseDto<T>
                     {
-                        StatusCode = StatusCodes.BadRequest,
+                        StatusCode = StatusCodes.Forbidden,
                         Message = "You are not allowed to review this rental"
                     };
                 }
+
+                _ratingUpdateJob.ScheduleUserRatingUpdate(rental.RenterId);
 
                 _logger.LogDebug("Creating CustomerReview for rental {RentalId}", reviewDto.RentalId);
                 return new ResponseDto<T>
@@ -118,10 +123,12 @@ namespace CORE.Services
                 _logger.LogWarning("User {UserId} attempted to create review for rental {RentalId} they didn't rent", userId, reviewDto.RentalId);
                 return new ResponseDto<T>
                 {
-                    StatusCode = StatusCodes.BadRequest,
+                    StatusCode = StatusCodes.Forbidden,
                     Message = "You are not allowed to review this rental"
                 };
             }
+
+            _ratingUpdateJob.ScheduleUserRatingUpdate(rental.CustomerId);
 
             _logger.LogDebug("Creating RenterReview for rental {RentalId}", reviewDto.RentalId);
             return new ResponseDto<T>

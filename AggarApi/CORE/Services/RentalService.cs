@@ -76,6 +76,19 @@ namespace CORE.Services
                 Data = _mapper.Map<IEnumerable<GetRentalsByUserIdDto>>(rentals)
             };
         }
+        public async Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId)
+        {
+            _logger.LogInformation("Getting rentals for user with ID: {UserId}", userId);
+
+            var rentals = await _unitOfWork.Rentals.GetRentalsByUserIdAsync(userId);
+
+            _logger.LogInformation("Successfully retrieved rentals for user with ID: {UserId}", userId);
+            return new ResponseDto<IEnumerable<GetRentalsByUserIdDto>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<IEnumerable<GetRentalsByUserIdDto>>(rentals)
+            };
+        }
 
         public async Task<ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100)
         {
