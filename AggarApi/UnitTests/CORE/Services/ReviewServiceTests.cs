@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
@@ -47,7 +48,8 @@ namespace UnitTests.CORE.Services
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,
                 _mockRentalReviewService.Object,
-                _mockMapper.Object
+                _mockMapper.Object,
+                null
             );
             _userReviewService = new UserReviewService(
                 _mockUnitOfWork.Object,

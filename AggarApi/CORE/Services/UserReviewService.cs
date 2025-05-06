@@ -29,6 +29,55 @@ namespace CORE.Services
             _rentalService = rentalService;
         }
 
+        public async Task<ResponseDto<IEnumerable<double>>> GetAllUserRatesAsync(int userId)
+        {
+            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId);
+            if (userRentalsResponse.StatusCode != StatusCodes.OK)
+            {
+                _logger.LogWarning("Failed to retrieve rentals for user {UserId}: {ErrorMessage}",
+                    userId, userRentalsResponse.Message);
+                return new ResponseDto<IEnumerable<double>>
+                {
+                    StatusCode = userRentalsResponse.StatusCode,
+                    Message = userRentalsResponse.Message
+                };
+            }
+
+            var rentals = userRentalsResponse.Data;
+            if (rentals == null || rentals.Any() == false)
+            {
+                _logger.LogInformation("No rentals found for user {UserId}", userId);
+                return new ResponseDto<IEnumerable<double>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "No rentals found for this user"
+                };
+            }
+
+            var result = new List<double>();
+            if (rentals.First().Booking.CustomerId == userId)
+            {
+                //get renter reviews on that customer
+                var renterReviewsIds = rentals.Select(r => r.RenterReviewId).ToHashSet();
+                var reviews = await _unitOfWork.RenterReviews.GetAllRatesAsync(r => renterReviewsIds.Contains(r.Id));
+                result = reviews.Select(r => (r.Punctuality + r.Care + r.Behavior)/3).ToList();
+            }
+            else
+            {
+                //get customer reviews on that renter
+                var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
+                var reviews = await _unitOfWork.CustomerReviews.GetAllRatesAsync(r => customerReviewsIds.Contains(r.Id));
+                result = reviews.Select(r => (r.Punctuality + r.Truthfulness + r.Behavior) / 3).ToList();
+            }
+
+            _logger.LogInformation("Successfully retrieved reviews for user {UserId}", userId);
+            return new ResponseDto<IEnumerable<double>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = result
+            };
+        }
+
         public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100)
         {
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)

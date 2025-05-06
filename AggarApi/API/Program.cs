@@ -1,4 +1,5 @@
 using API.Hubs;
+using CORE.BackgroundJobs;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
 using CORE.DTOs.Email;
@@ -195,6 +196,7 @@ namespace API
             builder.Services.AddScoped<IRentalReviewService, RentalReviewService>();
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
+            builder.Services.AddScoped<UserRatingUpdateJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
