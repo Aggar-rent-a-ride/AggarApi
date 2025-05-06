@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
@@ -27,8 +28,10 @@ namespace UnitTests.CORE.Services
         private Mock<IRentalService> _mockRentalService;
         private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<ILogger<ReviewService>> _mockLogger;
+        private Mock<ILogger<UserReviewService>> _mockLogger2;
         private Mock<IRentalReviewService> _mockRentalReviewService;
         private ReviewService _reviewService;
+        private UserReviewService _userReviewService;
         private Mock<IMapper> _mockMapper;
 
         [SetUp]
@@ -37,6 +40,7 @@ namespace UnitTests.CORE.Services
             _mockRentalService = new Mock<IRentalService>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<ReviewService>>();
+            _mockLogger2 = new Mock<ILogger<UserReviewService>>();
             _mockRentalReviewService = new Mock<IRentalReviewService>();
             _mockMapper = new Mock<IMapper>();
             _reviewService = new ReviewService(
@@ -44,7 +48,14 @@ namespace UnitTests.CORE.Services
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,
                 _mockRentalReviewService.Object,
-                _mockMapper.Object
+                _mockMapper.Object,
+                null
+            );
+            _userReviewService = new UserReviewService(
+                _mockUnitOfWork.Object,
+                _mockLogger2.Object,
+                _mockMapper.Object,
+                _mockRentalService.Object
             );
         }
         [Test]
@@ -132,7 +143,7 @@ namespace UnitTests.CORE.Services
             // Arrange
             var userId = 1;
             // Act
-            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
+            var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
             Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
         }
@@ -146,7 +157,7 @@ namespace UnitTests.CORE.Services
             _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize, 100))
                 .ReturnsAsync(new ResponseDto<IEnumerable<GetRentalsByUserIdDto>> { StatusCode = StatusCodes.BadRequest });
             // Act
-            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
+            var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
             Assert.That(StatusCodes.OK, Is.Not.EqualTo(result.StatusCode));
         }
@@ -160,7 +171,7 @@ namespace UnitTests.CORE.Services
             _mockRentalService.Setup(r => r.GetRentalsByUserIdAsync(userId, pageNo, pageSize, 100))
                 .ReturnsAsync(new ResponseDto<IEnumerable<GetRentalsByUserIdDto>> { StatusCode = StatusCodes.OK, Data = new List<GetRentalsByUserIdDto>() });
             // Act
-            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
+            var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
             Assert.That("No rentals found for this user", Is.EqualTo(result.Message));
             Assert.That(StatusCodes.BadRequest, Is.EqualTo(result.StatusCode));
@@ -192,7 +203,7 @@ namespace UnitTests.CORE.Services
                 .ReturnsAsync(new List<RenterReview>());
 
             // Act
-            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
+            var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
             Assert.That(result.Data, Is.Empty);
         }
@@ -229,7 +240,7 @@ namespace UnitTests.CORE.Services
                     new SummarizedReviewDto()
                 });
             // Act
-            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
+            var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
             Assert.That(result.Message, Is.EqualTo(null));
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.OK));

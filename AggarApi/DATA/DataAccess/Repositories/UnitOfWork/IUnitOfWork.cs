@@ -20,8 +20,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IBaseRepository<VehicleBrand> VehicleBrands { get; }
         IBaseRepository<VehicleType> VehicleTypes { get; }
         IRentalRepository Rentals { get; }
-        IBaseRepository<RenterReview> RenterReviews { get; }
-        IBaseRepository<CustomerReview> CustomerReviews { get; }
+        IRenterReviewRepository RenterReviews { get; }
+        ICustomerReviewRepository CustomerReviews { get; }
         IBaseRepository<Report> Reports { get; }
 
         Task<int> CommitAsync();

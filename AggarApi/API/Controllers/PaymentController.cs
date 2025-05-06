@@ -21,9 +21,9 @@ namespace API.Controllers
 
 
         [HttpPost("connected-account")]
-        public async Task<IActionResult> CreateConnectedAccount(int renterId)
+        public async Task<IActionResult> CreateConnectedAccount(CreateConnectedAccountDto dto, int renterId)
         {
-            var response = await _paymentService.CreateStripeAccountAsync(renterId);
+            var response = await _paymentService.CreateStripeAccountAsync(dto, renterId);
 
             return StatusCode(response.StatusCode, response);
         }

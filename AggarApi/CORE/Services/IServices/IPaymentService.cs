@@ -10,6 +10,6 @@ namespace CORE.Services.IServices
 {
     public interface IPaymentService
     {
-        public Task<ResponseDto<StripeAccountCreationDto>> CreateStripeAccountAsync(int renterId);
+        public Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId);
     }
 }

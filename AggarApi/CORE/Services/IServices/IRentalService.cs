@@ -14,6 +14,7 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId);
         Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetReviewRentalValidationProperties(int rentalId);
         Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100);
+        Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId);
         Task<ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100);
         Task<ResponseDto<IEnumerable<RentalHistoryItemDto>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50);
     }

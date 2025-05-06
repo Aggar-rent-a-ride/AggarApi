@@ -15,9 +15,11 @@ namespace API.Controllers
     public class ReviewController : ControllerBase
     {
         private readonly IReviewService _reviewService;
-        public ReviewController(IReviewService reviewService)
+        private readonly IUserReviewService _userReviewService;
+        public ReviewController(IReviewService reviewService, IUserReviewService userReviewService)
         {
             _reviewService = reviewService;
+            _userReviewService = userReviewService;
         }
         [HttpPost, Authorize(Roles = "Customer, Renter")]
         public async Task<IActionResult> CreateReviewAsync(CreateReviewDto reviewDto)
@@ -51,7 +53,7 @@ namespace API.Controllers
         [HttpGet("user-reviews"), Authorize]
         public async Task<IActionResult> GetUserReviewsAsync(int userId, int pageNo = 1, int pageSize = 10)
         {
-            var result = await _reviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
+            var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
 
             return StatusCode(result.StatusCode, result);
         }

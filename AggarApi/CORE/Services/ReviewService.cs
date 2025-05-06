@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
@@ -26,14 +27,16 @@ namespace CORE.Services
         private readonly ILogger<ReviewService> _logger;
         private readonly IRentalReviewService _rentalReviewService;
         private readonly IMapper _mapper;
+        private readonly UserRatingUpdateJob _ratingUpdateJob;
 
-        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper)
+        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, UserRatingUpdateJob ratingUpdateJob)
         {
             _rentalService = rentalService;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _rentalReviewService = rentalReviewService;
             _mapper = mapper;
+            _ratingUpdateJob = ratingUpdateJob;
         }
 
         private string? CheckReviewRates(CreateReviewDto reviewDto, string role)
@@ -81,10 +84,12 @@ namespace CORE.Services
                     _logger.LogWarning("User {UserId} attempted to create review for rental {RentalId} they don't own", userId, reviewDto.RentalId);
                     return new ResponseDto<T>
                     {
-                        StatusCode = StatusCodes.BadRequest,
+                        StatusCode = StatusCodes.Forbidden,
                         Message = "You are not allowed to review this rental"
                     };
                 }
+
+                _ratingUpdateJob.ScheduleUserRatingUpdate(rental.RenterId);
 
                 _logger.LogDebug("Creating CustomerReview for rental {RentalId}", reviewDto.RentalId);
                 return new ResponseDto<T>
@@ -118,10 +123,12 @@ namespace CORE.Services
                 _logger.LogWarning("User {UserId} attempted to create review for rental {RentalId} they didn't rent", userId, reviewDto.RentalId);
                 return new ResponseDto<T>
                 {
-                    StatusCode = StatusCodes.BadRequest,
+                    StatusCode = StatusCodes.Forbidden,
                     Message = "You are not allowed to review this rental"
                 };
             }
+
+            _ratingUpdateJob.ScheduleUserRatingUpdate(rental.CustomerId);
 
             _logger.LogDebug("Creating RenterReview for rental {RentalId}", reviewDto.RentalId);
             return new ResponseDto<T>
@@ -216,67 +223,6 @@ namespace CORE.Services
                     Care = reviewDto.Care,
                     Truthfulness = reviewDto.Truthfulness,
                 }
-            };
-        }
-
-        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetUserReviewsAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100)
-        {
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
-            {
-                _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = StatusCodes.BadRequest,
-                    Message = paginationError
-                };
-            }
-
-            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize, maxPageSize);
-            if (userRentalsResponse.StatusCode != StatusCodes.OK)
-            {
-                _logger.LogWarning("Failed to retrieve rentals for user {UserId}: {ErrorMessage}",
-                    userId, userRentalsResponse.Message);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = userRentalsResponse.StatusCode,
-                    Message = userRentalsResponse.Message
-                };
-            }
-            
-            var rentals = userRentalsResponse.Data;
-            if (rentals == null || rentals.Any() == false)
-            {
-                _logger.LogInformation("No rentals found for user {UserId}", userId);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = StatusCodes.BadRequest,
-                    Message = "No rentals found for this user"
-                };
-            }
-
-            var result = new List<SummarizedReviewDto>();
-            if (rentals.First().Booking.CustomerId == userId)
-            {
-                //get renter reviews on that customer
-                var renterReviewsIds = rentals.Select(r => r.RenterReviewId).ToHashSet();
-                var includes = new List<string> { RenterReviewIncludes.Renter };
-                var reviews = await _unitOfWork.RenterReviews.FindAsync(r => renterReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
-                result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
-            }
-            else
-            {
-                //get customer reviews on that renter
-                var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
-                var includes = new List<string> { CustomerReviewIncludes.Customer };
-                var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
-                result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
-            }
-
-            _logger.LogInformation("Successfully retrieved reviews for user {UserId}", userId);
-            return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-            {
-                StatusCode = StatusCodes.OK,
-                Data = result
             };
         }
 

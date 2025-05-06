@@ -27,10 +27,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<VehicleBrand> VehicleBrands { get; private set; }
         public IBaseRepository<VehicleType> VehicleTypes { get; private set; }
         public IRentalRepository Rentals { get; private set; }
-
-        public IBaseRepository<RenterReview> RenterReviews { get; private set; }
-        public IBaseRepository<CustomerReview> CustomerReviews { get; private set; }
-
+        public IRenterReviewRepository RenterReviews { get; private set; }
+        public ICustomerReviewRepository CustomerReviews { get; private set; }
         public IBaseRepository<Report> Reports { get; private set; }
 
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
@@ -47,8 +45,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             VehicleTypes = new BaseRepository<VehicleType>(_context);
             Chat = new ChatRepository(_context);
             Rentals = new RentalRepository(_context);
-            RenterReviews = new BaseRepository<RenterReview>(_context);
-            CustomerReviews = new BaseRepository<CustomerReview>(_context);
+            RenterReviews = new RenterReviewRepository(_context);
+            CustomerReviews = new CustomerReviewRepository(_context);
             Reports = new BaseRepository<Report>(_context);
         }
 

@@ -117,7 +117,7 @@ namespace CORE.Services
             
             return new ResponseDto<object>
             {
-                StatusCode = 200,
+                StatusCode = 201,
                 Message = "Report created successfully",
             };
         }
