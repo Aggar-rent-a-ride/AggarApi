@@ -10,5 +10,7 @@ namespace DATA.Constants
     {
         public const string AccountActivationEmail = "AccountActivationEmail";
         public const string Notification = "Notification";
+        public const string Ban = "Ban";
+        public const string Warning = "Warning";
     }
 }

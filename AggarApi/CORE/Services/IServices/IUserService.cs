@@ -15,5 +15,6 @@ namespace CORE.Services.IServices
         Task<bool> CheckAllUsersExist(List<int> userIds);
         Task<ResponseDto<IEnumerable<SummerizedUserWithRateDto>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100);
         Task<ResponseDto<object>> DeleteUserAsync(int userId, int authUserId, string[] roles);
+        Task<ResponseDto<object>> PunishUserAsync(PunishUserDto dto);
     }
 }

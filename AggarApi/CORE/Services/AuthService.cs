@@ -122,11 +122,13 @@ namespace CORE.Services
                 };
             }
         }
-        private string GetUserStatusMessage(UserStatus status)
+        private string GetUserStatusMessage(AppUser user)
         {
-            if (status == UserStatus.Inactive || status == UserStatus.Banned)
-                return $"Your account is {status.ToString().ToLower()}.";
-            else if (status == UserStatus.Active)
+            if (user.Status == UserStatus.Inactive)
+                return $"Your account is {user.Status.ToString().ToLower()}.";
+            else if (user.Status == UserStatus.Banned)
+                return $"Your account is {user.Status.ToString().ToLower()} to {user.BannedTo}.";
+            else if (user.Status == UserStatus.Active)
                 return null;
             return $"Your account status is undefined.";
         }
@@ -298,7 +300,7 @@ namespace CORE.Services
                 Message = "Logged in successfully."
             };
 
-            if (GetUserStatusMessage(user.Status) is string statusMessage)
+            if (GetUserStatusMessage(user) is string statusMessage)
             {
                 _logger.LogWarning("Login restricted due to account status: {UserId}, {Username}, Status: {Status}",
                     user.Id, user.UserName, user.Status);

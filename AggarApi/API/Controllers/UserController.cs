@@ -1,4 +1,6 @@
-﻿using CORE.Helpers;
+﻿using CORE.Constants;
+using CORE.DTOs.AppUser;
+using CORE.Helpers;
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +35,13 @@ namespace API.Controllers
             var authUserId = UserHelpers.GetUserId(User);
             var roles = UserHelpers.GetUserRoles(User);
             var result = await _userService.DeleteUserAsync(userId, authUserId, roles == null? new string[] { }: roles.ToArray());
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpPut("punish")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> PunishUserAsync([FromBody] PunishUserDto dto)
+        {
+            var result = await _userService.PunishUserAsync(dto);
             return StatusCode(result.StatusCode, result);
         }
     }

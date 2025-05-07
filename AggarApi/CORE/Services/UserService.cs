@@ -1,14 +1,19 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.AppUser;
+using CORE.DTOs.Auth;
 using CORE.DTOs.Review;
 using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using DATA.Models.Enums;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using System;
@@ -24,11 +29,19 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
-        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper)
+        private readonly UserManagementJob _userManagementJob;
+        private readonly IEmailService _emailService;
+        private readonly IEmailTemplateRendererService _emailTemplateRendererService;
+        private readonly IOptions<WarningManagement> _warningManagement;
+        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, UserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
+            _userManagementJob = userManagementJob;
+            _emailService = emailService;
+            _emailTemplateRendererService = emailTemplateRendererService;
+            _warningManagement = warningManagement;
         }
 
         public async Task<bool> CheckAllUsersExist(List<int> userIds)
@@ -105,6 +118,115 @@ namespace CORE.Services
                 Data = _mapper.Map<IEnumerable<SummerizedUserWithRateDto>>(users),
                 StatusCode = StatusCodes.OK,
             };
+        }
+        private async Task<ResponseDto<object>> BanUserAsync(AppUser user, int? banDurationInDays)
+        {
+            if (banDurationInDays == null)
+            {
+                _logger.LogWarning("banDurationInDays is required for banning a user.");
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "banDurationInDays is required."
+                };
+            }
+            if(banDurationInDays <= 0)
+            {
+                _logger.LogWarning("banDurationInDays must be positive for banning a user.");
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "banDurationInDays must be positive."
+                };
+            }
+
+            var bannedTo = DateTime.UtcNow.AddDays((double)banDurationInDays);
+
+            user.BannedTo = bannedTo;
+            user.Status = UserStatus.Banned;
+            
+            var changes = await _unitOfWork.CommitAsync();
+
+            if(changes == 0)
+            {
+                _logger.LogWarning("Failed to ban user with ID {UserId}.", user.Id);
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to ban user."
+                };
+            }
+
+            _logger.LogInformation("User with ID {UserId} banned until {BannedTo}.", user.Id, bannedTo);
+
+            // Schedule unban job
+            await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
+
+            //send email to the user
+            await _emailService.SendEmailAsync(user.Email, EmailSubject.AccountBanned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Ban, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), BannedTo = System.Web.HttpUtility.HtmlEncode(user.BannedTo.Value.ToString("MMMM dd, yyyy")) }));
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "User banned successfully."
+            };
+        }
+        private async Task<ResponseDto<object>> WarnUserAsync(AppUser user)
+        {
+            bool isTotalWarningsIncreased = false;
+            if(user.WarningCount == _warningManagement.Value.MaxWarningsCount - 1 && user.TotalWarningsCount == _warningManagement.Value.MaxTotalWarningsCount - 1)
+            {
+                _logger.LogInformation("User with ID {UserId} has reached the maximum warning limit and is going to be banned forever", user.Id);
+                return await BanUserAsync(user, 1000000);
+            }
+            else if(user.WarningCount == _warningManagement.Value.MaxWarningsCount - 1)
+            {
+                user.WarningCount = 0;
+                user.TotalWarningsCount++;
+                isTotalWarningsIncreased = true;
+            }
+            else
+                user.WarningCount++;
+
+            var changes = await _unitOfWork.CommitAsync();
+            if(changes == 0)
+            {
+                _logger.LogWarning("Failed to warn user with ID {UserId}.", user.Id);
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to warn user."
+                };
+            }
+
+            _logger.LogInformation("User with ID {UserId} warned successfully. Total warnings: {TotalWarnings}, Current warnings: {CurrentWarnings}", user.Id, user.TotalWarningsCount, user.WarningCount);
+
+            if(isTotalWarningsIncreased == true)
+                await _emailService.SendEmailAsync(user.Email, EmailSubject.AccountWarned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Warning, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), WarningsLeft = System.Web.HttpUtility.HtmlEncode(_warningManagement.Value.MaxTotalWarningsCount - user.TotalWarningsCount) }));
+            
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "User warned successfully."
+            };
+        }
+        public async Task<ResponseDto<object>> PunishUserAsync(PunishUserDto dto)
+        {
+            var user = await _unitOfWork.AppUsers.GetAsync(dto.UserId);
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", dto.UserId);
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "User not found."
+                };
+            }
+
+            if (dto.Type == DTOs.AppUser.Enums.PunishmentType.Ban)
+                return await BanUserAsync(user, dto.BanDurationInDays);
+
+            return await WarnUserAsync(user);
         }
     }
 }

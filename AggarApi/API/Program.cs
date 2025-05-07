@@ -1,5 +1,6 @@
 using API.Hubs;
 using CORE.BackgroundJobs;
+using CORE.DTOs.AppUser;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
 using CORE.DTOs.Email;
@@ -171,6 +172,7 @@ namespace API
             builder.Services.Configure<GeoapifyAddressRequest>(builder.Configuration.GetSection("GeoapifyAddressRequest"));
             builder.Services.Configure<Paths>(builder.Configuration.GetSection("Paths"));
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            builder.Services.Configure<WarningManagement>(builder.Configuration.GetSection("WarningManagement"));
 
             StripeConfiguration.ApiKey = "sk_test_51QzlxRLiWNEAMEsfjrFuHkNa7PsMPBzXJvX4fyMjgSyPB4fs0dW0agdisBuQlv1yXZ5WftnP1sjsfKlK8bPzzH8c00wMhcalwd";//builder.Configuration["Stripe:SecretKey"];
 
@@ -197,6 +199,7 @@ namespace API
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
             builder.Services.AddScoped<UserRatingUpdateJob>();
+            builder.Services.AddScoped<UserManagementJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
