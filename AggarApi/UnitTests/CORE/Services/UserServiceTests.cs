@@ -8,10 +8,13 @@ using AutoMapper;
 using Azure.Core;
 using CORE.Constants;
 using CORE.DTOs.AppUser;
+using CORE.DTOs.Auth;
 using CORE.Services;
+using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -23,6 +26,9 @@ namespace UnitTests.CORE.Services
         private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IMapper> _mockMapper;
         private Mock<ILogger<UserService>> _mockLogger;
+        private Mock<IEmailService> _mockEmailService;
+        private Mock<IEmailTemplateRendererService> _mockEmailTemplateRendererService;
+        private Mock<IOptions<WarningManagement>> _mockWarningManagement; 
         private UserService _userService;
 
         [SetUp]
@@ -31,7 +37,10 @@ namespace UnitTests.CORE.Services
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
             _mockLogger = new Mock<ILogger<UserService>>();
-            _userService = new UserService(_mockUnitOfWork.Object, _mockLogger.Object, _mockMapper.Object);
+            _mockEmailService = new Mock<IEmailService>();
+            _mockEmailTemplateRendererService = new Mock<IEmailTemplateRendererService>();
+            _mockWarningManagement = new Mock<IOptions<WarningManagement>>();
+            _userService = new UserService(_mockUnitOfWork.Object, _mockLogger.Object, _mockMapper.Object, null, _mockEmailService.Object, _mockEmailTemplateRendererService.Object, _mockWarningManagement.Object );
         }
         [Test]
         public async Task FindUsersAsync_InvalidPagination_ReturnsBadRequest()
