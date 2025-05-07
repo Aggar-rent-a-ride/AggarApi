@@ -18,7 +18,8 @@ namespace DATA.Models
         public double? Rate { get; set; }
         public Enums.UserStatus Status { get; set; } = Enums.UserStatus.Inactive;
         public int WarningCount { get; set; } = 0;
-        public DateTime? ActivateIn { get; set; }
+        public int TotalWarningsCount { get; set; } = 0;
+        public DateTime? BannedTo { get; set; }
         public string? ImagePath { get; set; }
         public string? Bio { get; set; }
         public string? Address { get; set; }
