@@ -26,6 +26,7 @@ using Microsoft.EntityFrameworkCore;
 using DATA.Constants;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using CORE.BackgroundJobs;
 
 namespace CORE.Services
 {
@@ -41,6 +42,7 @@ namespace CORE.Services
         private readonly IGeoapifyService _geoapifyService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly ILogger<AuthService> _logger;
+        private readonly EmailSendingJob _emailSendingJob;
 
         public AuthService(IOptions<JwtConfig> jwt,
             UserManager<AppUser> userManager,
@@ -51,7 +53,8 @@ namespace CORE.Services
             IMemoryCache memoryCache,
             IGeoapifyService geoapifyService,
             IEmailTemplateRendererService emailTemplateRendererService,
-            ILogger<AuthService> logger)
+            ILogger<AuthService> logger,
+            EmailSendingJob emailSendingJob)
         {
             _jwt = jwt;
             _userManager = userManager;
@@ -63,6 +66,7 @@ namespace CORE.Services
             _geoapifyService = geoapifyService;
             _emailTemplateRendererService = emailTemplateRendererService;
             _logger = logger;
+            _emailSendingJob = emailSendingJob;
         }
         private async Task<string?> ValidateRegistrationAsync(RegisterDto registerDto)
         {
@@ -555,10 +559,10 @@ namespace CORE.Services
                 return new ResponseDto<object> { Message = $"Failed to update roles: {errors}.", StatusCode = StatusCodes.InternalServerError };
             }
             _logger.LogInformation("Roles updated successfully for user ID {UserId}.", userId);
-            
+
             //email notification
             if (roles.Contains(Roles.Admin))
-                await _emailService.SendEmailAsync(user.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Your account was assigned to be an Admin"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.AssignedToAdmin) }));
+                _emailSendingJob.SendEmail(user.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Your account was assigned to be an Admin"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.AssignedToAdmin) }));
             
             return new ResponseDto<object> { StatusCode = StatusCodes.OK, Message = "Roles updated successfully." };
         }

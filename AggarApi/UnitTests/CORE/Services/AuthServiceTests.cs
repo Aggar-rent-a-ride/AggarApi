@@ -67,7 +67,7 @@ namespace UnitTests.CORE.Services
                 _mockMemoryCache.Object,
                 _mockGeoapifyService.Object,
                 _mockEmailTemplateRendererService.Object,
-                _mockLogger.Object 
+                _mockLogger.Object, null
             );
         }
         [Test]

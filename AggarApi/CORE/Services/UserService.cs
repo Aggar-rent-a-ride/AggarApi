@@ -30,18 +30,18 @@ namespace CORE.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
         private readonly UserManagementJob _userManagementJob;
-        private readonly IEmailService _emailService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IOptions<WarningManagement> _warningManagement;
-        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, UserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement)
+        private readonly EmailSendingJob _emailSendingJob;
+        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, UserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, EmailSendingJob emailSendingJob)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
             _userManagementJob = userManagementJob;
-            _emailService = emailService;
             _emailTemplateRendererService = emailTemplateRendererService;
             _warningManagement = warningManagement;
+            _emailSendingJob = emailSendingJob;
         }
 
         public async Task<bool> CheckAllUsersExist(List<int> userIds)
@@ -163,7 +163,7 @@ namespace CORE.Services
             await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
 
             //send email to the user
-            await _emailService.SendEmailAsync(user.Email, EmailSubject.AccountBanned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Ban, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), BannedTo = System.Web.HttpUtility.HtmlEncode(user.BannedTo.Value.ToString("MMMM dd, yyyy")) }));
+            _emailSendingJob.SendEmail(user.Email, EmailSubject.AccountBanned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Ban, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), BannedTo = System.Web.HttpUtility.HtmlEncode(user.BannedTo.Value.ToString("MMMM dd, yyyy")) }));
 
             return new ResponseDto<object>
             {
@@ -201,8 +201,8 @@ namespace CORE.Services
 
             _logger.LogInformation("User with ID {UserId} warned successfully. Total warnings: {TotalWarnings}, Current warnings: {CurrentWarnings}", user.Id, user.TotalWarningsCount, user.WarningCount);
 
-            if(isTotalWarningsIncreased == true)
-                await _emailService.SendEmailAsync(user.Email, EmailSubject.AccountWarned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Warning, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), WarningsLeft = System.Web.HttpUtility.HtmlEncode(_warningManagement.Value.MaxTotalWarningsCount - user.TotalWarningsCount) }));
+            if (isTotalWarningsIncreased == true)
+                _emailSendingJob.SendEmail(user.Email, EmailSubject.AccountWarned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Warning, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), WarningsLeft = System.Web.HttpUtility.HtmlEncode(_warningManagement.Value.MaxTotalWarningsCount - user.TotalWarningsCount) }));
             
             return new ResponseDto<object>
             {
