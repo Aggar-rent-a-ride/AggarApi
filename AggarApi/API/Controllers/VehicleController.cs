@@ -2,7 +2,7 @@
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-﻿using CORE.DTOs;
+using CORE.DTOs;
 using CORE.Helpers;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -40,30 +40,14 @@ namespace API.Controllers
         }
         [Authorize(Roles = "Customer")]
         [HttpGet("get-vehicles")]
-        public async Task<IActionResult> GetNearestVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
-            [FromQuery] string? searchKey,
-            [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
-            [FromQuery] double? Rate, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int? year)
+        public async Task<IActionResult> GetVehiclesAsync([FromQuery]VehiclesSearchQuery searchQuery)
         {
             int userId = UserHelpers.GetUserId(User);
 
-            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year);
+            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetVehiclesAsync(userId, searchQuery);
             return StatusCode(result.StatusCode, result);
         }
 
-        [Authorize(Roles = "Customer")]
-        [HttpGet("get-vehicles-by-location")]
-        public async Task<IActionResult> GetNearestVehiclesByLocationAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
-            [FromQuery] double latitude, [FromQuery] double longitude,
-            [FromQuery] string? searchKey,
-            [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
-            [FromQuery] double? Rate, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int? year)
-        {
-            int userId = UserHelpers.GetUserId(User);
-
-            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetNearestVehiclesAsync(userId, pageNo, pageSize, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year, new Location { Latitude = latitude, Longitude = longitude });
-            return StatusCode(result.StatusCode, result);
-        }
         [Authorize(Roles = "Renter")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVehicleAsync(int id)

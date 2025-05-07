@@ -17,7 +17,7 @@ namespace DATA.DataAccess.Repositories
         {
         }
 
-        public IQueryable<Vehicle> GetNearestVehicles(int? brandId, int? typeId, VehicleTransmission? transmission, string? searchKey, decimal? minPrice, decimal? maxPrice, int? year, double? rate)
+        public IQueryable<Vehicle> GetVehicles(int? brandId, int? typeId, VehicleTransmission? transmission, string? searchKey, decimal? minPrice, decimal? maxPrice, int? year, double? rate)
         {
             IQueryable<Vehicle> vehicles = _context.Vehicles
                 .Include(v => v.VehicleBrand)

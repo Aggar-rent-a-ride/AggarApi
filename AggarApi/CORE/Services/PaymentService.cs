@@ -21,12 +21,12 @@ namespace CORE.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ResponseDto<StripeAccountCreation>> CreateStripeAccountAsync(int renterId)
+        public async Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId)
         {
             Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
             if(renter == null)
             {
-                return new ResponseDto<StripeAccountCreation>
+                return new ResponseDto<StripeAccountDto>
                 {
                     Message = "No Renter with this Id",
                     StatusCode = StatusCodes.InternalServerError
@@ -56,18 +56,19 @@ namespace CORE.Services
                     Individual = new AccountIndividualOptions
                     {
                         FirstName = renter.Name,
+                        LastName = dto.LastName,
                         Dob = new DobOptions
                         {
                             Day = renter.DateOfBirth.Day,
                             Month = renter.DateOfBirth.Month,
                             Year = renter.DateOfBirth.Year
                         },
-                        Phone = "(555) 123-4567",
+                        Phone = dto.Phone, //"(555) 123-4567"
                         Address = new AddressOptions
                         {
-                            City = renter.Name
+                            City = renter.Address
                         },
-                        SsnLast4 = "0002", // Test SSN (US only)
+                        SsnLast4 = "0002",
                         Verification = new AccountIndividualVerificationOptions
                         {
                             Document = new AccountIndividualVerificationDocumentOptions
@@ -75,7 +76,6 @@ namespace CORE.Services
                                 Front = "file_identity_document_success",
                             }
                         }
-
                     },
                     Settings = new AccountSettingsOptions
                     {
@@ -98,8 +98,8 @@ namespace CORE.Services
                     {
                         Country = "US",
                         Currency = "usd",
-                        AccountNumber = "000123456789",
-                        RoutingNumber = "110000000",
+                        AccountNumber = dto.BankAccountNumber, //"000123456789",
+                        RoutingNumber = dto.BankAccountRoutingNumber, // "110000000",
                         AccountHolderType = "individual"
                     }
                 };
@@ -119,12 +119,12 @@ namespace CORE.Services
                     externalAccountOptions
                 );
 
-                return new ResponseDto<StripeAccountCreation>
+                return new ResponseDto<StripeAccountDto>
                 {
-                    Data = {
-                    StripeAccountId = stripeAccount.Id,
-                    BankAccountId = bankAccount.Id,
-                    IsVerified = stripeAccount.Capabilities?.Transfers == "active"
+                    Data = new StripeAccountDto{
+                        StripeAccountId = stripeAccount.Id,
+                        BankAccountId = bankAccount.Id,
+                        IsVerified = stripeAccount.Capabilities?.Transfers == "active"
                     },
                     StatusCode = StatusCodes.OK,
                 };
