@@ -166,9 +166,7 @@ namespace CORE.Services
                 Data = result
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, int pageNo, int pageSize,
-            bool byNearest, double? latitude, double? longitude,
-            string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year)
+        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery)
         {
             if (userId == 0)
                 return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
@@ -185,21 +183,29 @@ namespace CORE.Services
                     Message = "User Not Found"
                 };
 
+            if (searchQuery.minPrice > searchQuery.maxPrice)
+                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Min Price can't be greater that Max Price"
+                };
+
             Location location = null;
-            if (latitude == null || longitude == null)
+            if (searchQuery.latitude == null || searchQuery.longitude == null)
                 location = user.Location;
             else
             {
                 location = new Location
                 {
-                    Latitude = latitude.Value,
-                    Longitude = longitude.Value
+                    Latitude = searchQuery.latitude.Value,
+                    Longitude = searchQuery.longitude.Value
                 };
             }
 
-            pageNo = pageNo <= 0 ? 1 : pageNo;
+            searchQuery.pageNo = searchQuery.pageNo <= 0 ? 1 : searchQuery.pageNo;
+            searchQuery.pageSize = searchQuery.pageSize <= 0 ? 1 : searchQuery.pageSize;
 
-            IQueryable<Vehicle> vehicles = _unitOfWork.Vehicles.GetVehicles(brandId, typeId, transmission, searchKey, minPrice, maxPrice, year, Rate);
+            IQueryable<Vehicle> vehicles = _unitOfWork.Vehicles.GetVehicles(searchQuery.brandId, searchQuery.typeId, searchQuery.transmission, searchQuery.searchKey, searchQuery.minPrice, searchQuery.maxPrice, searchQuery.year, searchQuery.rate);
 
             var vehiclesSummary = vehicles
                 .Select(v => new GetVehicleSummaryDto
@@ -221,22 +227,22 @@ namespace CORE.Services
                     )),
                 });
 
-            if (byNearest == true)
+            if (searchQuery.byNearest == true)
             {
                 vehiclesSummary = vehiclesSummary.OrderBy(dto => dto.Distance);
             }
 
             var data = await vehiclesSummary
-                .Skip((pageNo - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((searchQuery.pageNo - 1) * searchQuery.pageSize)
+                .Take(searchQuery.pageSize)
                 .ToListAsync();
 
             var pagedData = new PagedResultDto<GetVehicleSummaryDto>
             {
                 Data = data,
-                PageNumber = pageNo,
-                PageSize = pageSize,
-                TotalPages = PaginationHelpers.CalculateTotalPages(vehicles.Count(), pageSize)
+                PageNumber = searchQuery.pageNo,
+                PageSize = searchQuery.pageSize,
+                TotalPages = PaginationHelpers.CalculateTotalPages(vehicles.Count(), searchQuery.pageSize)
             };
 
             return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>

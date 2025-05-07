@@ -40,15 +40,11 @@ namespace API.Controllers
         }
         [Authorize(Roles = "Customer")]
         [HttpGet("get-vehicles")]
-        public async Task<IActionResult> GetVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
-            [FromQuery] bool byNearest, [FromQuery] double? latitude, [FromQuery] double? longitude,
-            [FromQuery] string? searchKey,
-            [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
-            [FromQuery] double? Rate, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int? year)
+        public async Task<IActionResult> GetVehiclesAsync([FromQuery]VehiclesSearchQuery searchQuery)
         {
             int userId = UserHelpers.GetUserId(User);
 
-            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetVehiclesAsync(userId, pageNo, pageSize, byNearest, latitude, longitude, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year);
+            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetVehiclesAsync(userId, searchQuery);
             return StatusCode(result.StatusCode, result);
         }
 
