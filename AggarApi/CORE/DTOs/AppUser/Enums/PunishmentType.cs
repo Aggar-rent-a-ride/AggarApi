@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CORE.DTOs.AppUser.Enums
 {
-    public enum PunishingType
+    public enum PunishmentType
     {
         Warning, 
         Ban

@@ -12,7 +12,7 @@ namespace CORE.DTOs.AppUser
     {
         public int UserId { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public PunishingType Type { get; set; }
-        public DateTime? BannedTo { get; set; }
+        public PunishmentType Type { get; set; }
+        public int? BanDurationInDays { get; set; }
     }
 }
