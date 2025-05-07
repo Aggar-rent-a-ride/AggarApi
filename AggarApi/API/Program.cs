@@ -200,6 +200,7 @@ namespace API
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
             builder.Services.AddScoped<UserRatingUpdateJob>();
             builder.Services.AddScoped<UserManagementJob>();
+            builder.Services.AddScoped<EmailSendingJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();
