@@ -2,7 +2,7 @@
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-﻿using CORE.DTOs;
+using CORE.DTOs;
 using CORE.Helpers;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -41,14 +41,14 @@ namespace API.Controllers
         [Authorize(Roles = "Customer")]
         [HttpGet("get-vehicles")]
         public async Task<IActionResult> GetVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize,
-            [FromQuery] bool byNearest,
+            [FromQuery] bool byNearest, [FromQuery] double? latitude, [FromQuery] double? longitude,
             [FromQuery] string? searchKey,
             [FromQuery] int? brandId, [FromQuery] int? typeId, [FromQuery] VehicleTransmission? transmission,
             [FromQuery] double? Rate, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int? year)
         {
             int userId = UserHelpers.GetUserId(User);
 
-            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetVehiclesAsync(userId, pageNo, pageSize, byNearest, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year);
+            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetVehiclesAsync(userId, pageNo, pageSize, byNearest, latitude, longitude, searchKey, brandId, typeId, transmission, Rate, minPrice, maxPrice, year);
             return StatusCode(result.StatusCode, result);
         }
 

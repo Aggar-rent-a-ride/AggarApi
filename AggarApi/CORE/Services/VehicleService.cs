@@ -2,7 +2,7 @@
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
-﻿using CORE.DTOs;
+using CORE.DTOs;
 using CORE.DTOs.Vehicle;
 using System;
 using System.Collections.Generic;
@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DATA.Constants.Includes;
 using Microsoft.IdentityModel.Tokens;
 using CORE.DTOs.Discount;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CORE.Services
 {
@@ -48,13 +49,13 @@ namespace CORE.Services
                 return "Number of passengers must be at least 1";
             if (dto.Year < 1900 || dto.Year > DateTime.UtcNow.Year)
                 return "Year must be between 1900 and current year";
-            if(dto.MainImage == null)
+            if (dto.MainImage == null)
                 return "Main image is required";
-            if(dto.PricePerDay < 0)
+            if (dto.PricePerDay < 0)
                 return "Prices must be positive";
             if (dto.Location == null)
                 return "Location is required";
-            if(dto.VehicleBrandId == 0)
+            if (dto.VehicleBrandId == 0)
                 return "Brand must be larger than 0 or null";
             if (dto.VehicleTypeId == 0)
                 return "Type must be larger than 0 or null";
@@ -62,7 +63,7 @@ namespace CORE.Services
         }
         private string? ValidateUpdateVehicleDto(UpdateVehicleDto dto)
         {
-            if(dto.Id == 0)
+            if (dto.Id == 0)
                 return "VehicleId is required";
             if (dto.NumOfPassengers < 1)
                 return "Number of passengers must be at least 1";
@@ -80,20 +81,20 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId)
         {
-            if(renterId == null)
+            if (renterId == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "RenterId is required"
                 };
-            if(ValidateCreateVehicleDto(createVehicleDto) is string errorMsg)
+            if (ValidateCreateVehicleDto(createVehicleDto) is string errorMsg)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = errorMsg
                 };
             var vehicle = _mapper.Map<Vehicle>(createVehicleDto);
-            if(vehicle == null)
+            if (vehicle == null)
             {
                 return new ResponseDto<GetVehicleDto>
                 {
@@ -103,7 +104,7 @@ namespace CORE.Services
             }
 
             vehicle.MainImagePath = await _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, createVehicleDto.MainImage, AllowedExtensions.ImageExtensions);
-            if(vehicle.MainImagePath == null)
+            if (vehicle.MainImagePath == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -112,7 +113,7 @@ namespace CORE.Services
 
             vehicle.RenterId = renterId.Value;
             vehicle.AddedAt = DateTime.UtcNow;
-            if(createVehicleDto.Images != null)
+            if (createVehicleDto.Images != null)
             {
                 var uploadTasks = createVehicleDto.Images.Select(img => Task.Run(() => _fileService.UploadFileAsync(_paths.Value.VehicleImages, null, img, AllowedExtensions.ImageExtensions)));
                 var results = await Task.WhenAll(uploadTasks);
@@ -131,7 +132,7 @@ namespace CORE.Services
                 };
             }
             var addedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
-            if(addedVehicleResult.StatusCode != StatusCodes.OK)
+            if (addedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -147,9 +148,9 @@ namespace CORE.Services
         public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
         {
             string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages, VehicleIncludes.Discounts };
-            var vehicle = await _unitOfWork.Vehicles.FindAsync(v=>v.Id == vehicleId, includes);
-            
-            if(vehicle == null)
+            var vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == vehicleId, includes);
+
+            if (vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -165,9 +166,11 @@ namespace CORE.Services
                 Data = result
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, int pageNo, int pageSize, bool byNearest, string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year, Location? location = null)
+        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, int pageNo, int pageSize,
+            bool byNearest, double? latitude, double? longitude,
+            string? searchKey, int? brandId, int? typeId, VehicleTransmission? transmission, double? Rate, decimal? minPrice, decimal? maxPrice, int? year)
         {
-            if(userId == 0)
+            if (userId == 0)
                 return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -182,8 +185,17 @@ namespace CORE.Services
                     Message = "User Not Found"
                 };
 
-            if(location == null)
+            Location location = null;
+            if (latitude == null || longitude == null)
                 location = user.Location;
+            else
+            {
+                location = new Location
+                {
+                    Latitude = latitude.Value,
+                    Longitude = longitude.Value
+                };
+            }
 
             pageNo = pageNo <= 0 ? 1 : pageNo;
 
@@ -207,16 +219,17 @@ namespace CORE.Services
                         Math.Sin(location.Latitude * Math.PI / 180.0) *
                         Math.Sin(v.Location.Latitude * Math.PI / 180.0)
                     )),
-                })
-                .Skip((pageNo - 1) * pageSize)
-                .Take(pageSize);
+                });
 
-            if (byNearest)
+            if (byNearest == true)
             {
-                vehiclesSummary.OrderBy(dto => dto.Distance);
+                vehiclesSummary = vehiclesSummary.OrderBy(dto => dto.Distance);
             }
 
-            var data = await vehiclesSummary.ToListAsync();
+            var data = await vehiclesSummary
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var pagedData = new PagedResultDto<GetVehicleSummaryDto>
             {
@@ -235,7 +248,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId)
         {
-            if(vehicleId == 0)
+            if (vehicleId == 0)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -258,7 +271,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
-            else if(vehicle.RenterId != renterId)
+            else if (vehicle.RenterId != renterId)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.Forbidden,
@@ -266,7 +279,7 @@ namespace CORE.Services
                 };
 
             var vehicleImages = new List<string> { vehicle.MainImagePath };
-            if(vehicle.VehicleImages != null && vehicle.VehicleImages.Count > 0)
+            if (vehicle.VehicleImages != null && vehicle.VehicleImages.Count > 0)
                 vehicleImages.AddRange(vehicle.VehicleImages.Select(vi => vi.ImagePath));
             if (vehicleImages.Count != 0)
                 vehicleImages.ForEach(img => _fileService.DeleteFile(img));
@@ -274,7 +287,7 @@ namespace CORE.Services
             _unitOfWork.Vehicles.Delete(vehicle);
             var changes = await _unitOfWork.CommitAsync();
 
-            if(changes == 0)
+            if (changes == 0)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -295,9 +308,9 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                     Message = "RenterId is required"
                 };
-            
 
-            if(ValidateUpdateVehicleDto(updateVehicleDto) is string errorMsg)
+
+            if (ValidateUpdateVehicleDto(updateVehicleDto) is string errorMsg)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -311,8 +324,8 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
-            
-            if(renterId != vehicle.RenterId)
+
+            if (renterId != vehicle.RenterId)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.Forbidden,
@@ -330,16 +343,16 @@ namespace CORE.Services
                         Message = "Failed to upload main image"
                     };
             }
-            
+
             await _unitOfWork.Vehicles.AddOrUpdateAsync(vehicle);
             var changes = await _unitOfWork.CommitAsync();
-            if(changes == 0)
+            if (changes == 0)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.InternalServerError,
                     Message = "Failed to update vehicle"
                 };
-            
+
             var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
             if (updatedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
@@ -347,7 +360,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.InternalServerError,
                     Message = "Vehicle updated but failed to retrieve it"
                 };
-            
+
             return new ResponseDto<GetVehicleDto>
             {
                 StatusCode = StatusCodes.OK,
@@ -357,7 +370,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId)
         {
-            if(renterId == null)
+            if (renterId == null)
                 return new ResponseDto<GetVehicleDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -386,10 +399,10 @@ namespace CORE.Services
                     StatusCode = StatusCodes.Forbidden,
                     Message = "You are not the owner of this vehicle"
                 };
-            if(updateVehicleImagesDto.RemovedImagesPaths != null && updateVehicleImagesDto.RemovedImagesPaths.Count > 0)
+            if (updateVehicleImagesDto.RemovedImagesPaths != null && updateVehicleImagesDto.RemovedImagesPaths.Count > 0)
             {
                 updateVehicleImagesDto?.RemovedImagesPaths.ForEach(img => _fileService.DeleteFile(img));
-                if(vehicle.VehicleImages != null)
+                if (vehicle.VehicleImages != null)
                     vehicle.VehicleImages = vehicle.VehicleImages.Where(vi => updateVehicleImagesDto.RemovedImagesPaths.Contains(vi.ImagePath) == false).ToList();
             }
             if (updateVehicleImagesDto.NewImages != null && updateVehicleImagesDto.NewImages.Count > 0)
@@ -435,8 +448,8 @@ namespace CORE.Services
                 };
 
             var includes = new string[] { VehicleIncludes.Discounts };
-            var vehicle = await _unitOfWork.Vehicles.FindAsync(v=>v.Id==updateVehicleDiscountsDto.VehicleId, includes);
-            
+            var vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == updateVehicleDiscountsDto.VehicleId, includes);
+
             if (vehicle == null)
                 return new ResponseDto<GetVehicleDto>
                 {
@@ -464,7 +477,7 @@ namespace CORE.Services
                 };
 
             var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
-            
+
             if (updatedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
                 {
