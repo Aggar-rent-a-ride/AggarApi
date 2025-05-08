@@ -198,9 +198,11 @@ namespace API
             builder.Services.AddScoped<IRentalReviewService, RentalReviewService>();
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
+            builder.Services.AddScoped<IVehicleReviewService, VehicleReviewService>();
             builder.Services.AddScoped<UserRatingUpdateJob>();
             builder.Services.AddScoped<UserManagementJob>();
             builder.Services.AddScoped<EmailSendingJob>();
+            builder.Services.AddScoped<VehicleRatingUpdateJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();

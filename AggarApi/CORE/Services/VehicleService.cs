@@ -159,7 +159,7 @@ namespace CORE.Services
 
 
             var result = _mapper.Map<GetVehicleDto>(vehicle);
-            result.Rate = (await _reviewService.GetVehicleTotalRateAsync(vehicle.Id)).Data;
+
             return new ResponseDto<GetVehicleDto>
             {
                 StatusCode = StatusCodes.OK,
@@ -509,7 +509,7 @@ namespace CORE.Services
                 };
 
             var result = _mapper.Map<GetVehicleDto>(vehicle);
-            result.Rate = (await _reviewService.GetVehicleTotalRateAsync(vehicle.Id)).Data;
+
             return new ResponseDto<GetVehicleDto>
             {
                 StatusCode = StatusCodes.OK,

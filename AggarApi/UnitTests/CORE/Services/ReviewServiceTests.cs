@@ -49,7 +49,7 @@ namespace UnitTests.CORE.Services
                 _mockLogger.Object,
                 _mockRentalReviewService.Object,
                 _mockMapper.Object,
-                null
+                null, null
             );
             _userReviewService = new UserReviewService(
                 _mockUnitOfWork.Object,
@@ -88,7 +88,7 @@ namespace UnitTests.CORE.Services
             // Arrange
             var createReviewDto = new CreateReviewDto { Behavior = 4, Punctuality = 3, Care = 1.5 };
             _mockRentalService.Setup(r => r.GetReviewRentalValidationProperties(It.IsAny<int>()))
-                .ReturnsAsync(new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?> { StatusCode = StatusCodes.BadRequest });
+                .ReturnsAsync(new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?> { StatusCode = StatusCodes.BadRequest });
 
             // Act
             var result = await _reviewService.CreateReviewAsync(createReviewDto, 1, Roles.Renter);
@@ -103,10 +103,10 @@ namespace UnitTests.CORE.Services
             var createReviewDto = new CreateReviewDto {RentalId = 1, Behavior = 4, Punctuality = 3, Care = 1.5 };
             _mockRentalService.Setup(r => r.GetReviewRentalValidationProperties(It.IsAny<int>()))
                 .ReturnsAsync(
-                new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?> 
+                new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?> 
                 { 
                     StatusCode = StatusCodes.OK,
-                    Data = (1, 1, 1, 1, 1)
+                    Data = (1, 1, 1, 1, 1, 1)
                 });
 
             // Act
@@ -122,10 +122,10 @@ namespace UnitTests.CORE.Services
             var createReviewDto = new CreateReviewDto { RentalId = 1, Behavior = 4, Punctuality = 3, Care = 1.5 };
             _mockRentalService.Setup(r => r.GetReviewRentalValidationProperties(It.IsAny<int>()))
                 .ReturnsAsync(
-                new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+                new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?>
                 {
                     StatusCode = StatusCodes.OK,
-                    Data = (1, 1, 0, 1, 1)
+                    Data = (1, 1, 0, 1, 1, 1)
                 });
 
             // Act

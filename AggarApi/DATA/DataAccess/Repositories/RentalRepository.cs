@@ -15,7 +15,7 @@ namespace DATA.DataAccess.Repositories
         public RentalRepository(AppDbContext context) : base(context)
         {
         }
-        public async Task<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId)
+        public async Task<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?> GetRentalByIdIncludingBookingThenIncludingVehicleAsync(int rentalId)
         {
             var result = await _context.Rentals
                 .Select(r=> new { 
@@ -24,13 +24,14 @@ namespace DATA.DataAccess.Repositories
                     RenterReviewId = r.RenterReviewId,
                     CustomerId = r.Booking.CustomerId,
                     RenterId = r.Booking.Vehicle.RenterId,
+                    VehicleId = r.Booking.VehicleId
                 })
                 .FirstOrDefaultAsync(r => r.Id == rentalId);
 
             return result == null
                 ? default
                 : (result.Id, result.CustomerReviewId, result.RenterReviewId,
-                   result.CustomerId, result.RenterId);
+                   result.CustomerId, result.RenterId, result.VehicleId);
         }
 
         public async Task<IEnumerable<Rental>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize)

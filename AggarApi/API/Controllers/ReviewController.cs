@@ -2,6 +2,7 @@
 using CORE.DTOs;
 using CORE.DTOs.Review;
 using CORE.Helpers;
+using CORE.Services;
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +17,12 @@ namespace API.Controllers
     {
         private readonly IReviewService _reviewService;
         private readonly IUserReviewService _userReviewService;
-        public ReviewController(IReviewService reviewService, IUserReviewService userReviewService)
+        private readonly IVehicleReviewService _vehicleReviewService;
+        public ReviewController(IReviewService reviewService, IUserReviewService userReviewService, IVehicleReviewService vehicleReviewService)
         {
             _reviewService = reviewService;
             _userReviewService = userReviewService;
+            _vehicleReviewService = vehicleReviewService;
         }
         [HttpPost, Authorize(Roles = "Customer, Renter")]
         public async Task<IActionResult> CreateReviewAsync(CreateReviewDto reviewDto)
@@ -67,7 +70,7 @@ namespace API.Controllers
         [HttpGet("vehicle-reviews"), Authorize]
         public async Task<IActionResult> GetVehicleReviewsAsync(int vehicleId, int pageNo = 1, int pageSize = 10)
         {
-            var result = await _reviewService.GetVehicleReviewsAsync(vehicleId, pageNo, pageSize);
+            var result = await _vehicleReviewService.GetVehicleReviewsAsync(vehicleId, pageNo, pageSize);
 
             return StatusCode(result.StatusCode, result);
         }
