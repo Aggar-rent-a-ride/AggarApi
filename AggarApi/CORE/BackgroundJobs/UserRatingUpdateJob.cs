@@ -68,6 +68,7 @@ namespace CORE.BackgroundJobs
                 {
                     _logger.LogWarning($"Failed to update rating for user {userId} - scheduling retry for tomorrow");
                     RescheduleProcessUserRatingUpdate(jobId, userId);
+                    return;
                 }
 
                 _logger.LogInformation($"Successfully updated rating for user {userId} to {newRating}");

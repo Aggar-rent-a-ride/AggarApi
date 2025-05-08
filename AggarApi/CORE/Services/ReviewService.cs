@@ -27,16 +27,18 @@ namespace CORE.Services
         private readonly ILogger<ReviewService> _logger;
         private readonly IRentalReviewService _rentalReviewService;
         private readonly IMapper _mapper;
-        private readonly UserRatingUpdateJob _ratingUpdateJob;
+        private readonly UserRatingUpdateJob _userRatingUpdateJob;
+        private readonly VehicleRatingUpdateJob _vehicleRatingUpdateJob;
 
-        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, UserRatingUpdateJob ratingUpdateJob)
+        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, UserRatingUpdateJob ratingUpdateJob, VehicleRatingUpdateJob vehicleRatingUpdateJob)
         {
             _rentalService = rentalService;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _rentalReviewService = rentalReviewService;
             _mapper = mapper;
-            _ratingUpdateJob = ratingUpdateJob;
+            _userRatingUpdateJob = ratingUpdateJob;
+            _vehicleRatingUpdateJob = vehicleRatingUpdateJob;
         }
 
         private string? CheckReviewRates(CreateReviewDto reviewDto, string role)
@@ -62,7 +64,7 @@ namespace CORE.Services
             }
             return errors.Count > 0 ? string.Join(", ", errors) : null;
         }
-        private async Task<ResponseDto<T>> CreateReviewAsync<T>((int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId) rental, CreateReviewDto reviewDto, string role, int userId) where T : Review
+        private async Task<ResponseDto<T>> CreateReviewAsync<T>((int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId) rental, CreateReviewDto reviewDto, string role, int userId) where T : Review
         {
             _logger.LogInformation("Creating {Role} review for rental {RentalId} by user {UserId}", role, reviewDto.RentalId, userId);
 
@@ -89,7 +91,8 @@ namespace CORE.Services
                     };
                 }
 
-                _ratingUpdateJob.ScheduleUserRatingUpdate(rental.RenterId);
+                _userRatingUpdateJob.ScheduleUserRatingUpdate(rental.RenterId);
+                _vehicleRatingUpdateJob.ScheduleVehicleRatingUpdate(rental.VehicleId);
 
                 _logger.LogDebug("Creating CustomerReview for rental {RentalId}", reviewDto.RentalId);
                 return new ResponseDto<T>
@@ -128,7 +131,7 @@ namespace CORE.Services
                 };
             }
 
-            _ratingUpdateJob.ScheduleUserRatingUpdate(rental.CustomerId);
+            _userRatingUpdateJob.ScheduleUserRatingUpdate(rental.CustomerId);
 
             _logger.LogDebug("Creating RenterReview for rental {RentalId}", reviewDto.RentalId);
             return new ResponseDto<T>
@@ -176,6 +179,7 @@ namespace CORE.Services
             }
 
             var rental = rentalResponse.Data;
+            
             _logger.LogDebug("Rental data retrieved successfully for rental {RentalId}", reviewDto.RentalId);
 
             var reviewResponse = await CreateReviewAsync<Review>(rental.Value, reviewDto, role, userId);
@@ -255,83 +259,6 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = result
-            };
-        }
-
-        public async Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100)
-        {
-            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
-            {
-                _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = StatusCodes.BadRequest,
-                    Message = paginationError
-                };
-            }
-
-            var vehicleRentalsResponse = await _rentalService.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize, maxPageSize);
-            if (vehicleRentalsResponse.StatusCode != StatusCodes.OK)
-            {
-                _logger.LogWarning("Failed to retrieve rentals for vehicle {VehicleId}: {ErrorMessage}",
-                    vehicleId, vehicleRentalsResponse.Message);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = vehicleRentalsResponse.StatusCode,
-                    Message = vehicleRentalsResponse.Message
-                };
-            }
-
-            var rentals = vehicleRentalsResponse.Data;
-            if (rentals == null || rentals.Any() == false)
-            {
-                _logger.LogInformation("No rentals found for vehicle {VehicleId}", vehicleId);
-                return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-                {
-                    StatusCode = StatusCodes.BadRequest,
-                    Message = "No rentals found for this vehicle"
-                };
-            }
-
-            var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
-            var includes = new List<string> { CustomerReviewIncludes.Customer };
-            var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
-            var result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
-
-            _logger.LogInformation("Successfully retrieved reviews for vehicle {VehicleId}", vehicleId);
-            return new ResponseDto<IEnumerable<SummarizedReviewDto>>
-            {
-                StatusCode = StatusCodes.OK,
-                Data = result
-            };
-        }
-
-        public async Task<ResponseDto<double?>> GetVehicleTotalRateAsync(int vehicleId)
-        {
-            _logger.LogInformation("Received request to get total rate for vehicle {VehicleId}", vehicleId);
-
-            var vehicleReviewsResponse = await GetVehicleReviewsAsync(vehicleId, 1, Int32.MaxValue, Int32.MaxValue);
-
-            if (vehicleReviewsResponse.StatusCode != StatusCodes.OK)
-            {
-                _logger.LogWarning("Failed to retrieve reviews for vehicle {VehicleId}: {ErrorMessage}",
-                    vehicleId, vehicleReviewsResponse.Message);
-                return new ResponseDto<double?>
-                {
-                    StatusCode = vehicleReviewsResponse.StatusCode,
-                    Message = vehicleReviewsResponse.Message
-                };
-            }
-            var reviews = vehicleReviewsResponse.Data;
-
-            var totalRate = Math.Round(reviews.Average(r => r.Rate), 1);
-
-            _logger.LogInformation("Successfully retrieved total rate for vehicle {VehicleId}: {TotalRate}",
-                vehicleId, totalRate);
-            return new ResponseDto<double?>
-            {
-                StatusCode = StatusCodes.OK,
-                Data = totalRate
             };
         }
     }

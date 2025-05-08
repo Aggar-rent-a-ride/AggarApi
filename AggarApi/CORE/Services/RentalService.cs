@@ -114,7 +114,7 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>> GetReviewRentalValidationProperties(int rentalId)
+        public async Task<ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?>> GetReviewRentalValidationProperties(int rentalId)
         {
             _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);
 
@@ -122,15 +122,15 @@ namespace CORE.Services
             if (rental == null)
             {
                 _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
-                return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+                return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Rental not found."
                 };
             }
-
+            
             _logger.LogInformation("Successfully retrieved rental with ID: {RentalId}", rentalId);
-            return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId)?>
+            return new ResponseDto<(int Id, int CustomerReviewId, int RenterReviewId, int CustomerId, int RenterId, int VehicleId)?>
             {
                 StatusCode = StatusCodes.OK,
                 Data = rental
