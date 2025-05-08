@@ -7,13 +7,20 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.AppUser;
+using CORE.DTOs.Message;
 using CORE.DTOs.Report;
+using CORE.DTOs.Review;
+using CORE.DTOs.Vehicle;
 using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants;
+using DATA.Constants.Includes;
 using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace CORE.Services
 {
@@ -21,10 +28,12 @@ namespace CORE.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public ReportService(IMapper mapper, IUnitOfWork unitOfWork)
+        private readonly ILogger<ReportService> _logger;
+        public ReportService(IMapper mapper, IUnitOfWork unitOfWork, ILogger<ReportService> logger)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
         private async Task<string?> CheckTargetExists(int? targetId, TargetType type)
         {
@@ -120,6 +129,104 @@ namespace CORE.Services
                 StatusCode = 201,
                 Message = "Report created successfully",
             };
+        }
+        private async Task<ResponseDto<GetReportDto>> ProccessReportRetreival(Report report)
+        {
+            var result = _mapper.Map<GetReportDto>(report);
+
+            if (report.Reporter == null)
+                return new ResponseDto<GetReportDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Reporter not found",
+                };
+
+            result.Reporter = _mapper.Map<SummerizedUserDto>(report.Reporter);
+            
+            if (report.TargetType == TargetType.AppUser)
+            {
+                if(report.TargetAppUser == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target user not found",
+                    };
+                result.TargetAppUser = _mapper.Map<SummerizedUserDto>(report.TargetAppUser);
+            }
+            else if (report.TargetType == TargetType.CustomerReview)
+            {
+                if (report.TargetCustomerReview == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target customerReview not found",
+                    };
+                result.TargetCustomerReview = _mapper.Map<GetReviewDto>(report.TargetCustomerReview);
+            }
+            else if (report.TargetType == TargetType.RenterReview)
+            {
+                if (report.TargetRenterReview == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target renterReview not found",
+                    };
+                result.TargetRenterReview = _mapper.Map<GetReviewDto>(report.TargetRenterReview);
+            }
+            else if (report.TargetType == TargetType.Message)
+            {
+                if (report.TargetMessage == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target message not found",
+                    };
+                if (report.TargetMessage.MessageType == MessageType.ContentMessage)
+                    result.TargetContentMessage = _mapper.Map<GetContentMessageDto>(report.TargetMessage as ContentMessage);
+                else if (report.TargetMessage.MessageType == MessageType.FileMessage)
+                    result.TargetFileMessage = _mapper.Map<GetFileMessageDto>(report.TargetMessage as FileMessage);
+            }
+            else if (report.TargetType == TargetType.Vehicle)
+            {
+                if (report.TargetVehicle == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target vehicle not found",
+                    };
+                result.TargetVehicle = _mapper.Map<GetVehicleSummaryDto>(report.TargetVehicle);
+            }
+            return new ResponseDto<GetReportDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Report retrieved successfully",
+                Data = result,
+            };
+        }
+        public async Task<ResponseDto<GetReportDto>> GetReportByIdAsync(int reportId)
+        {
+            var includes = new string[]
+            {
+                ReportIncludes.Reporter,
+                ReportIncludes.TargetRenterReview,
+                ReportIncludes.TargetCustomerReview,
+                ReportIncludes.TargetAppUser,
+                ReportIncludes.TargetVehicle,
+                ReportIncludes.TargetMessage,
+            };
+
+            var report = await _unitOfWork.Reports.FindAsync(r => r.Id == reportId, includes);
+            if(report == null)
+            {
+                _logger.LogWarning("Report with id {Id} not found", reportId);
+                return new ResponseDto<GetReportDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Report not found",
+                };
+            }
+
+            return await ProccessReportRetreival(report);
         }
     }
 }
