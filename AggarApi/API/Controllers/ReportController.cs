@@ -1,4 +1,5 @@
-﻿using CORE.DTOs.Report;
+﻿using CORE.Constants;
+using CORE.DTOs.Report;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -20,10 +21,17 @@ namespace API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateReport([FromBody] CreateReportDto createReportDto)
+        public async Task<IActionResult> CreateReportAsync([FromBody] CreateReportDto createReportDto)
         {
             var userId = UserHelpers.GetUserId(User);
             var result = await _reportService.CreateReportAsync(createReportDto, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetReportAsync(int reportId)
+        {
+            var result = await _reportService.GetReportByIdAsync(reportId);
             return StatusCode(result.StatusCode, result);
         }
     }

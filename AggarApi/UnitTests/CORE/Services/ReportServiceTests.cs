@@ -15,6 +15,8 @@ using System.Linq.Expressions;
 using Azure.Core;
 using CORE.Constants;
 using DATA.DataAccess.Repositories.IRepositories;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTests.CORE.Services
 {
@@ -24,6 +26,7 @@ namespace UnitTests.CORE.Services
         private Mock<IMapper> _mockMapper;
         private Mock<IUnitOfWork> _mockUnitOfWork;
         private Mock<IBaseRepository<Report>> _mockReportRepository;
+        private Mock<ILogger<ReportService>> _mockLogger;
         private ReportService _reportService;
 
         [SetUp]
@@ -31,7 +34,8 @@ namespace UnitTests.CORE.Services
         {
             _mockMapper = new Mock<IMapper>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _reportService = new ReportService(_mockMapper.Object, _mockUnitOfWork.Object);
+            _mockLogger = new Mock<ILogger<ReportService>>();
+            _reportService = new ReportService(_mockMapper.Object, _mockUnitOfWork.Object, _mockLogger.Object);
             _mockReportRepository = new Mock<IBaseRepository<Report>>();
             _mockUnitOfWork.Setup(u => u.Reports).Returns(_mockReportRepository.Object);
         }

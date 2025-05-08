@@ -11,5 +11,6 @@ namespace CORE.Services.IServices
     public interface IReportService
     {
         Task<ResponseDto<object>> CreateReportAsync(CreateReportDto reportDto, int reporterId);
+        Task<ResponseDto<GetReportDto>> GetReportByIdAsync(int reportId);
     }
 }

@@ -7,7 +7,7 @@ namespace DATA.Models
         public int Id { get; set; }
         public int ReporterId { get; set; }
         public string? Description { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public Enums.ReportStatus Status { get; set; } = Enums.ReportStatus.Pending;
         public AppUser Reporter { get; set; } = null!;
 

@@ -124,7 +124,7 @@ namespace DATA.Constants.Includes
         public const string TargetMessage = "TargetMessage";
         public const string TargetRenterReview = "TargetRenterReview";
         public const string TargetCustomerReview = "TargetCustomerReview";
-        public const string TargetUser = "TargetUser";
+        public const string TargetAppUser = "TargetAppUser";
         public const string TargetVehicle = "TargetVehicle";
     }
 

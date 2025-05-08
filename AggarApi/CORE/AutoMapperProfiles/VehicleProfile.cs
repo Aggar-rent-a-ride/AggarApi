@@ -35,6 +35,8 @@ namespace CORE.AutoMapperProfiles
                 .ReverseMap()
                 .ForMember(dest => dest.PricePerDay, opt => opt.MapFrom(src => decimal.Round(src.PricePerDay, 2, MidpointRounding.AwayFromZero)));
 
+            CreateMap<Vehicle, GetVehicleSummaryDto>();
+
             CreateMap<Vehicle, VehicleDetails>();
         }
     }
