@@ -25,7 +25,7 @@ namespace UnitTests.CORE.Services
     {
         private Mock<IMapper> _mockMapper;
         private Mock<IUnitOfWork> _mockUnitOfWork;
-        private Mock<IBaseRepository<Report>> _mockReportRepository;
+        private Mock<IReportRepository> _mockReportRepository;
         private Mock<ILogger<ReportService>> _mockLogger;
         private ReportService _reportService;
 
@@ -36,7 +36,7 @@ namespace UnitTests.CORE.Services
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLogger = new Mock<ILogger<ReportService>>();
             _reportService = new ReportService(_mockMapper.Object, _mockUnitOfWork.Object, _mockLogger.Object);
-            _mockReportRepository = new Mock<IBaseRepository<Report>>();
+            _mockReportRepository = new Mock<IReportRepository>();
             _mockUnitOfWork.Setup(u => u.Reports).Returns(_mockReportRepository.Object);
         }
         [Test]
