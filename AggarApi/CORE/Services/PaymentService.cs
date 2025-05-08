@@ -4,6 +4,7 @@ using CORE.DTOs.Payment;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,15 @@ namespace CORE.Services
                     {
                         Message = "No Renter with this Id",
                         StatusCode = StatusCodes.BadRequest
+                    };
+                }
+
+                if (!renter.StripeAccount.StripeAccountId.IsNullOrEmpty())
+                {
+                    return new ResponseDto<StripeAccountDto>
+                    {
+                        Message = "Renter allready has a stripe account",
+                        StatusCode = StatusCodes.Conflict
                     };
                 }
 

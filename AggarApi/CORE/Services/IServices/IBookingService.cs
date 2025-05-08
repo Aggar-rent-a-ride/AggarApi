@@ -1,5 +1,6 @@
 ﻿using CORE.DTOs;
 using CORE.DTOs.Booking;
+using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,8 @@ namespace CORE.Services.IServices
 {
     public interface IBookingService
     {
-        public Task<ResponseDto<BookingDetailsDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int? customerId);
+        public Task<ResponseDto<BookingDetailsDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int customerId);
+        public Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate);
         public Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int? userId);
         //public Task<ResponseDto<>> ConfirmBookingAsync(int bookingId);
         public Task<ResponseDto<object>> CancelBookingAsync(int bookingId, int? customerId);
