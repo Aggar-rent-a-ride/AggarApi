@@ -10,8 +10,9 @@ namespace DATA.Models
     [Owned]
     public class StripeAccount
     {
-        public string StripeAccountId { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
+        public string? StripeAccountId { get; set; }
+        public string? BankAccountId { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
     }
 }
