@@ -24,7 +24,7 @@ namespace API.Controllers
             _userReviewService = userReviewService;
             _vehicleReviewService = vehicleReviewService;
         }
-        [HttpPost, Authorize(Roles = "Customer, Renter")]
+        [HttpPost, Authorize(Roles = $"{Roles.Customer}, {Roles.Renter}")]
         public async Task<IActionResult> CreateReviewAsync(CreateReviewDto reviewDto)
         {
             var userId = UserHelpers.GetUserId(User);

@@ -11,7 +11,7 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId);
         Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery);
-        Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId);
+        Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId, string[] roles);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto updateVehicleDiscountsDto, int? renterId);

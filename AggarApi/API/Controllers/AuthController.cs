@@ -58,7 +58,7 @@ namespace API.Controllers
             var result = await _authService.RevokeRefreshTokenAsync(dto.RefreshToken);
             return StatusCode(result.StatusCode, result);
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdminAsync(RegisterAdminDto dto)
         {

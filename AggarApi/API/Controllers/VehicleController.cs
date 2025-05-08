@@ -8,6 +8,7 @@ using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using CORE.DTOs.Discount;
 using DATA.Models;
+using CORE.Constants;
 
 namespace API.Controllers
 {
@@ -22,7 +23,7 @@ namespace API.Controllers
         {
             _vehicleService = vehicleService;
         }
-        [Authorize(Roles = "Renter")]
+        [Authorize(Roles = $"{Roles.Renter}")]
         [HttpPost]
         public async Task<IActionResult> CreateVehicleAsync([FromForm] CreateVehicleDto createVehicleDto)
         {
@@ -48,15 +49,16 @@ namespace API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [Authorize(Roles = "Renter")]
+        [Authorize(Roles = $"{Roles.Renter}, {Roles.Admin}")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVehicleAsync(int id)
         {
             var renterId = UserHelpers.GetUserId(User);
-            var response = await _vehicleService.DeleteVehicleByIdAsync(id, renterId);
+            var roles = UserHelpers.GetUserRoles(User);
+            var response = await _vehicleService.DeleteVehicleByIdAsync(id, renterId, roles.ToArray());
             return StatusCode(response.StatusCode, response);
         }
-        [Authorize(Roles = "Renter")]
+        [Authorize(Roles = $"{Roles.Renter}")]
         [HttpPut]
         public async Task<IActionResult> UpdateVehicleAsync([FromForm] UpdateVehicleDto dto)
         {
@@ -64,7 +66,7 @@ namespace API.Controllers
             var response = await _vehicleService.UpdateVehicleAsync(dto, renterId);
             return StatusCode(response.StatusCode, response);
         }
-        [Authorize(Roles = "Renter")]
+        [Authorize(Roles = $"{Roles.Renter}")]
         [HttpPut("vehicle-images")]
         public async Task<IActionResult> UpdateVehicleImagesAsync([FromForm] UpdateVehicleImagesDto dto)
         {
@@ -72,7 +74,7 @@ namespace API.Controllers
             var response = await _vehicleService.UpdateVehicleImagesAsync(dto, renterId);
             return StatusCode(response.StatusCode, response);
         }
-        [Authorize(Roles = "Renter")]
+        [Authorize(Roles = $"{Roles.Renter}")]
         [HttpPut("vehicle-discounts")]
         public async Task<IActionResult> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto dto)
         {
