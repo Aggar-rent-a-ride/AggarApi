@@ -252,7 +252,7 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
             };
         }
-        public async Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId)
+        public async Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId, string[] roles)
         {
             if (vehicleId == 0)
                 return new ResponseDto<object>
@@ -277,12 +277,15 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Vehicle not found"
                 };
-            else if (vehicle.RenterId != renterId)
+
+            if (roles.Contains(Roles.Admin) == false && vehicle.RenterId != renterId)
+            {
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.Forbidden,
                     Message = "You are not the owner of this vehicle"
                 };
+            }
 
             var vehicleImages = new List<string> { vehicle.MainImagePath };
             if (vehicle.VehicleImages != null && vehicle.VehicleImages.Count > 0)
