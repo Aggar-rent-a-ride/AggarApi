@@ -29,7 +29,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IRentalRepository Rentals { get; private set; }
         public IRenterReviewRepository RenterReviews { get; private set; }
         public ICustomerReviewRepository CustomerReviews { get; private set; }
-        public IBaseRepository<Report> Reports { get; private set; }
+        public IReportRepository Reports { get; private set; }
 
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
@@ -47,7 +47,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             Rentals = new RentalRepository(_context);
             RenterReviews = new RenterReviewRepository(_context);
             CustomerReviews = new CustomerReviewRepository(_context);
-            Reports = new BaseRepository<Report>(_context);
+            Reports = new ReportRepository(_context);
         }
 
         public async Task<int> CommitAsync()

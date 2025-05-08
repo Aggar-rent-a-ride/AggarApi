@@ -41,5 +41,12 @@ namespace API.Controllers
             var result = await _reportService.UpdateReportsStatusAsync(dto);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("filter")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> FilterReportsAsync(ReportFilterDto dto)
+        {
+            var result = await _reportService.FilterReportsAsync(dto);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

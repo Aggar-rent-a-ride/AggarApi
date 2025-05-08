@@ -9,6 +9,7 @@ using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.AppUser;
 using CORE.DTOs.Message;
+using CORE.DTOs.Rental;
 using CORE.DTOs.Report;
 using CORE.DTOs.Review;
 using CORE.DTOs.Vehicle;
@@ -130,7 +131,7 @@ namespace CORE.Services
                 Message = "Report created successfully",
             };
         }
-        private async Task<ResponseDto<GetReportDto>> ProccessReportRetreival(Report report)
+        private ResponseDto<GetReportDto> ProccessReportRetreival(Report report)
         {
             var result = _mapper.Map<GetReportDto>(report);
 
@@ -226,7 +227,7 @@ namespace CORE.Services
                 };
             }
 
-            return await ProccessReportRetreival(report);
+            return ProccessReportRetreival(report);
         }
 
         public async Task<ResponseDto<object>> UpdateReportsStatusAsync(UpdateReportsStatusDto dto)
@@ -253,6 +254,46 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Message = "Report status changed successfully",
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<GetReportDto>>> FilterReportsAsync(ReportFilterDto dto, int maxPageSize = 30)
+        {
+            if (PaginationHelpers.ValidatePaging(dto.PageNo, dto.PageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<IEnumerable<GetReportDto>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+            var includes = new string[]
+            {
+                ReportIncludes.Reporter,
+                ReportIncludes.TargetRenterReview,
+                ReportIncludes.TargetCustomerReview,
+                ReportIncludes.TargetAppUser,
+                ReportIncludes.TargetVehicle,
+                ReportIncludes.TargetMessage,
+            };
+            var reports = await _unitOfWork.Reports.FilterReportsAsync(dto.PageNo, dto.PageSize, dto.TargetType, dto.Status, dto.Date, dto.SortingDirection, includes);
+
+            var result = new List<GetReportDto>();
+            foreach (var report in reports)
+            {
+                var reportResult = ProccessReportRetreival(report);
+                if (reportResult.StatusCode == StatusCodes.OK)
+                    result.Add(reportResult.Data);
+                else
+                    _logger.LogWarning("Failed to process report with id {Id}: {Message}", report.Id, reportResult.Message);
+            }
+
+            return new ResponseDto<IEnumerable<GetReportDto>>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Reports retrieved successfully",
+                Data = result
             };
         }
     }
