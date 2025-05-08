@@ -12,5 +12,6 @@ namespace CORE.Services.IServices
     {
         Task<ResponseDto<object>> CreateReportAsync(CreateReportDto reportDto, int reporterId);
         Task<ResponseDto<GetReportDto>> GetReportByIdAsync(int reportId);
+        Task<ResponseDto<object>> UpdateReportsStatusAsync(UpdateReportsStatusDto dto);
     }
 }

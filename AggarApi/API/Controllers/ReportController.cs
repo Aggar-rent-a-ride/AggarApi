@@ -34,5 +34,12 @@ namespace API.Controllers
             var result = await _reportService.GetReportByIdAsync(reportId);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpPut("status")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> UpdateReportsStatusAsync(UpdateReportsStatusDto dto)
+        {
+            var result = await _reportService.UpdateReportsStatusAsync(dto);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
