@@ -228,5 +228,32 @@ namespace CORE.Services
 
             return await ProccessReportRetreival(report);
         }
+
+        public async Task<ResponseDto<object>> UpdateReportsStatusAsync(UpdateReportsStatusDto dto)
+        {
+            var reports = await _unitOfWork.Reports.FindAsync(r => dto.ReportsIds.Contains(r.Id) && r.Status != dto.Status, 1, int.MaxValue);
+            
+            if(reports.Count() == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "No reports found to update",
+                };
+
+            foreach (var report in reports)
+                report.Status = dto.Status;
+            var changes = await _unitOfWork.CommitAsync();
+            if (changes == 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Failed to change report status",
+                };
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Report status changed successfully",
+            };
+        }
     }
 }
