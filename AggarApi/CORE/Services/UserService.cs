@@ -160,7 +160,8 @@ namespace CORE.Services
             _logger.LogInformation("User with ID {UserId} banned until {BannedTo}.", user.Id, bannedTo);
 
             // Schedule unban job
-            await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
+            if(banDurationInDays <= 3*365)
+                await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
 
             //send email to the user
             _emailSendingJob.SendEmail(user.Email, EmailSubject.AccountBanned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Ban, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), BannedTo = System.Web.HttpUtility.HtmlEncode(user.BannedTo.Value.ToString("MMMM dd, yyyy")) }));
