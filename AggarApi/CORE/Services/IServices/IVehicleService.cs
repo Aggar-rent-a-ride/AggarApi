@@ -16,6 +16,5 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleAsync(UpdateVehicleDto updateVehicleDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto updateVehicleDiscountsDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> GetVehicleByRentalIdAsync(int rentalId);
-        Task<bool> CheckVehicleAvailability(Vehicle vehicle, DateTime startDate, DateTime endDate);
     }
 }

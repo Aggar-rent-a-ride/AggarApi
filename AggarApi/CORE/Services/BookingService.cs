@@ -8,7 +8,9 @@ using CORE.Services.IServices;
 using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using DATA.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,36 +28,33 @@ namespace CORE.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        
-        private bool CheckVehicleAvailability(Vehicle vehicle, DateTime startDate, DateTime endDate)
+
+        public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
         {
-            bool result = vehicle.Bookings.Where(b => b.VehicleId == vehicle.Id &&
-            (b.Status == DATA.Models.Enums.BookingStatus.Accepted || b.Status == DATA.Models.Enums.BookingStatus.Accepted))
-                .All(b => b.StartDate > endDate || b.EndDate < startDate);
-            
-            return result;
+            bool result = await _unitOfWork.Bookings.Where(b => b.VehicleId == vehicleId && 
+            (b.Status != BookingStatus.Canceled && b.Status != BookingStatus.Rejected))
+                .AnyAsync(b => b.StartDate <= endDate && b.EndDate >= startDate);
+
+            return ! result;
         }
 
-        public async Task<ResponseDto<BookingDetailsDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int? customerId)
+        public async Task<ResponseDto<BookingDetailsDto>> CreateBookingAsync(CreateBookingDto createBookingDto, int customerId)
         {
-            if (customerId.Value == 0 || !customerId.HasValue)
+            if (customerId == 0)
                 return new ResponseDto<BookingDetailsDto>
                 {
                     Message = "Customer Id is required",
-                    StatusCode = StatusCodes.InternalServerError,
-                    Data = null
+                    StatusCode = StatusCodes.Unauthorized
                 };
 
-            Vehicle? vehicle = await _unitOfWork.Vehicles.GetAsync(createBookingDto.VehicleId, [VehicleIncludes.Bookings]);
+            Vehicle? vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == createBookingDto.VehicleId, [VehicleIncludes.Bookings]);
 
-            if (createBookingDto.StartDate < DateTime.Now ||
-                createBookingDto.StartDate < DateTime.Now ||
+            if (createBookingDto.StartDate < DateTime.UtcNow ||
                 createBookingDto.StartDate > createBookingDto.EndDate)
                 return new ResponseDto<BookingDetailsDto>
                 {
                     Message = "Date is not valid",
-                    StatusCode = StatusCodes.BadRequest,
-                    Data = null
+                    StatusCode = StatusCodes.BadRequest
                 };
 
             if (vehicle == null)
@@ -66,7 +65,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                 };
             }
-            else if (vehicle.Status != DATA.Models.Enums.VehicleStatus.Active)
+            else if (vehicle.Status != VehicleStatus.Active)
             {
                 return new ResponseDto<BookingDetailsDto>
                 {
@@ -74,7 +73,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.Conflict,
                 };
             }
-            else if (!CheckVehicleAvailability(vehicle, createBookingDto.StartDate, createBookingDto.EndDate))
+            else if (await CheckVehicleAvailability(vehicle.Id, createBookingDto.StartDate, createBookingDto.EndDate) == false)
             {
                 return new ResponseDto<BookingDetailsDto>
                 {
@@ -84,7 +83,8 @@ namespace CORE.Services
             }
 
             Booking newBooking = _mapper.Map<Booking>(createBookingDto);
-            
+
+            newBooking.CustomerId = customerId;
             newBooking.Price = vehicle.PricePerDay * createBookingDto.EndDate.TotalDays(createBookingDto.StartDate);
             
             Discount? discount = vehicle.Discounts?.
@@ -111,7 +111,7 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
-            var addedBookingResult = await GetBookingByIdAsync(newBooking.Id, customerId.Value);
+            var addedBookingResult = await GetBookingByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<BookingDetailsDto>
                 {
@@ -126,21 +126,21 @@ namespace CORE.Services
             };
         }
             
-        public async Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int? userId)
+        public async Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int userId)
         {
-            if (!userId.HasValue || userId <= 0)
+            if (userId <= 0)
                 return new ResponseDto<BookingDetailsDto>
                 {
                     StatusCode = StatusCodes.InternalServerError,
-                    Message = "UserId is required"
+                    Message = "UserId Not Found"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.GetAsync(bookingId, [BookingIncludes.Vehicle]);
-            if (booking.CustomerId != userId.Value && booking.Vehicle.RenterId != userId.Value)
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
+            if (booking.CustomerId != userId && booking.Vehicle.RenterId != userId)
                 return new ResponseDto<BookingDetailsDto>
                 {
-                    StatusCode = StatusCodes.Unauthorized,
-                    Message = "Not Allowed"
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Booking not found" // authorization
                 };
 
             if (booking == null)
@@ -165,9 +165,9 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<object>> CancelBookingAsync(int bookingId, int? customerId)
+        public async Task<ResponseDto<object>> CancelBookingAsync(int bookingId, int customerId)
         {
-            if (!customerId.HasValue)
+            if (customerId == 0)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.InternalServerError,
@@ -182,14 +182,26 @@ namespace CORE.Services
                     Message = "Booking not found"
                 };
 
-            booking.Status = DATA.Models.Enums.BookingStatus.Canceled;
-            // remove
-            int changes = await _unitOfWork.CommitAsync();
-            if(changes > 0)
+            if(booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Accepted)
+            {
                 return new ResponseDto<object>
                 {
-                StatusCode = StatusCodes.OK,
-                Message = "Booking canceled successfuly"
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "You can't Cancel This Booking"
+                };
+            }
+
+            booking.Status = BookingStatus.Canceled;
+            // remove
+
+            // notify renter
+
+            int changes = await _unitOfWork.CommitAsync();
+            if (changes > 0)
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.OK,
+                    Message = "Booking canceled successfuly"
                 };
             return new ResponseDto<object>
             {
@@ -198,28 +210,44 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<object>> ResponseBookingRequestAsync(int bookingId, int? renterId, bool isAccepted)
+        public async Task<ResponseDto<object>> ResponseBookingRequestAsync(int bookingId, int renterId, bool isAccepted)
         {
-            if (!renterId.HasValue)
+            if (renterId == 0)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.InternalServerError,
                     Message = "Renter Id is required"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.GetAsync(bookingId);
-            if (booking == null)
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
+            if (booking == null || booking.Vehicle.RenterId != renterId)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Booking not found"
                 };
 
-            if(isAccepted)
-                booking.Status = DATA.Models.Enums.BookingStatus.Accepted;
+            if(booking.Status != BookingStatus.Pending)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "You can't Response This Booking"
+                };
+            }
+
+            if (isAccepted)
+            {
+                booking.Status = BookingStatus.Accepted;
+            }
             else
-                booking.Status = DATA.Models.Enums.BookingStatus.Rejected;
-            // remove
+            {
+                booking.Status = BookingStatus.Rejected;
+                // remove
+            }
+
+            // notify customer
+
             int changes = await _unitOfWork.CommitAsync();
             if (changes > 0)
                 return new ResponseDto<object>

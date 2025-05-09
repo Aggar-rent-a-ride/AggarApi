@@ -126,7 +126,7 @@ namespace DATA.DataAccess.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<bool> CheckAllAsync(Expression<Func<T, bool>> criteria, string[] includes)
+        public async Task<bool> CheckAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
         {
             IQueryable<T> query = _context.Set<T>();
 
@@ -137,7 +137,7 @@ namespace DATA.DataAccess.Repositories
             return await query.AllAsync(criteria);
         }
 
-        public async Task<bool> CheckAnyAsync(Expression<Func<T, bool>> criteria, string[] includes)
+        public async Task<bool> CheckAnyAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
         {
             IQueryable<T> query = _context.Set<T>();
 
@@ -149,5 +149,16 @@ namespace DATA.DataAccess.Repositories
         }
 
         public async Task<T?> GetFirstAsync() => await _context.Set<T>().FirstOrDefaultAsync();
+
+        public IQueryable<T> Where(Expression<Func<T, bool>> criteria, string[] includes = null)
+        {
+            IQueryable<T> query = _context.Set<T>();
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            return query.Where(criteria);
+        }
     }
 }
