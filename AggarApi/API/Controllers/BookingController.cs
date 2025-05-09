@@ -52,5 +52,10 @@ namespace API.Controllers
             var response = await _bookingService.ResponseBookingRequestAsync(bookingId, customerId, isAccepted);
             return StatusCode(response.StatusCode, response);
         }
+
+        public IActionResult ConfirmBookingAsync(int bookingId)
+        {
+            return StatusCode(200);
+        }
     }
 }

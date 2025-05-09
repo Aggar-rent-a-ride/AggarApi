@@ -36,7 +36,7 @@ namespace CORE.Services
                     };
                 }
 
-                if (!renter.StripeAccount.StripeAccountId.IsNullOrEmpty())
+                if (renter.StripeAccount.StripeAccountId != null)
                 {
                     return new ResponseDto<StripeAccountDto>
                     {
