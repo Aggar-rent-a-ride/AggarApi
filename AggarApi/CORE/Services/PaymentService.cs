@@ -4,6 +4,7 @@ using CORE.DTOs.Payment;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -23,15 +24,26 @@ namespace CORE.Services
 
         public async Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId)
         {
-            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
-            if(renter == null)
+            try
             {
-                return new ResponseDto<StripeAccountDto>
+                Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+                if (renter == null)
                 {
-                    Message = "No Renter with this Id",
-                    StatusCode = StatusCodes.InternalServerError
-                };
-            }
+                    return new ResponseDto<StripeAccountDto>
+                    {
+                        Message = "No Renter with this Id",
+                        StatusCode = StatusCodes.BadRequest
+                    };
+                }
+
+                if (!renter.StripeAccount.StripeAccountId.IsNullOrEmpty())
+                {
+                    return new ResponseDto<StripeAccountDto>
+                    {
+                        Message = "Renter allready has a stripe account",
+                        StatusCode = StatusCodes.Conflict
+                    };
+                }
 
                 var accountOptions = new AccountCreateOptions
                 {
@@ -63,7 +75,7 @@ namespace CORE.Services
                             Month = renter.DateOfBirth.Month,
                             Year = renter.DateOfBirth.Year
                         },
-                        Phone = dto.Phone, //"(555) 123-4567"
+                        Phone = dto.Phone,
                         Address = new AddressOptions
                         {
                             City = renter.Address
@@ -90,46 +102,92 @@ namespace CORE.Services
                 };
 
                 var accountService = new AccountService();
-                Account stripeAccount = await accountService.CreateAsync(accountOptions);
+                var stripeAccount = await accountService.CreateAsync(accountOptions);
 
+                if (stripeAccount == null || string.IsNullOrEmpty(stripeAccount.Id))
+                {
+                    return new ResponseDto<StripeAccountDto>
+                    {
+                        Message = "Failed to create Stripe account.",
+                        StatusCode = StatusCodes.InternalServerError
+                    };
+                }
+
+                var tokenService = new TokenService();
                 var tokenOptions = new TokenCreateOptions
                 {
                     BankAccount = new TokenBankAccountOptions
                     {
                         Country = "US",
                         Currency = "usd",
-                        AccountNumber = dto.BankAccountNumber, //"000123456789",
-                        RoutingNumber = dto.BankAccountRoutingNumber, // "110000000",
+                        AccountNumber = dto.BankAccountNumber,
+                        RoutingNumber = dto.BankAccountRoutingNumber,
                         AccountHolderType = "individual"
                     }
                 };
 
-                var tokenService = new TokenService();
-                Token bankAccountToken = await tokenService.CreateAsync(tokenOptions);
+                var bankAccountToken = await tokenService.CreateAsync(tokenOptions);
+                if (bankAccountToken == null || string.IsNullOrEmpty(bankAccountToken.Id))
+                {
+                    return new ResponseDto<StripeAccountDto>
+                    {
+                        Message = "Failed to create bank account token.",
+                        StatusCode = StatusCodes.InternalServerError
+                    };
+                }
 
+                var externalAccountService = new AccountExternalAccountService();
                 var externalAccountOptions = new AccountExternalAccountCreateOptions
                 {
                     ExternalAccount = bankAccountToken.Id,
                     DefaultForCurrency = true
                 };
 
-                var externalAccountService = new AccountExternalAccountService();
-                BankAccount bankAccount = (BankAccount)await externalAccountService.CreateAsync(
-                    stripeAccount.Id,
-                    externalAccountOptions
-                );
+                var bankAccount = await externalAccountService.CreateAsync(stripeAccount.Id, externalAccountOptions) as BankAccount;
+
+                if (bankAccount == null || string.IsNullOrEmpty(bankAccount.Id))
+                {
+                    return new ResponseDto<StripeAccountDto>
+                    {
+                        Message = "Failed to attach bank account to Stripe account.",
+                        StatusCode = StatusCodes.InternalServerError
+                    };
+                }
+
+                // store stripe account id for renter
+                renter.StripeAccount.StripeAccountId = stripeAccount.Id;
+                renter.StripeAccount.BankAccountId = bankAccount.Id;
+                renter.StripeAccount.CreatedAt = DateTime.UtcNow;
+                await _unitOfWork.CommitAsync();
 
                 return new ResponseDto<StripeAccountDto>
                 {
-                    Data = new StripeAccountDto{
+                    Data = new StripeAccountDto
+                    {
                         StripeAccountId = stripeAccount.Id,
                         BankAccountId = bankAccount.Id,
                         IsVerified = stripeAccount.Capabilities?.Transfers == "active"
                     },
-                    StatusCode = StatusCodes.OK,
+                    StatusCode = StatusCodes.OK
                 };
-            
-
+            }
+            catch (StripeException ex)
+            {
+                return new ResponseDto<StripeAccountDto>
+                {
+                    Message = $"Stripe error: {ex.StripeError?.Message ?? ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<StripeAccountDto>
+                {
+                    Message = $"Unexpected error: {ex.Message}",
+                    StatusCode = StatusCodes.InternalServerError
+                };
+            }
         }
+
     }
 }
