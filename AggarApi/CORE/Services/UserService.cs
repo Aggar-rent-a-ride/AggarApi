@@ -144,7 +144,10 @@ namespace CORE.Services
 
             user.BannedTo = bannedTo;
             user.Status = UserStatus.Banned;
-            
+            var refreshTokens = user.RefreshTokens.Where(r => r.IsActive);
+            foreach (var refreshToken in refreshTokens)
+                refreshToken.RevokedOn = DateTime.UtcNow;
+
             var changes = await _unitOfWork.CommitAsync();
 
             if(changes == 0)
