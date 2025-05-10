@@ -131,7 +131,7 @@ namespace CORE.Services
                 Message = "Report created successfully",
             };
         }
-        private ResponseDto<GetReportDto> ProccessReportRetreival(Report report)
+        private async Task<ResponseDto<GetReportDto>> ProccessReportRetreival(Report report)
         {
             var result = _mapper.Map<GetReportDto>(report);
 
@@ -146,56 +146,101 @@ namespace CORE.Services
             
             if (report.TargetType == TargetType.AppUser)
             {
-                if(report.TargetAppUser == null)
+                if (report.TargetAppUserId == null)
                     return new ResponseDto<GetReportDto>
                     {
                         StatusCode = StatusCodes.BadRequest,
                         Message = "Target user not found",
                     };
-                result.TargetAppUser = _mapper.Map<SummerizedUserDto>(report.TargetAppUser);
+
+                var appUser = await _unitOfWork.AppUsers.GetAsync(report.TargetAppUserId.Value);
+
+                if(appUser == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target user not found",
+                    };
+                result.TargetAppUser = _mapper.Map<SummerizedUserDto>(appUser);
             }
             else if (report.TargetType == TargetType.CustomerReview)
             {
-                if (report.TargetCustomerReview == null)
+                if (report.TargetCustomerReviewId == null)
                     return new ResponseDto<GetReportDto>
                     {
                         StatusCode = StatusCodes.BadRequest,
                         Message = "Target customerReview not found",
                     };
-                result.TargetCustomerReview = _mapper.Map<GetReviewDto>(report.TargetCustomerReview);
+
+                var customerReview = await _unitOfWork.CustomerReviews.GetAsync(report.TargetCustomerReviewId.Value);
+
+                if (customerReview == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target customerReview not found",
+                    };
+                result.TargetCustomerReview = _mapper.Map<GetReviewDto>(customerReview);
             }
             else if (report.TargetType == TargetType.RenterReview)
             {
-                if (report.TargetRenterReview == null)
+                if (report.TargetRenterReviewId == null)
                     return new ResponseDto<GetReportDto>
                     {
                         StatusCode = StatusCodes.BadRequest,
                         Message = "Target renterReview not found",
                     };
-                result.TargetRenterReview = _mapper.Map<GetReviewDto>(report.TargetRenterReview);
+
+                var renterReview = await _unitOfWork.RenterReviews.GetAsync(report.TargetRenterReviewId.Value);
+
+                if (renterReview == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target renterReview not found",
+                    };
+                result.TargetRenterReview = _mapper.Map<GetReviewDto>(renterReview);
             }
             else if (report.TargetType == TargetType.Message)
             {
-                if (report.TargetMessage == null)
+                if (report.TargetMessageId == null)
                     return new ResponseDto<GetReportDto>
                     {
                         StatusCode = StatusCodes.BadRequest,
                         Message = "Target message not found",
                     };
-                if (report.TargetMessage.MessageType == MessageType.ContentMessage)
-                    result.TargetContentMessage = _mapper.Map<GetContentMessageDto>(report.TargetMessage as ContentMessage);
-                else if (report.TargetMessage.MessageType == MessageType.FileMessage)
-                    result.TargetFileMessage = _mapper.Map<GetFileMessageDto>(report.TargetMessage as FileMessage);
+
+                var message = await _unitOfWork.Chat.GetAsync(report.TargetMessageId.Value);
+
+                if (message == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target message not found",
+                    };
+                if (message.MessageType == MessageType.ContentMessage)
+                    result.TargetContentMessage = _mapper.Map<GetContentMessageDto>(message as ContentMessage);
+                else if (message.MessageType == MessageType.FileMessage)
+                    result.TargetFileMessage = _mapper.Map<GetFileMessageDto>(message as FileMessage);
             }
             else if (report.TargetType == TargetType.Vehicle)
             {
-                if (report.TargetVehicle == null)
+                if (report.TargetVehicleId == null)
                     return new ResponseDto<GetReportDto>
                     {
                         StatusCode = StatusCodes.BadRequest,
                         Message = "Target vehicle not found",
                     };
-                result.TargetVehicle = _mapper.Map<GetVehicleSummaryDto>(report.TargetVehicle);
+
+                var vehicle = await _unitOfWork.Vehicles.GetAsync(report.TargetVehicleId.Value);
+
+                if (vehicle == null)
+                    return new ResponseDto<GetReportDto>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Target vehicle not found",
+                    };
+                result.TargetVehicle = _mapper.Map<GetVehicleSummaryDto>(vehicle);
             }
             return new ResponseDto<GetReportDto>
             {
@@ -206,15 +251,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<GetReportDto>> GetReportByIdAsync(int reportId)
         {
-            var includes = new string[]
-            {
-                ReportIncludes.Reporter,
-                ReportIncludes.TargetRenterReview,
-                ReportIncludes.TargetCustomerReview,
-                ReportIncludes.TargetAppUser,
-                ReportIncludes.TargetVehicle,
-                ReportIncludes.TargetMessage,
-            };
+            var includes = new string[] { ReportIncludes.Reporter };
 
             var report = await _unitOfWork.Reports.FindAsync(r => r.Id == reportId, includes);
             if(report == null)
@@ -227,7 +264,7 @@ namespace CORE.Services
                 };
             }
 
-            return ProccessReportRetreival(report);
+            return await ProccessReportRetreival(report);
         }
 
         public async Task<ResponseDto<object>> UpdateReportsStatusAsync(UpdateReportsStatusDto dto)
@@ -268,25 +305,101 @@ namespace CORE.Services
                     Message = paginationError
                 };
             }
-            var includes = new string[]
-            {
-                ReportIncludes.Reporter,
-                ReportIncludes.TargetRenterReview,
-                ReportIncludes.TargetCustomerReview,
-                ReportIncludes.TargetAppUser,
-                ReportIncludes.TargetVehicle,
-                ReportIncludes.TargetMessage,
-            };
+            var includes = new string[] { ReportIncludes.Reporter };
             var reports = await _unitOfWork.Reports.FilterReportsAsync(dto.PageNo, dto.PageSize, dto.TargetType, dto.Status, dto.Date, dto.SortingDirection, includes);
 
+            var groups = reports.GroupBy(r => r.TargetType);
+
+            HashSet<int> targetAppUsersIds = new HashSet<int>();
+            HashSet<int> targetVehiclesIds = new HashSet<int>();
+            HashSet<int> targetCustomerReviewsIds = new HashSet<int>();
+            HashSet<int> targetRenterReviewsIds = new HashSet<int>();
+            HashSet<int> targetMessagesIds = new HashSet<int>();
+
+            foreach (var group in groups)
+            {
+                var targetType = group.Key;
+                switch (targetType)
+                {
+                    case TargetType.AppUser:
+                        targetAppUsersIds.UnionWith(group.Select(r => r.TargetAppUserId).Where(id => id.HasValue).Select(id => id.Value));
+                        break;
+                    case TargetType.Vehicle:
+                        targetVehiclesIds.UnionWith(group.Select(r => r.TargetVehicleId).Where(id => id.HasValue).Select(id => id.Value));
+                        break;
+                    case TargetType.CustomerReview:
+                        targetCustomerReviewsIds.UnionWith(group.Select(r => r.TargetCustomerReviewId).Where(id => id.HasValue).Select(id => id.Value));
+                        break;
+                    case TargetType.RenterReview:
+                        targetRenterReviewsIds.UnionWith(group.Select(r => r.TargetRenterReviewId).Where(id => id.HasValue).Select(id => id.Value));
+                        break;
+                    case TargetType.Message:
+                        targetMessagesIds.UnionWith(group.Select(r => r.TargetMessageId).Where(id => id.HasValue).Select(id => id.Value));
+                        break;
+                }
+            }
+
+            IEnumerable<AppUser> appUsers = null;
+            IEnumerable<Vehicle> vehicles = null;
+            IEnumerable<CustomerReview> customerReviews = null;
+            IEnumerable<RenterReview> renterReviews = null;
+            IEnumerable<Message> messages = null;
+
+            if (targetAppUsersIds.Count > 0)
+                appUsers = await _unitOfWork.AppUsers.FindAsync(u => targetAppUsersIds.Contains(u.Id), dto.PageNo, dto.PageSize);
+            if (targetVehiclesIds.Count > 0)
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => targetVehiclesIds.Contains(v.Id), dto.PageNo, dto.PageSize);
+            if (targetCustomerReviewsIds.Count > 0)
+                customerReviews = await _unitOfWork.CustomerReviews.FindAsync(cr => targetCustomerReviewsIds.Contains(cr.Id), dto.PageNo, dto.PageSize);
+            if (targetRenterReviewsIds.Count > 0)
+                renterReviews = await _unitOfWork.RenterReviews.FindAsync(rr => targetRenterReviewsIds.Contains(rr.Id), dto.PageNo, dto.PageSize);
+            if (targetMessagesIds.Count > 0)
+                messages = await _unitOfWork.Chat.FindAsync(m => targetMessagesIds.Contains(m.Id), dto.PageNo, dto.PageSize);
+
             var result = new List<GetReportDto>();
+
             foreach (var report in reports)
             {
-                var reportResult = ProccessReportRetreival(report);
-                if (reportResult.StatusCode == StatusCodes.OK)
-                    result.Add(reportResult.Data);
-                else
-                    _logger.LogWarning("Failed to process report with id {Id}: {Message}", report.Id, reportResult.Message);
+                var reportDto = _mapper.Map<GetReportDto>(report);
+                if(report.Reporter != null)
+                    reportDto.Reporter = _mapper.Map<SummerizedUserDto>(report.Reporter);
+
+                if (report.TargetType == TargetType.AppUser)
+                {
+                    var user = appUsers?.FirstOrDefault(a=>a.Id == report.TargetAppUserId);
+                    if(user != null)
+                        reportDto.TargetAppUser = _mapper.Map<SummerizedUserDto>(user);
+                }
+                else if (report.TargetType == TargetType.Vehicle)
+                {
+                    var vehicle = vehicles?.FirstOrDefault(v=>v.Id == report.TargetVehicleId);
+                    if (vehicle != null)
+                        reportDto.TargetVehicle = _mapper.Map<GetVehicleSummaryDto>(vehicle);
+                }
+                else if (report.TargetType == TargetType.CustomerReview)
+                {
+                    var customerReview = customerReviews?.FirstOrDefault(cr => cr.Id == report.TargetCustomerReviewId);
+                    if (customerReview != null)
+                        reportDto.TargetCustomerReview = _mapper.Map<GetReviewDto>(customerReview);
+                }
+                else if (report.TargetType == TargetType.RenterReview)
+                {
+                    var renterReview = renterReviews?.FirstOrDefault(rr => rr.Id == report.TargetRenterReviewId);
+                    if (renterReview != null)
+                        reportDto.TargetRenterReview = _mapper.Map<GetReviewDto>(renterReview);
+                }
+                else if (report.TargetType == TargetType.Message)
+                {
+                    var message = messages?.FirstOrDefault(m => m.Id == report.TargetMessageId);
+                    if (message != null)
+                    {
+                        if (message.MessageType == MessageType.ContentMessage)
+                            reportDto.TargetContentMessage = _mapper.Map<GetContentMessageDto>(message as ContentMessage);
+                        else if (message.MessageType == MessageType.FileMessage)
+                            reportDto.TargetFileMessage = _mapper.Map<GetFileMessageDto>(message as FileMessage);
+                    }
+                }
+                result.Add(reportDto);
             }
 
             return new ResponseDto<IEnumerable<GetReportDto>>
