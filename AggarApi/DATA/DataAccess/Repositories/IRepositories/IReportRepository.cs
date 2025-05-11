@@ -11,6 +11,6 @@ namespace DATA.DataAccess.Repositories.IRepositories
 {
     public interface IReportRepository : IBaseRepository<Report>
     {
-        Task<IEnumerable<Report>> FilterReportsAsync(int pageNo, int pageSize, TargetType? targetType, ReportStatus? status, ReportDateFilter? date, OrderBy? sortingDirection, string[] includes = null);
+        Task<IEnumerable<Report>> FilterReportsAsync(int pageNo, int pageSize, TargetType? targetType, ReportStatus? status, DateRangePreset? date, OrderBy? sortingDirection, string[] includes = null);
     }
 }

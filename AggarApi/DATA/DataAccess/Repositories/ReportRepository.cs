@@ -18,7 +18,7 @@ namespace DATA.DataAccess.Repositories
         {
         }
 
-        public async Task<IEnumerable<Report>> FilterReportsAsync(int pageNo, int pageSize, TargetType? targetType, ReportStatus? status, ReportDateFilter? date, OrderBy? sortingDirection, string[] includes = null)
+        public async Task<IEnumerable<Report>> FilterReportsAsync(int pageNo, int pageSize, TargetType? targetType, ReportStatus? status, DateRangePreset? date, OrderBy? sortingDirection, string[] includes = null)
         {
             var query = _context.Reports.AsQueryable();
 
@@ -33,19 +33,19 @@ namespace DATA.DataAccess.Repositories
                 var dateTime = DateTime.UtcNow;
                 switch (date)
                 {
-                    case ReportDateFilter.Today:
+                    case DateRangePreset.Today:
                         query = query.Where(r => r.CreatedAt.Date == dateTime.Date);
                         break;
-                    case ReportDateFilter.Yesterday:
+                    case DateRangePreset.Yesterday:
                         query = query.Where(r => r.CreatedAt.Date == dateTime.AddDays(-1).Date);
                         break;
-                    case ReportDateFilter.Last7Days:
+                    case DateRangePreset.Last7Days:
                         query = query.Where(r => r.CreatedAt >= dateTime.AddDays(-7));
                         break;
-                    case ReportDateFilter.Last30Days:
+                    case DateRangePreset.Last30Days:
                         query = query.Where(r => r.CreatedAt >= dateTime.AddDays(-30));
                         break;
-                    case ReportDateFilter.Last365Days:
+                    case DateRangePreset.Last365Days:
                         query = query.Where(r => r.CreatedAt >= dateTime.AddDays(-365));
                         break;
                     default:

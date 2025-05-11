@@ -45,7 +45,7 @@ namespace API.Controllers
         {
             int userId = UserHelpers.GetUserId(User);
 
-            ResponseDto<PagedResultDto<GetVehicleSummaryDto>> result = await _vehicleService.GetVehiclesAsync(userId, searchQuery);
+            var result = await _vehicleService.GetVehiclesAsync(userId, searchQuery);
             return StatusCode(result.StatusCode, result);
         }
 

@@ -166,10 +166,10 @@ namespace CORE.Services
                 Data = result
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery)
         {
             if (userId == 0)
-                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "UserId is required"
@@ -177,14 +177,14 @@ namespace CORE.Services
 
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
-                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "User Not Found"
                 };
 
             if (searchQuery.minPrice > searchQuery.maxPrice)
-                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Min Price can't be greater that Max Price"
@@ -237,7 +237,7 @@ namespace CORE.Services
                 .Take(searchQuery.pageSize)
                 .ToListAsync();
 
-            var pagedData = new PagedResultDto<GetVehicleSummaryDto>
+            var pagedData = new PagedResultDto<IEnumerable<GetVehicleSummaryDto>>
             {
                 Data = data,
                 PageNumber = searchQuery.pageNo,
@@ -245,7 +245,7 @@ namespace CORE.Services
                 TotalPages = PaginationHelpers.CalculateTotalPages(vehicles.Count(), searchQuery.pageSize)
             };
 
-            return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
                 Data = pagedData,
                 Message = "Vehicles Loaded Successfully...",

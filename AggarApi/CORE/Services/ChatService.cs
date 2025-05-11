@@ -153,7 +153,7 @@ namespace CORE.Services
                 Data = new GetMessageDto { ClientMessageId = messageDto?.ClientMessageId } as TGet
             };
         }
-        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateFilter dateFilter, int maxPageSize = 100)
+        public async Task<ResponseDto<ArrayList>> GetMessagesAsync(int userId1, int userId2, DateTime dateTime, int pageSize, DateComparison dateFilter, int maxPageSize = 100)
         {
             _logger.LogInformation("Retrieving messages between user {UserId1} and user {UserId2} with page size {PageSize} and date filter {DateFilter}.",
                 userId1, userId2, pageSize, dateFilter);
@@ -189,7 +189,7 @@ namespace CORE.Services
             }
 
             _logger.LogInformation("Fetching messages from database.");
-            var messages = dateFilter == DateFilter.Before ?
+            var messages = dateFilter == DateComparison.Before ?
                 await _unitOfWork.Chat.FindAsync(
                 m => ((m.SenderId == userId1 && m.ReceiverId == userId2) || (m.SenderId == userId2 && m.ReceiverId == userId1)) && m.SentAt < dateTime,
                 1, //don't skip any messages
