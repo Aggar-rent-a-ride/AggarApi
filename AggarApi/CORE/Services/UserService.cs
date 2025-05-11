@@ -8,6 +8,7 @@ using CORE.DTOs.Review;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.Constants;
+using DATA.Constants.Enums;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
@@ -43,19 +44,16 @@ namespace CORE.Services
             _warningManagement = warningManagement;
             _emailSendingJob = emailSendingJob;
         }
-
         public async Task<bool> CheckAllUsersExist(List<int> userIds)
         {
             var count = await _unitOfWork.AppUsers.CountAsync(u => userIds.Contains(u.Id));
             
             return count == userIds.Count;
         }
-
         public async Task<bool> CheckAnyAsync(int userId)
         {
             return await _unitOfWork.AppUsers.CheckAnyAsync(x => x.Id == userId, null);
         }
-
         public async Task<ResponseDto<object>> DeleteUserAsync(int userId, int authUserId, string[] roles)
         {
             if(userId != authUserId && roles.Contains(Roles.Admin) == false)
@@ -96,7 +94,6 @@ namespace CORE.Services
                 Message = "User deleted successfully."
             };
         }
-
         public async Task<ResponseDto<IEnumerable<SummerizedUserWithRateDto>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100)
         {
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
@@ -231,6 +228,57 @@ namespace CORE.Services
                 return await BanUserAsync(user, dto.BanDurationInDays);
 
             return await WarnUserAsync(user);
+        }
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>> GetTotalUsersAsync(string? role, int pageNo, int pageSize, DateRangePreset? dateFilter, int maxPageSize = 100)
+        {
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
+                return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            var tupleResult = await _unitOfWork.AppUsers.GetTotalUsersAsync(role, pageNo, pageSize, dateFilter);
+            var result = _mapper.Map<IEnumerable<SummerizedUserDto>>(tupleResult.appUsers);
+
+            return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(result, pageNo, pageSize, tupleResult.Count),
+                StatusCode = StatusCodes.OK,
+            };
+        }
+
+        public async Task<ResponseDto<int>> GetTotalUsersCountAsync(string? role)
+        {
+            var count = 0;
+            if (string.IsNullOrWhiteSpace(role) == true)
+                count = await _unitOfWork.AppUsers.CountAsync();
+            else
+            {
+                if (role == Roles.Admin)
+                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Admin);
+                else if (role == Roles.Customer)
+                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Customer);
+                else if (role == Roles.Renter)
+                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Renter);
+                else
+                {
+                    _logger.LogWarning("Invalid role: {Role}", role);
+                    return new ResponseDto<int>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Invalid role."
+                    };
+                }
+            }
+            return new ResponseDto<int>
+            {
+                Data = count,
+                StatusCode = StatusCodes.OK,
+            };
         }
     }
 }

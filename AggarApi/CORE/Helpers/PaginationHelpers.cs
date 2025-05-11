@@ -3,11 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CORE.DTOs;
 
 namespace CORE.Helpers
 {
     public static class PaginationHelpers
     {
+        public static PagedResultDto<T> CreatePagedResult<T>(T items, int pageNo, int pageSize, double totalCount)
+        {
+            return new PagedResultDto<T>
+            {
+                Data = items,
+                PageNumber = pageNo,
+                PageSize = pageSize,
+                TotalPages = CalculateTotalPages(totalCount, pageSize),
+            };
+        }
         public static int CalculateTotalPages(double countData, double pageSize)
         {
             if(pageSize == 0)

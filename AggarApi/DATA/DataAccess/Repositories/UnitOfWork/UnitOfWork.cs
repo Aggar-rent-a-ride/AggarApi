@@ -17,7 +17,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         private IDbContextTransaction _transaction;
         private readonly ILogger<UnitOfWork> _logger;
 
-        public IBaseRepository<AppUser> AppUsers { get; private set; }
+        public IUserRepository AppUsers { get; private set; }
         public IVehicleRepository Vehicles { get; private set; }
         public IBaseRepository<Discount> Discounts { get; private set; }
         public IBookingRepository Bookings { get; private set; }
@@ -35,7 +35,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         {
             _context = context;
             _logger = logger;
-            AppUsers = new BaseRepository<AppUser>(_context);
+            AppUsers = new UserRepository(_context);
             Vehicles = new VehicleRepository(_context);
             Discounts = new BaseRepository<Discount>(_context);
             Bookings = new BookingRepository(_context);
