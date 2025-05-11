@@ -82,5 +82,12 @@ namespace API.Controllers
             var response = await _vehicleService.UpdateVehicleDiscountsAsync(dto, renterId);
             return StatusCode(response.StatusCode, response);
         }
+        [Authorize]
+        [HttpGet("vehicles-by-status")]
+        public async Task<IActionResult> GetVehiclesByStatusAsync([FromQuery] VehicleStatus status, [FromQuery] int pageNo, [FromQuery] int pageSize)
+        {
+            var result = await _vehicleService.GetVehiclesByStatusAsync(status, pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

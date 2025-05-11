@@ -519,5 +519,34 @@ namespace CORE.Services
                 Data = result
             };
         }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesByStatusAsync(VehicleStatus status, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
+                };
+
+            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
+            var count = 0;
+            if (status == VehicleStatus.Active)
+            {
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == VehicleStatus.Active, pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.Active);
+            }
+            else
+            {
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == VehicleStatus.OutOfService, pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.OutOfService);
+            }
+
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
+            };
+        }
     }
 }
