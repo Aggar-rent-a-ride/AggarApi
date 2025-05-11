@@ -17,5 +17,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleDiscountsAsync(UpdateVehicleDiscountsDto updateVehicleDiscountsDto, int? renterId);
         Task<ResponseDto<GetVehicleDto>> GetVehicleByRentalIdAsync(int rentalId);
         Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesByStatusAsync(VehicleStatus status, int pageNo, int pageSize, int maxPageSize = 100);
+        Task<ResponseDto<int>> GetVehiclesByStatusCountAsync(VehicleStatus status);
     }
 }
