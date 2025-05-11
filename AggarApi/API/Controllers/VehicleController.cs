@@ -89,5 +89,12 @@ namespace API.Controllers
             var result = await _vehicleService.GetVehiclesByStatusAsync(status, pageNo, pageSize);
             return StatusCode(result.StatusCode, result);
         }
+        [Authorize]
+        [HttpGet("count-vehicles-by-status")]
+        public async Task<IActionResult> GetVehiclesByStatusCountAsync([FromQuery] VehicleStatus status)
+        {
+            var result = await _vehicleService.GetVehiclesByStatusCountAsync(status);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
