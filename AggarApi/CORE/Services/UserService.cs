@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CORE.BackgroundJobs;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.AppUser;
@@ -8,6 +9,7 @@ using CORE.DTOs.Review;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.Constants;
+using DATA.Constants.Enums;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
@@ -29,11 +31,11 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
-        private readonly UserManagementJob _userManagementJob;
+        private readonly IUserManagementJob _userManagementJob;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IOptions<WarningManagement> _warningManagement;
-        private readonly EmailSendingJob _emailSendingJob;
-        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, UserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, EmailSendingJob emailSendingJob)
+        private readonly IEmailSendingJob _emailSendingJob;
+        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, IUserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, IEmailSendingJob emailSendingJob)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -43,19 +45,16 @@ namespace CORE.Services
             _warningManagement = warningManagement;
             _emailSendingJob = emailSendingJob;
         }
-
         public async Task<bool> CheckAllUsersExist(List<int> userIds)
         {
             var count = await _unitOfWork.AppUsers.CountAsync(u => userIds.Contains(u.Id));
             
             return count == userIds.Count;
         }
-
         public async Task<bool> CheckAnyAsync(int userId)
         {
             return await _unitOfWork.AppUsers.CheckAnyAsync(x => x.Id == userId, null);
         }
-
         public async Task<ResponseDto<object>> DeleteUserAsync(int userId, int authUserId, string[] roles)
         {
             if(userId != authUserId && roles.Contains(Roles.Admin) == false)
@@ -96,26 +95,32 @@ namespace CORE.Services
                 Message = "User deleted successfully."
             };
         }
-
-        public async Task<ResponseDto<IEnumerable<SummerizedUserWithRateDto>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<SummerizedUserWithRateDto>>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100)
         {
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
-                return new ResponseDto<IEnumerable<SummerizedUserWithRateDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserWithRateDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = paginationError
                 };
             }
             var users = new List<AppUser>();
+            var count = 0;
             if (string.IsNullOrWhiteSpace(searchKey) == true)
-                users = (await _unitOfWork.AppUsers.GetAllAsync(pageNo, pageSize)).ToList();
-            else 
-                users = (await _unitOfWork.AppUsers.FindAsync(u => u.UserName.Contains(searchKey) || u.Name.Contains(searchKey), pageNo, pageSize)).ToList();
-            return new ResponseDto<IEnumerable<SummerizedUserWithRateDto>>()
             {
-                Data = _mapper.Map<IEnumerable<SummerizedUserWithRateDto>>(users),
+                users = (await _unitOfWork.AppUsers.GetAllAsync(pageNo, pageSize)).ToList();
+                count = await _unitOfWork.AppUsers.CountAsync();
+            }
+            else
+            {
+                users = (await _unitOfWork.AppUsers.FindAsync(u => u.UserName.Contains(searchKey) || u.Name.Contains(searchKey), pageNo, pageSize)).ToList();
+                count = await _unitOfWork.AppUsers.CountAsync(u => u.UserName.Contains(searchKey) || u.Name.Contains(searchKey));
+            }
+            return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserWithRateDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<SummerizedUserWithRateDto>>(users), pageNo, pageSize, count),
                 StatusCode = StatusCodes.OK,
             };
         }
@@ -144,7 +149,10 @@ namespace CORE.Services
 
             user.BannedTo = bannedTo;
             user.Status = UserStatus.Banned;
-            
+            var refreshTokens = user.RefreshTokens.Where(r => r.IsActive);
+            foreach (var refreshToken in refreshTokens)
+                refreshToken.RevokedOn = DateTime.UtcNow;
+
             var changes = await _unitOfWork.CommitAsync();
 
             if(changes == 0)
@@ -160,7 +168,8 @@ namespace CORE.Services
             _logger.LogInformation("User with ID {UserId} banned until {BannedTo}.", user.Id, bannedTo);
 
             // Schedule unban job
-            await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
+            if(banDurationInDays <= 3*365)
+                await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
 
             //send email to the user
             _emailSendingJob.SendEmail(user.Email, EmailSubject.AccountBanned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Ban, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), BannedTo = System.Web.HttpUtility.HtmlEncode(user.BannedTo.Value.ToString("MMMM dd, yyyy")) }));
@@ -227,6 +236,56 @@ namespace CORE.Services
                 return await BanUserAsync(user, dto.BanDurationInDays);
 
             return await WarnUserAsync(user);
+        }
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>> GetTotalUsersAsync(string? role, int pageNo, int pageSize, DateRangePreset? dateFilter, int maxPageSize = 100)
+        {
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
+                return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            var tupleResult = await _unitOfWork.AppUsers.GetTotalUsersAsync(role, pageNo, pageSize, dateFilter);
+            var result = _mapper.Map<IEnumerable<SummerizedUserDto>>(tupleResult.appUsers);
+
+            return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(result, pageNo, pageSize, tupleResult.Count),
+                StatusCode = StatusCodes.OK,
+            };
+        }
+        public async Task<ResponseDto<int>> GetTotalUsersCountAsync(string? role)
+        {
+            var count = 0;
+            if (string.IsNullOrWhiteSpace(role) == true)
+                count = await _unitOfWork.AppUsers.CountAsync();
+            else
+            {
+                if (role == Roles.Admin)
+                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Admin);
+                else if (role == Roles.Customer)
+                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Customer);
+                else if (role == Roles.Renter)
+                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Renter);
+                else
+                {
+                    _logger.LogWarning("Invalid role: {Role}", role);
+                    return new ResponseDto<int>
+                    {
+                        StatusCode = StatusCodes.BadRequest,
+                        Message = "Invalid role."
+                    };
+                }
+            }
+            return new ResponseDto<int>
+            {
+                Data = count,
+                StatusCode = StatusCodes.OK,
+            };
         }
     }
 }

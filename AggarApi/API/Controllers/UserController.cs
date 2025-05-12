@@ -2,6 +2,7 @@
 using CORE.DTOs.AppUser;
 using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,24 @@ namespace API.Controllers
         public async Task<IActionResult> PunishUserAsync([FromBody] PunishUserDto dto)
         {
             var result = await _userService.PunishUserAsync(dto);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("all")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetTotalUsersAsync(
+            [FromQuery] string? role,
+            [FromQuery] int pageNo,
+            [FromQuery] int pageSize,
+            [FromQuery] DateRangePreset? dateFilter)
+        {
+            var result = await _userService.GetTotalUsersAsync(role, pageNo, pageSize, dateFilter);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("count-all")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task<IActionResult> GetTotalUsersAsync([FromQuery] string? role)
+        {
+            var result = await _userService.GetTotalUsersCountAsync(role);
             return StatusCode(result.StatusCode, result);
         }
     }

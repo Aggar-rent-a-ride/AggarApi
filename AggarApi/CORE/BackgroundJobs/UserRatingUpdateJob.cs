@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.Services;
@@ -13,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CORE.BackgroundJobs
 {
-    public class UserRatingUpdateJob
+    public class UserRatingUpdateJob : IUserRatingUpdateJob
     {
         private readonly IRecurringJobManager _recurringJobManager;
         private readonly IUnitOfWork _unitOfWork;
@@ -80,7 +81,6 @@ namespace CORE.BackgroundJobs
                 RescheduleProcessUserRatingUpdate(jobId, userId);
             }
         }
-
         private async Task<ResponseDto<object>> UpdateUserRatingAsync(int userId, double rate)
         {
             var user = await _unitOfWork.AppUsers.GetAsync(userId);

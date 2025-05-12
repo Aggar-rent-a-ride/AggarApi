@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DATA.Constants.Enums
 {
-    public enum DateFilter
+    public enum DateComparison
     {
         Before,
         After

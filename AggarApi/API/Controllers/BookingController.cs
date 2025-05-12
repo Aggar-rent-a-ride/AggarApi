@@ -1,6 +1,8 @@
-﻿using CORE.DTOs.Booking;
+﻿using CORE.Constants;
+using CORE.DTOs.Booking;
 using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +58,20 @@ namespace API.Controllers
         public IActionResult ConfirmBookingAsync(int bookingId)
         {
             return StatusCode(200);
+        }
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet("bookings-by-status")]
+        public async Task<IActionResult> GetBookingsByStatusAsync([FromQuery] BookingStatus? status, [FromQuery] int pageNo = 1, [FromQuery] int pageSize = 10)
+        {
+            var response = await _bookingService.GetBookingsByStatusAsync(status, pageNo, pageSize);
+            return StatusCode(response.StatusCode, response);
+        }
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet("count-bookings-by-status")]
+        public async Task<IActionResult> GetBookingsByStatusCountAsync([FromQuery] BookingStatus? status)
+        {
+            var response = await _bookingService.GetBookingsByStatusCountAsync(status);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

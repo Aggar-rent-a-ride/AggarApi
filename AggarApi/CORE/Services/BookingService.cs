@@ -4,6 +4,7 @@ using CORE.DTOs;
 using CORE.DTOs.Booking;
 using CORE.DTOs.Vehicle;
 using CORE.Extensions;
+using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
@@ -276,6 +277,47 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = _mapper.Map<BookingDetailsDto>(booking),
+            };
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingDetailsDto>>>> GetBookingsByStatusAsync(BookingStatus? status, int pageNo, int pageSize, int maxPageSize = 50)
+        {
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingDetailsDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Invalid page number or page size"
+                };
+            }
+
+            var bookings = status == null?
+                await _unitOfWork.Bookings.FindAsync(b => b.Id>0, pageNo, pageSize, new string[] { BookingIncludes.Vehicle }) :
+                await _unitOfWork.Bookings.FindAsync(b => b.Status == status, pageNo, pageSize, new string[] { BookingIncludes.Vehicle });
+            var count = status == null ?
+                await _unitOfWork.Bookings.CountAsync() :
+                await _unitOfWork.Bookings.CountAsync(b => b.Status == status);
+
+            var dtos = _mapper.Map<IEnumerable<BookingDetailsDto>>(bookings);
+
+            return new ResponseDto<PagedResultDto<IEnumerable<BookingDetailsDto>>>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Bookings retrieved successfully",
+                Data = PaginationHelpers.CreatePagedResult(dtos, pageNo, pageSize, count)
+            };
+        }
+
+        public async Task<ResponseDto<int>> GetBookingsByStatusCountAsync(BookingStatus? status)
+        {
+            var count = status == null ?
+                await _unitOfWork.Bookings.CountAsync() :
+                await _unitOfWork.Bookings.CountAsync(b => b.Status == status);
+
+            return new ResponseDto<int>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = count
             };
         }
     }

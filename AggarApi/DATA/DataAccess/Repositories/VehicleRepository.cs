@@ -1,4 +1,5 @@
-﻿using DATA.DataAccess.Context;
+﻿using Azure;
+using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.IRepositories;
 using DATA.Models;
 using DATA.Models.Enums;
@@ -67,5 +68,56 @@ namespace DATA.DataAccess.Repositories
 
             return rental?.Booking?.Vehicle;
         }
+
+        public async Task<IEnumerable<Vehicle>> GetMostRentedVehiclesAsync(int pageNo, int pageSize)
+        {
+            var vehicles = _context.Vehicles
+                .Select(v => new
+                {
+                    Vehicle = v,
+                    RentCount = v.Bookings.Count(b => b.Status == BookingStatus.Confirmed)
+                })
+                .Where(v => v.RentCount > 0)
+                .OrderByDescending(v => v.RentCount)
+                .ThenBy(v => v.Vehicle.Id)
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .Select(v => v.Vehicle);
+
+            return await vehicles.ToListAsync();
+        }
+
+        public async Task<int> GetMostRentedVehiclesCountAsync()
+        {
+            return await _context.Vehicles
+                .Select(v => new
+                {
+                    RentCount = v.Bookings.Count(b => b.Status == BookingStatus.Confirmed)
+                })
+                .Where(v => v.RentCount > 0)
+                .CountAsync();
+        }
+
+        public async Task<IEnumerable<Vehicle>> GetPopularVehiclesAsync(int pageNo, int pageSize)
+        {
+            var vehicles = _context.VehiclePopularity
+                .OrderByDescending(v => v.PopularityPoints)
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .Select(v => v.Vehicle);
+            return await vehicles.ToListAsync();
+        }
+
+        public async Task<int> GetPopularVehiclesCountAsync()
+        {
+            return await _context.VehiclePopularity.CountAsync();
+        }
+        public async Task<int> GetVehicleReviewsCountAsync(int vehicleId)
+        {
+            return await _context.Rentals
+                .Where(r => r.Booking.VehicleId == vehicleId && r.CustomerReviewId > 0)
+                .CountAsync();
+        }
+
     }
 }

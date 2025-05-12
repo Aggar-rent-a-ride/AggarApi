@@ -16,6 +16,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100);
         Task<ResponseDto<IEnumerable<GetRentalsByUserIdDto>>> GetRentalsByUserIdAsync(int userId);
         Task<ResponseDto<IEnumerable<GetRentalsByVehicleIdDto>>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100);
-        Task<ResponseDto<IEnumerable<RentalHistoryItemDto>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50);
+        Task<ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50);
     }
 }

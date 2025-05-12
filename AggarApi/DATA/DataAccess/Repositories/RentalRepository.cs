@@ -1,4 +1,6 @@
-﻿using DATA.DataAccess.Context;
+﻿using Azure;
+using CORE.Constants;
+using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.IRepositories;
 using DATA.Models;
 using Microsoft.EntityFrameworkCore;
@@ -82,6 +84,20 @@ namespace DATA.DataAccess.Repositories
                 })
                 .ToListAsync();
         }
+
+        public async Task<int> GetRentalsByUserIdCountAsync(int userId, string role)
+        {
+            if (role == Roles.Customer)
+                return await _context.Rentals
+                    .Where(r => r.Booking.CustomerId == userId && r.RenterReviewId > 0)
+                    .CountAsync();
+            else if (role == Roles.Renter)
+                return await _context.Rentals
+                    .Where(r => r.Booking.Vehicle.RenterId == userId && r.CustomerReviewId > 0)
+                    .CountAsync();
+            else
+                return 0;
+        }
         public async Task<IEnumerable<Rental>> GetRentalsByVehicleIdAsync(int vehicleId, int pageNo, int pageSize)
         {
             return await _context.Rentals
@@ -97,7 +113,6 @@ namespace DATA.DataAccess.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<Rental>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize)
         {
             return await _context.Rentals
@@ -171,6 +186,12 @@ namespace DATA.DataAccess.Repositories
                 .Skip((pageNo - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+        public async Task<int> GetUserRentalHistoryCountAsync(int userId)
+        {
+            return await _context.Rentals
+                .Where(r => r.Booking.CustomerId == userId || r.Booking.Vehicle.RenterId == userId)
+                .CountAsync();
         }
     }
 }

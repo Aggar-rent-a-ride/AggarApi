@@ -27,6 +27,7 @@ using DATA.Constants;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using CORE.BackgroundJobs;
+using CORE.BackgroundJobs.IBackgroundJobs;
 
 namespace CORE.Services
 {
@@ -42,7 +43,7 @@ namespace CORE.Services
         private readonly IGeoapifyService _geoapifyService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly ILogger<AuthService> _logger;
-        private readonly EmailSendingJob _emailSendingJob;
+        private readonly IEmailSendingJob _emailSendingJob;
 
         public AuthService(IOptions<JwtConfig> jwt,
             UserManager<AppUser> userManager,
@@ -54,7 +55,7 @@ namespace CORE.Services
             IGeoapifyService geoapifyService,
             IEmailTemplateRendererService emailTemplateRendererService,
             ILogger<AuthService> logger,
-            EmailSendingJob emailSendingJob)
+            IEmailSendingJob emailSendingJob)
         {
             _jwt = jwt;
             _userManager = userManager;

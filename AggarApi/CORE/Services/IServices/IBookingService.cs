@@ -1,6 +1,7 @@
 ﻿using CORE.DTOs;
 using CORE.DTOs.Booking;
 using DATA.Models;
+using DATA.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,7 @@ namespace CORE.Services.IServices
         public Task<ResponseDto<object>> ResponseBookingRequestAsync(int bookingId, int renterId, bool isAccepted);
         //public Task<ResponseDto<PagedResultDto<BookingSummaryDto>>> GetBookingAsync(int userId, int pageIndex, int pageSize); // maybe in profile
         Task<ResponseDto<BookingDetailsDto>> GetBookingByRentalIdAsync(int rentalId);
+        Task<ResponseDto<PagedResultDto<IEnumerable<BookingDetailsDto>>>> GetBookingsByStatusAsync(BookingStatus? status, int pageNo, int pageSize, int maxPageSize = 50);
+        Task<ResponseDto<int>> GetBookingsByStatusCountAsync(BookingStatus? status);
     }
 }

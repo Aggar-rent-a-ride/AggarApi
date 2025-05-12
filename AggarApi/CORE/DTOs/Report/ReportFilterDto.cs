@@ -18,7 +18,7 @@ namespace CORE.DTOs.Report
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ReportStatus? Status { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public ReportDateFilter? Date { get; set; }
+        public DateRangePreset? Date { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public OrderBy? SortingDirection { get; set; }
     }

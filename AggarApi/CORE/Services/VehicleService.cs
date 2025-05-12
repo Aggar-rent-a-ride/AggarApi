@@ -166,10 +166,10 @@ namespace CORE.Services
                 Data = result
             };
         }
-        public async Task<ResponseDto<PagedResultDto<GetVehicleSummaryDto>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery)
         {
             if (userId == 0)
-                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "UserId is required"
@@ -177,14 +177,14 @@ namespace CORE.Services
 
             AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
             if (user == null)
-                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "User Not Found"
                 };
 
             if (searchQuery.minPrice > searchQuery.maxPrice)
-                return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = "Min Price can't be greater that Max Price"
@@ -237,7 +237,7 @@ namespace CORE.Services
                 .Take(searchQuery.pageSize)
                 .ToListAsync();
 
-            var pagedData = new PagedResultDto<GetVehicleSummaryDto>
+            var pagedData = new PagedResultDto<IEnumerable<GetVehicleSummaryDto>>
             {
                 Data = data,
                 PageNumber = searchQuery.pageNo,
@@ -245,7 +245,7 @@ namespace CORE.Services
                 TotalPages = PaginationHelpers.CalculateTotalPages(vehicles.Count(), searchQuery.pageSize)
             };
 
-            return new ResponseDto<PagedResultDto<GetVehicleSummaryDto>>
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
                 Data = pagedData,
                 Message = "Vehicles Loaded Successfully...",
@@ -517,6 +517,80 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = result
+            };
+        }
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesByStatusAsync(VehicleStatus status, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
+                };
+
+            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
+            var count = 0;
+            if (status == VehicleStatus.Active)
+            {
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == VehicleStatus.Active, pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.Active);
+            }
+            else
+            {
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == VehicleStatus.OutOfService, pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.OutOfService);
+            }
+
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
+            };
+        }
+        public async Task<ResponseDto<int>> GetVehiclesByStatusCountAsync(VehicleStatus status)
+        {
+            var count = 0;
+            if (status == VehicleStatus.Active)
+                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.Active);
+            else
+                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.OutOfService);
+
+            return new ResponseDto<int> {
+                StatusCode = StatusCodes.OK,
+                Data = count
+            };
+        }
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetMostRentedVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50)
+        {
+            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
+                };
+            var vehicles = await _unitOfWork.Vehicles.GetMostRentedVehiclesAsync(pageNo, pageSize);
+            var count = await _unitOfWork.Vehicles.GetMostRentedVehiclesCountAsync();
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
+            };
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetPopularVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50)
+        {
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = errorMsg
+                };
+            var vehicles = await _unitOfWork.Vehicles.GetPopularVehiclesAsync(pageNo, pageSize);
+            var count = await _unitOfWork.Vehicles.GetPopularVehiclesCountAsync();
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
             };
         }
     }

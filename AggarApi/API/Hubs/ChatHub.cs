@@ -64,8 +64,13 @@ namespace API.Hubs
                 await Clients.Group(Context.UserIdentifier).SendAsync(SignalRMethods.UploadInitiationResponse, new ResponseDto<FileInfoResponseDto> { StatusCode = CORE.Constants.StatusCodes.BadRequest, Message = "Invalid UserIdentifier", Data = new FileInfoResponseDto { ClientMessageId = dto.ClientMessageId } });
                 return;
             }
+            //add image extensions
+            var allowedExtensions = AllowedExtensions.ImageExtensions
+                .Concat(AllowedExtensions.FileExtensions)
+                .ToList();
 
-            var filePath = await _fileService.CreateFile(_paths.Value.MessageFiles, dto.Name, dto.Extension, AllowedExtensions.FileExtensions);
+
+            var filePath = await _fileService.CreateFile(_paths.Value.MessageFiles, dto.Name, dto.Extension, allowedExtensions);
             
             if(filePath == null)
             {

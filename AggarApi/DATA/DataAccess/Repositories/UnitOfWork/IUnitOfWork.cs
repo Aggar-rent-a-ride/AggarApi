@@ -10,7 +10,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
-        IBaseRepository<AppUser> AppUsers { get; }
+        IUserRepository AppUsers { get; }
         IBaseRepository<Renter> Renters { get; }
         IVehicleRepository Vehicles { get; }
         IBaseRepository<Discount> Discounts { get; }
@@ -23,6 +23,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IRenterReviewRepository RenterReviews { get; }
         ICustomerReviewRepository CustomerReviews { get; }
         IReportRepository Reports { get; }
+        IBaseRepository<VehiclePopularity> VehiclePopularity { get; }
 
         Task<int> CommitAsync();
 

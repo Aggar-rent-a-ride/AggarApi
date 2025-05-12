@@ -151,13 +151,13 @@ namespace CORE.Services
 
             return RentalStatus.Completed;
         }
-        public async Task<ResponseDto<IEnumerable<RentalHistoryItemDto>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50)
         {
             _logger.LogInformation("Getting rental history for user with ID: {UserId}", userId);
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
-                return new ResponseDto<IEnumerable<RentalHistoryItemDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = paginationError
@@ -169,6 +169,7 @@ namespace CORE.Services
             _logger.LogInformation("Successfully retrieved rental history for user with ID: {UserId}", userId);
 
             var result = new List<RentalHistoryItemDto>();
+            var count = await _unitOfWork.Rentals.GetUserRentalHistoryCountAsync(userId);
             foreach (var rental in rentals)
             {
                 var rentalHistoryItem = new RentalHistoryItemDto
@@ -210,10 +211,10 @@ namespace CORE.Services
                 result.Add(rentalHistoryItem);
             }
 
-            return new ResponseDto<IEnumerable<RentalHistoryItemDto>>
+            return new ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>
             {
                 StatusCode = StatusCodes.OK,
-                Data = result
+                Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
             };
         }
     }
