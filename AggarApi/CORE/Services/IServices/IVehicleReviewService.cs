@@ -10,7 +10,7 @@ namespace CORE.Services.IServices
 {
     public interface IVehicleReviewService
     {
-        Task<ResponseDto<IEnumerable<SummarizedReviewDto>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100);
+        Task<ResponseDto<PagedResultDto<IEnumerable<SummarizedReviewDto>>>> GetVehicleReviewsAsync(int vehicleId, int pageNo, int pageSize, int maxPageSize = 100);
         Task<ResponseDto<double?>> GetVehicleTotalRateAsync(int vehicleId);
     }
 }

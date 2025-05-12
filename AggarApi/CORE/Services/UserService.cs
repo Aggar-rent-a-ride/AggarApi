@@ -95,25 +95,32 @@ namespace CORE.Services
                 Message = "User deleted successfully."
             };
         }
-        public async Task<ResponseDto<IEnumerable<SummerizedUserWithRateDto>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<SummerizedUserWithRateDto>>>> FindUsersAsync(string? searchKey, int pageNo, int pageSize, int maxPageSize = 100)
         {
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {ErrorMessage}", paginationError);
-                return new ResponseDto<IEnumerable<SummerizedUserWithRateDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserWithRateDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = paginationError
                 };
             }
             var users = new List<AppUser>();
+            var count = 0;
             if (string.IsNullOrWhiteSpace(searchKey) == true)
-                users = (await _unitOfWork.AppUsers.GetAllAsync(pageNo, pageSize)).ToList();
-            else 
-                users = (await _unitOfWork.AppUsers.FindAsync(u => u.UserName.Contains(searchKey) || u.Name.Contains(searchKey), pageNo, pageSize)).ToList();
-            return new ResponseDto<IEnumerable<SummerizedUserWithRateDto>>()
             {
-                Data = _mapper.Map<IEnumerable<SummerizedUserWithRateDto>>(users),
+                users = (await _unitOfWork.AppUsers.GetAllAsync(pageNo, pageSize)).ToList();
+                count = await _unitOfWork.AppUsers.CountAsync();
+            }
+            else
+            {
+                users = (await _unitOfWork.AppUsers.FindAsync(u => u.UserName.Contains(searchKey) || u.Name.Contains(searchKey), pageNo, pageSize)).ToList();
+                count = await _unitOfWork.AppUsers.CountAsync(u => u.UserName.Contains(searchKey) || u.Name.Contains(searchKey));
+            }
+            return new ResponseDto<PagedResultDto<IEnumerable<SummerizedUserWithRateDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<SummerizedUserWithRateDto>>(users), pageNo, pageSize, count),
                 StatusCode = StatusCodes.OK,
             };
         }
@@ -251,7 +258,6 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
             };
         }
-
         public async Task<ResponseDto<int>> GetTotalUsersCountAsync(string? role)
         {
             var count = 0;

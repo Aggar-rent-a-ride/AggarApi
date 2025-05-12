@@ -13,6 +13,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<object>> CreateReportAsync(CreateReportDto reportDto, int reporterId);
         Task<ResponseDto<GetReportDto>> GetReportByIdAsync(int reportId);
         Task<ResponseDto<object>> UpdateReportsStatusAsync(UpdateReportsStatusDto dto);
-        Task<ResponseDto<IEnumerable<GetReportDto>>> FilterReportsAsync(ReportFilterDto dto, int maxPageSize = 30);
+        Task<ResponseDto<PagedResultDto<IEnumerable<GetReportDto>>>> FilterReportsAsync(ReportFilterDto dto, int maxPageSize = 30);
     }
 }
