@@ -112,5 +112,12 @@ namespace DATA.DataAccess.Repositories
         {
             return await _context.VehiclePopularity.CountAsync();
         }
+        public async Task<int> GetVehicleReviewsCountAsync(int vehicleId)
+        {
+            return await _context.Rentals
+                .Where(r => r.Booking.VehicleId == vehicleId && r.CustomerReviewId > 0)
+                .CountAsync();
+        }
+
     }
 }

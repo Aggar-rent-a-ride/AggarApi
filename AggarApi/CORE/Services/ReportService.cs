@@ -294,12 +294,12 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<GetReportDto>>> FilterReportsAsync(ReportFilterDto dto, int maxPageSize = 30)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetReportDto>>>> FilterReportsAsync(ReportFilterDto dto, int maxPageSize = 30)
         {
             if (PaginationHelpers.ValidatePaging(dto.PageNo, dto.PageSize, maxPageSize) is string paginationError)
             {
                 _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
-                return new ResponseDto<IEnumerable<GetReportDto>>
+                return new ResponseDto<PagedResultDto<IEnumerable<GetReportDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = paginationError
@@ -357,6 +357,7 @@ namespace CORE.Services
                 messages = await _unitOfWork.Chat.FindAsync(m => targetMessagesIds.Contains(m.Id), dto.PageNo, dto.PageSize);
 
             var result = new List<GetReportDto>();
+            var count = await _unitOfWork.Reports.FilterReportsCountAsync(dto.TargetType, dto.Status, dto.Date);
 
             foreach (var report in reports)
             {
@@ -402,11 +403,11 @@ namespace CORE.Services
                 result.Add(reportDto);
             }
 
-            return new ResponseDto<IEnumerable<GetReportDto>>
+            return new ResponseDto<PagedResultDto<IEnumerable<GetReportDto>>>
             {
                 StatusCode = StatusCodes.OK,
                 Message = "Reports retrieved successfully",
-                Data = result
+                Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), dto.PageNo, dto.PageSize, count),
             };
         }
     }
