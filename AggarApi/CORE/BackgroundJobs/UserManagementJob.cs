@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using DATA.DataAccess.Repositories.UnitOfWork;
@@ -11,12 +12,12 @@ using Microsoft.Extensions.Logging;
 
 namespace CORE.BackgroundJobs
 {
-    public class UserManagementJob
+    public class UserManagementJob : IUserManagementJob
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<UserRatingUpdateJob> _logger;
+        private readonly ILogger<UserManagementJob> _logger;
         private readonly IRecurringJobManager _recurringJobManager;
-        public UserManagementJob(IUnitOfWork unitOfWork, ILogger<UserRatingUpdateJob> logger, IRecurringJobManager recurringJobManager)
+        public UserManagementJob(IUnitOfWork unitOfWork, ILogger<UserManagementJob> logger, IRecurringJobManager recurringJobManager)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

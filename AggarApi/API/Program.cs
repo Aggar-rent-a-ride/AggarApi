@@ -1,5 +1,6 @@
 using API.Hubs;
 using CORE.BackgroundJobs;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.DTOs.AppUser;
 using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
@@ -199,10 +200,12 @@ namespace API
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
             builder.Services.AddScoped<IVehicleReviewService, VehicleReviewService>();
-            builder.Services.AddScoped<UserRatingUpdateJob>();
-            builder.Services.AddScoped<UserManagementJob>();
-            builder.Services.AddScoped<EmailSendingJob>();
-            builder.Services.AddScoped<VehicleRatingUpdateJob>();
+            builder.Services.AddScoped<IUserRatingUpdateJob, UserRatingUpdateJob>();
+            builder.Services.AddScoped<IUserManagementJob, UserManagementJob>();
+            builder.Services.AddScoped<IEmailSendingJob, EmailSendingJob>();
+            builder.Services.AddScoped<IVehicleRatingUpdateJob, VehicleRatingUpdateJob>();
+            builder.Services.AddScoped<IVehiclePopularityManagementJob, VehiclePopularityManagementJob>();
+            builder.Services.AddScoped<IBookingReminderJob, BookingReminderJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
             builder.Services.AddMemoryCache();

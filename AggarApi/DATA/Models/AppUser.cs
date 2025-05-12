@@ -29,7 +29,6 @@ namespace DATA.Models
         public DateTime? DateDeleted { get; set; }
 
         public ICollection<Notification>? Notifications { get; set; }
-        public ICollection<Vehicle>? VehiclePopularity { get; set; }
         public ICollection<Message>? Messages { get; set; }
         public ICollection<Message>? ReceivedMessages { get; set; }
         public ICollection<Report>? Reports { get; set; }

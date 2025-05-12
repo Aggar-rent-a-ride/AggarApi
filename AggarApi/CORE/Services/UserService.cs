@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CORE.BackgroundJobs;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.AppUser;
@@ -30,11 +31,11 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
-        private readonly UserManagementJob _userManagementJob;
+        private readonly IUserManagementJob _userManagementJob;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IOptions<WarningManagement> _warningManagement;
-        private readonly EmailSendingJob _emailSendingJob;
-        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, UserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, EmailSendingJob emailSendingJob)
+        private readonly IEmailSendingJob _emailSendingJob;
+        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, IUserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, IEmailSendingJob emailSendingJob)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

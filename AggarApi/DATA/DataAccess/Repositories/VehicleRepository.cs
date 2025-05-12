@@ -97,5 +97,20 @@ namespace DATA.DataAccess.Repositories
                 .Where(v => v.RentCount > 0)
                 .CountAsync();
         }
+
+        public async Task<IEnumerable<Vehicle>> GetPopularVehiclesAsync(int pageNo, int pageSize)
+        {
+            var vehicles = _context.VehiclePopularity
+                .OrderByDescending(v => v.PopularityPoints)
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .Select(v => v.Vehicle);
+            return await vehicles.ToListAsync();
+        }
+
+        public async Task<int> GetPopularVehiclesCountAsync()
+        {
+            return await _context.VehiclePopularity.CountAsync();
+        }
     }
 }
