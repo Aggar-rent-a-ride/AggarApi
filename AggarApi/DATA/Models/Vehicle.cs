@@ -34,5 +34,6 @@ namespace DATA.Models
         public ICollection<Customer>? FavoriteCustomers { get; set; }
         public ICollection<Report>? Reports { get; set; }
         public ICollection<Discount>? Discounts { get; set; }
+        public ICollection<AppUser>? VehiclePopularity { get; set; }
     }
 }
