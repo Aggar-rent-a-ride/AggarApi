@@ -26,8 +26,6 @@ namespace DATA.DataAccess.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            vehicles = vehicles.Where(v => v.Status == VehicleStatus.Active);
-
             if (brandId.HasValue)
                 vehicles = vehicles.Where(v => v.VehicleBrandId == brandId);
 

@@ -55,10 +55,6 @@ namespace API.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        public IActionResult ConfirmBookingAsync(int bookingId)
-        {
-            return StatusCode(200);
-        }
         [Authorize(Roles = Roles.Admin)]
         [HttpGet("bookings-by-status")]
         public async Task<IActionResult> GetBookingsByStatusAsync([FromQuery] BookingStatus? status, [FromQuery] int pageNo = 1, [FromQuery] int pageSize = 10)

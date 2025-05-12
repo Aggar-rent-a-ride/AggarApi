@@ -207,6 +207,8 @@ namespace CORE.Services
 
             IQueryable<Vehicle> vehicles = _unitOfWork.Vehicles.GetVehicles(searchQuery.brandId, searchQuery.typeId, searchQuery.transmission, searchQuery.searchKey, searchQuery.minPrice, searchQuery.maxPrice, searchQuery.year, searchQuery.rate);
 
+            vehicles = vehicles.Where(v => v.Status == VehicleStatus.Active);
+
             var vehiclesSummary = vehicles
                 .Select(v => new GetVehicleSummaryDto
                 {
@@ -217,7 +219,9 @@ namespace CORE.Services
                     Year = v.Year,
                     PricePerDay = v.PricePerDay,
                     Rate = v.Rate,
+                    Transmission = v.Transmission,
                     MainImagePath = v.MainImagePath,
+                    IsFavourite = v.FavoriteCustomers != null && v.FavoriteCustomers.Any(c => c.Id == user.Id),
                     Distance = (6371 * Math.Acos(
                         Math.Cos(location.Latitude * Math.PI / 180.0) *
                         Math.Cos(v.Location.Latitude * Math.PI / 180.0) *
@@ -521,7 +525,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesByStatusAsync(VehicleStatus status, int pageNo, int pageSize, int maxPageSize = 100)
         {
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
                 return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -555,14 +559,15 @@ namespace CORE.Services
             else
                 count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.OutOfService);
 
-            return new ResponseDto<int> {
+            return new ResponseDto<int>
+            {
                 StatusCode = StatusCodes.OK,
                 Data = count
             };
         }
         public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetMostRentedVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50)
         {
-            if(PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
                 return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -593,5 +598,107 @@ namespace CORE.Services
                 Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
             };
         }
+
+        private async Task<ResponseDto<object>> SetVehicleAsFavourite(Vehicle vehicle, Customer customer, bool isFavourite)
+        {
+            if (isFavourite)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "Vehicle is already marked as favourite for this user"
+                };
+            }
+
+            vehicle.FavoriteCustomers.Add(customer);
+
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes > 0)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.OK,
+                    Message = "Vehicle added to favourites"
+                };
+            }
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.InternalServerError,
+                Message = "Failed to add vehicle to favourites"
+            };
+        }
+
+        private  async Task<ResponseDto<object>> UnSetVehicleAsFavourite(Vehicle vehicle, Customer customer, bool isFavourite)
+        {
+            if (!isFavourite)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "Vehicle is already not marked as favourite"
+                };
+            }
+
+            vehicle.FavoriteCustomers.Remove(customer);
+
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes > 0)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.OK,
+                    Message = "Vehicle removed from favourites"
+                };
+            }
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.InternalServerError,
+                Message = "Failed to remove vehicle from favourites"
+            };
+        }
+
+
+
+        public async Task<ResponseDto<object>> VehicleFavouriteAsync(int customerId, SetVehicleFavouriteDto dto)
+        {
+            Customer? customer = await _unitOfWork.Customers.GetAsync(customerId);
+
+            if (customer == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "User Not Found"
+                };
+            }
+
+            Vehicle? vehicle = await _unitOfWork.Vehicles.GetAsync(dto.VehicleId, [VehicleIncludes.FavoriteCustomers]);
+
+            if (vehicle == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Vehicle Not Found"
+                };
+            }
+
+            bool isFavourite = vehicle.FavoriteCustomers != null && vehicle.FavoriteCustomers.Any(f => f.Id == customerId);
+
+            if (dto.IsFavourite)
+            {
+                return await SetVehicleAsFavourite(vehicle, customer, isFavourite);
+            }
+            else
+            {
+                return await UnSetVehicleAsFavourite(vehicle, customer, isFavourite);
+            }
+
+        }
+
     }
 }

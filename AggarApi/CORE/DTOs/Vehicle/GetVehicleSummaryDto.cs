@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DATA.Models.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CORE.DTOs.Vehicle
@@ -17,7 +19,8 @@ namespace CORE.DTOs.Vehicle
         public int Year { get; set; }
         public decimal PricePerDay { get; set; }
         public bool IsFavourite { get; set; }
-        public string Transmission { get; set; } = null!;
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public VehicleTransmission Transmission { get; set; }
         public double? Rate { get; set; }
         public string? MainImagePath { get; set; }
     }
