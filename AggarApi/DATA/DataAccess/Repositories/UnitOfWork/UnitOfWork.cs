@@ -31,6 +31,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public ICustomerReviewRepository CustomerReviews { get; private set; }
         public IReportRepository Reports { get; private set; }
 
+        public IBaseRepository<VehiclePopularity> VehiclePopularity { get; private set; }
+
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
@@ -48,6 +50,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             RenterReviews = new RenterReviewRepository(_context);
             CustomerReviews = new CustomerReviewRepository(_context);
             Reports = new ReportRepository(_context);
+            VehiclePopularity = new BaseRepository<VehiclePopularity>(_context);
         }
 
         public async Task<int> CommitAsync()

@@ -1,6 +1,8 @@
-﻿using CORE.Services.IServices;
+﻿using CORE.BackgroundJobs.IBackgroundJobs;
+using CORE.Services.IServices;
 using DATA.Constants;
 using DATA.DataAccess.Repositories.UnitOfWork;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CORE.BackgroundJobs
 {
-    public class BookingReminderJob
+    public class BookingReminderJob : IBookingReminderJob
     {
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
@@ -22,6 +24,14 @@ namespace CORE.BackgroundJobs
             _emailTemplateRendererService = emailTemplateRendererService;
             _unitOfWork = unitOfWork;
             _logger = logger;
+        }
+
+        public void ScheduleBookingReminderNotification(DateTime bookingStartDate, int userId, int daysBeforeBooking)
+        {
+            string jobId = $"booking-reminder-notification-{userId}-{bookingStartDate}";
+            var job = BackgroundJob.Schedule(
+                () => SendBookingAcceptedNotification(bookingStartDate, userId),
+                bookingStartDate.AddDays(-daysBeforeBooking));
         }
 
         public async Task SendBookingAcceptedNotification(DateTime bookingStartDate, int userId)

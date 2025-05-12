@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CORE.BackgroundJobs;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
@@ -27,10 +28,10 @@ namespace CORE.Services
         private readonly ILogger<ReviewService> _logger;
         private readonly IRentalReviewService _rentalReviewService;
         private readonly IMapper _mapper;
-        private readonly UserRatingUpdateJob _userRatingUpdateJob;
-        private readonly VehicleRatingUpdateJob _vehicleRatingUpdateJob;
+        private readonly IUserRatingUpdateJob _userRatingUpdateJob;
+        private readonly IVehicleRatingUpdateJob _vehicleRatingUpdateJob;
 
-        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, UserRatingUpdateJob ratingUpdateJob, VehicleRatingUpdateJob vehicleRatingUpdateJob)
+        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, IUserRatingUpdateJob ratingUpdateJob, IVehicleRatingUpdateJob vehicleRatingUpdateJob)
         {
             _rentalService = rentalService;
             _unitOfWork = unitOfWork;

@@ -53,24 +53,6 @@ namespace DATA.DataAccess.Context.Configurations
             builder.OwnsMany(v => v.Discounts)
                 .WithOwner(d => d.Vehicle);
 
-            builder.HasMany(v=>v.VehiclePopularity).WithMany(u=>u.VehiclePopularity)
-                .UsingEntity<VehiclePopularity>(
-                    j => j
-                        .HasOne(vp => vp.AppUser)
-                        .WithMany()
-                        .HasForeignKey(vp => vp.AppUserId)
-                        .OnDelete(DeleteBehavior.Cascade),
-                    j => j
-                        .HasOne(vp => vp.Vehicle)
-                        .WithMany()
-                        .HasForeignKey(vp => vp.VehicleId)
-                        .OnDelete(DeleteBehavior.Cascade),
-                    j =>
-                    {
-                        j.HasKey(vp => new { vp.VehicleId, vp.AppUserId });
-                        j.Property(vp => vp.LastTimeVisited).IsRequired();
-                    });
-
             builder.ToTable("Vehicles");
         }
     }

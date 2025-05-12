@@ -4,6 +4,7 @@ using DATA.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATA.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250512084511_removingVehiclePopularityTable")]
+    partial class removingVehiclePopularityTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -715,10 +718,15 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PopularityPoints")
+                    b.Property<int>("AppUserId")
                         .HasColumnType("int");
 
-                    b.HasKey("VehicleId");
+                    b.Property<DateTime>("LastTimeVisited")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("VehicleId", "AppUserId");
+
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("VehiclePopularity");
                 });
@@ -1309,11 +1317,19 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.Entity("DATA.Models.VehiclePopularity", b =>
                 {
-                    b.HasOne("DATA.Models.Vehicle", "Vehicle")
-                        .WithOne("VehiclePopularity")
-                        .HasForeignKey("DATA.Models.VehiclePopularity", "VehicleId")
+                    b.HasOne("DATA.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DATA.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Vehicle");
                 });
@@ -1478,9 +1494,6 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Reports");
 
                     b.Navigation("VehicleImages");
-
-                    b.Navigation("VehiclePopularity")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("DATA.Models.VehicleBrand", b =>
