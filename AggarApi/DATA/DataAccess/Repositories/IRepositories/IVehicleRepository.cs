@@ -14,5 +14,7 @@ namespace DATA.DataAccess.Repositories.IRepositories
         Task<Vehicle?> GetVehicleByRentalIdAsync(int rentalId);
         Task<IEnumerable<Vehicle>> GetMostRentedVehiclesAsync(int pageNo, int pageSize);
         Task<int> GetMostRentedVehiclesCountAsync();
+        Task<IEnumerable<Vehicle>> GetPopularVehiclesAsync(int pageNo, int pageSize);
+        Task<int> GetPopularVehiclesCountAsync();
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using CORE.DTOs.Discount;
 using DATA.Models;
 using CORE.Constants;
+using CORE.BackgroundJobs.IBackgroundJobs;
 
 namespace API.Controllers
 {
@@ -18,10 +19,12 @@ namespace API.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IVehicleService _vehicleService;
+        private readonly IVehiclePopularityManagementJob _vehiclePopularityManagementJob;
 
-        public VehicleController(IVehicleService vehicleService)
+        public VehicleController(IVehicleService vehicleService, IVehiclePopularityManagementJob vehiclePopularityManagementJob)
         {
             _vehicleService = vehicleService;
+            _vehiclePopularityManagementJob = vehiclePopularityManagementJob;
         }
         [Authorize(Roles = $"{Roles.Renter}")]
         [HttpPost]
@@ -37,6 +40,10 @@ namespace API.Controllers
         {
             var renterId = UserHelpers.GetUserId(User);
             var response = await _vehicleService.GetVehicleByIdAsync(id);
+
+            if (response.StatusCode == CORE.Constants.StatusCodes.OK)
+                _vehiclePopularityManagementJob.Execute(id, renterId);
+
             return StatusCode(response.StatusCode, response);
         }
         [Authorize(Roles = "Customer")]
@@ -101,6 +108,13 @@ namespace API.Controllers
         public async Task<IActionResult> GetMostRentedVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize)
         {
             var result = await _vehicleService.GetMostRentedVehiclesAsync(pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
+        [Authorize]
+        [HttpGet("popular-vehicles")]
+        public async Task<IActionResult> GetPopularVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize)
+        {
+            var result = await _vehicleService.GetPopularVehiclesAsync(pageNo, pageSize);
             return StatusCode(result.StatusCode, result);
         }
     }

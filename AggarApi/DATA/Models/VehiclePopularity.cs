@@ -10,7 +10,7 @@ namespace DATA.Models
 {
     public class VehiclePopularity
     {
-        [Key]
+        public int Id { get; set; }
         public int VehicleId { get; set; }
         public Vehicle Vehicle { get; set; }
         public int PopularityPoints { get; set; } = 0;

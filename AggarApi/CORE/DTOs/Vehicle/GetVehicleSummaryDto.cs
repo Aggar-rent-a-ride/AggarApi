@@ -20,6 +20,5 @@ namespace CORE.DTOs.Vehicle
         public string Transmission { get; set; } = null!;
         public double? Rate { get; set; }
         public string? MainImagePath { get; set; }
-
     }
 }

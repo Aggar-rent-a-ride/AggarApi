@@ -8,6 +8,6 @@ namespace CORE.BackgroundJobs.IBackgroundJobs
 {
     public interface IVehiclePopularityManagementJob
     {
-
+        void Execute(int vehicleId, int userId);
     }
 }
