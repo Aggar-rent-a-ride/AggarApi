@@ -1,4 +1,5 @@
-﻿using DATA.DataAccess.Context;
+﻿using Azure;
+using DATA.DataAccess.Context;
 using DATA.DataAccess.Repositories.IRepositories;
 using DATA.Models;
 using DATA.Models.Enums;
@@ -66,6 +67,35 @@ namespace DATA.DataAccess.Repositories
                 .FirstOrDefaultAsync(r => r.Id == rentalId);
 
             return rental?.Booking?.Vehicle;
+        }
+
+        public async Task<IEnumerable<Vehicle>> GetMostRentedVehiclesAsync(int pageNo, int pageSize)
+        {
+            var vehicles = _context.Vehicles
+                .Select(v => new
+                {
+                    Vehicle = v,
+                    RentCount = v.Bookings.Count(b => b.Status == BookingStatus.Confirmed)
+                })
+                .Where(v => v.RentCount > 0)
+                .OrderByDescending(v => v.RentCount)
+                .ThenBy(v => v.Vehicle.Id)
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .Select(v => v.Vehicle);
+
+            return await vehicles.ToListAsync();
+        }
+
+        public async Task<int> GetMostRentedVehiclesCountAsync()
+        {
+            return await _context.Vehicles
+                .Select(v => new
+                {
+                    RentCount = v.Bookings.Count(b => b.Status == BookingStatus.Confirmed)
+                })
+                .Where(v => v.RentCount > 0)
+                .CountAsync();
         }
     }
 }

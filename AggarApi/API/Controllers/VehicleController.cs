@@ -96,5 +96,12 @@ namespace API.Controllers
             var result = await _vehicleService.GetVehiclesByStatusCountAsync(status);
             return StatusCode(result.StatusCode, result);
         }
+        [Authorize]
+        [HttpGet("most-rented-vehicles")]
+        public async Task<IActionResult> GetMostRentedVehiclesAsync([FromQuery] int pageNo, [FromQuery] int pageSize)
+        {
+            var result = await _vehicleService.GetMostRentedVehiclesAsync(pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
