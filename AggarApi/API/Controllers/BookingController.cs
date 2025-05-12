@@ -54,6 +54,7 @@ namespace API.Controllers
             var response = await _bookingService.ResponseBookingRequestAsync(bookingId, customerId, isAccepted);
             return StatusCode(response.StatusCode, response);
         }
+
         [Authorize(Roles = Roles.Admin)]
         [HttpGet("bookings-by-status")]
         public async Task<IActionResult> GetBookingsByStatusAsync([FromQuery] BookingStatus? status, [FromQuery] int pageNo = 1, [FromQuery] int pageSize = 10)

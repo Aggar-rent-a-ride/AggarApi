@@ -117,5 +117,14 @@ namespace API.Controllers
             var result = await _vehicleService.GetPopularVehiclesAsync(pageNo, pageSize);
             return StatusCode(result.StatusCode, result);
         }
+
+        [Authorize(Roles = "Customer")]
+        [HttpPut("favourite")]
+        public async Task<IActionResult> SetVehicleAsFavouriteAsync([FromBody] SetVehicleFavouriteDto dto)
+        {
+            int userId = UserHelpers.GetUserId(User);
+            var result = await _vehicleService.VehicleFavouriteAsync(userId, dto);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

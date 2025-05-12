@@ -20,5 +20,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<int>> GetVehiclesByStatusCountAsync(VehicleStatus status);
         Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetMostRentedVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50);
         Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetPopularVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50);
+        Task<ResponseDto<object>> VehicleFavouriteAsync(int customerId, SetVehicleFavouriteDto dto);
     }
 }
