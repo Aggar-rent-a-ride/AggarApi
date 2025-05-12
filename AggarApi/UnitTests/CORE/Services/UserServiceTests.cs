@@ -85,9 +85,9 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.OK));
-            Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Count(), Is.EqualTo(2));
-            Assert.That(result.Data.First().Username, Is.EqualTo("user1"));
+            Assert.That(result.Data.Data, Is.Not.Null);
+            Assert.That(result.Data.Data.Count(), Is.EqualTo(2));
+            Assert.That(result.Data.Data.First().Username, Is.EqualTo("user1"));
         }
         [Test]
         public async Task FindUsersAsync_ValidPaginationWithSearchKey_ReturnsFilteredUsers()
@@ -125,9 +125,9 @@ namespace UnitTests.CORE.Services
 
             // Assert
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.OK));
-            Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Count(), Is.EqualTo(1));
-            Assert.That(result.Data.First().Username, Is.EqualTo("user1"));
+            Assert.That(result.Data.Data, Is.Not.Null);
+            Assert.That(result.Data.Data.Count(), Is.EqualTo(1));
+            Assert.That(result.Data.Data.First().Username, Is.EqualTo("user1"));
         }
         [Test]
         public async Task FindUsersAsync_NoResultsForSearchKey_ReturnsEmptyData()
@@ -152,7 +152,7 @@ namespace UnitTests.CORE.Services
             // Assert
             Assert.That(result.StatusCode, Is.EqualTo(StatusCodes.OK));
             Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Count(), Is.EqualTo(0));
+            Assert.That(result.Data.Data.Count(), Is.EqualTo(0));
         }
 
     }

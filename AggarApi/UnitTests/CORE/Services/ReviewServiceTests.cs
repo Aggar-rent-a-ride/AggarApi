@@ -202,10 +202,13 @@ namespace UnitTests.CORE.Services
                     It.IsAny<OrderBy>()))
                 .ReturnsAsync(new List<RenterReview>());
 
+            _mockUnitOfWork.Setup(u => u.Rentals.GetRentalsByUserIdCountAsync( It.IsAny<int>(), It.IsAny<string>()))
+            .ReturnsAsync(1);
+
             // Act
             var result = await _userReviewService.GetUserReviewsAsync(userId, pageNo, pageSize);
             // Assert
-            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Data.Data, Is.Empty);
         }
         [Test]
         public async Task GetUserReviewsAsync_ShouldSucceed()
@@ -232,6 +235,9 @@ namespace UnitTests.CORE.Services
                     It.IsAny<Expression<Func<RenterReview, object>>>(),
                     It.IsAny<OrderBy>()))
                 .ReturnsAsync(new List<RenterReview>());
+
+            _mockUnitOfWork.Setup(u => u.Rentals.GetRentalsByUserIdCountAsync(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync(1);
 
             _mockMapper.Setup(r => r.Map<IEnumerable<SummarizedReviewDto>>(It.IsAny<IEnumerable<RenterReview>>()))
                 .Returns(new List<SummarizedReviewDto>
