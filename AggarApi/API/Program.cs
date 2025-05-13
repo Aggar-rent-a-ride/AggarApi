@@ -202,6 +202,8 @@ namespace API
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
             builder.Services.AddScoped<IVehicleReviewService, VehicleReviewService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+
             builder.Services.AddScoped<IUserRatingUpdateJob, UserRatingUpdateJob>();
             builder.Services.AddScoped<IUserManagementJob, UserManagementJob>();
             builder.Services.AddScoped<IEmailSendingJob, EmailSendingJob>();
