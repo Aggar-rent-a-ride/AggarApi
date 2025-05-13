@@ -10,6 +10,7 @@ using CORE.DTOs.Discount;
 using DATA.Models;
 using CORE.Constants;
 using CORE.BackgroundJobs.IBackgroundJobs;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace API.Controllers
 {
