@@ -220,27 +220,27 @@ namespace API
                 options.MaximumReceiveMessageSize = 8 * 1024 * 1024;
             });
 
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
-                {
-                    var ipAddress = context.Connection.RemoteIpAddress;
-                    return RateLimitPartition.GetFixedWindowLimiter(ipAddress,
-                        _ => new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = 50, // Allow 100 requests
-                            Window = TimeSpan.FromMinutes(1), // Per 1 minute window
-                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                            QueueLimit = 0
-                        });
-                });
-            });
+            //builder.Services.AddRateLimiter(options =>
+            //{
+            //    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
+            //    {
+            //        var ipAddress = context.Connection.RemoteIpAddress;
+            //        return RateLimitPartition.GetFixedWindowLimiter(ipAddress,
+            //            _ => new FixedWindowRateLimiterOptions
+            //            {
+            //                PermitLimit = 50, // Allow 100 requests
+            //                Window = TimeSpan.FromMinutes(1), // Per 1 minute window
+            //                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            //                QueueLimit = 0
+            //            });
+            //    });
+            //});
 
             var app = builder.Build();
             
             app.UseOutputCache();
 
-            app.UseRateLimiter();
+            //app.UseRateLimiter();
 
             app.MapOpenApi();
 
