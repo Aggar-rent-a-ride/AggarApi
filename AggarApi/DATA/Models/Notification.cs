@@ -8,7 +8,7 @@ namespace DATA.Models
         public int ReceiverId { get; set; }
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public string Content { get; set; } = null!;
-        public bool Seen { get; set; } = false;
+        public bool IsSeen { get; set; } = false;
         public AppUser Reciver { get; set; } = null!;
 
         public TargetType TargetType { get; set; }
