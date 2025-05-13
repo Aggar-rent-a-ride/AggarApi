@@ -88,6 +88,8 @@ namespace CORE.Services
                 };
             }
 
+            _emailSendingJob.SendEmail(user.Email, EmailSubject.AccountRemoved, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Your account has been removed."), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.AccountRemoved) }));
+
             _logger.LogInformation("User with ID {UserId} deleted successfully.", userId);
             return new ResponseDto<object>
             {
