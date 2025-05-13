@@ -30,10 +30,12 @@ using Serilog;
 using Serilog.Formatting.Compact;
 using Stripe;
 using System;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 namespace API
 {
@@ -208,7 +210,9 @@ namespace API
             builder.Services.AddScoped<IBookingReminderJob, BookingReminderJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
+
             builder.Services.AddMemoryCache();
+            builder.Services.AddOutputCache();
 
             builder.Services.AddSignalR(options =>
             {
@@ -216,8 +220,28 @@ namespace API
                 options.MaximumReceiveMessageSize = 8 * 1024 * 1024;
             });
 
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(context =>
+                {
+                    var ipAddress = context.Connection.RemoteIpAddress;
+                    return RateLimitPartition.GetFixedWindowLimiter(ipAddress,
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 50, // Allow 100 requests
+                            Window = TimeSpan.FromMinutes(1), // Per 1 minute window
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
+                });
+            });
+
             var app = builder.Build();
             
+            app.UseOutputCache();
+
+            app.UseRateLimiter();
+
             app.MapOpenApi();
 
             // Configure the HTTP request pipeline.
