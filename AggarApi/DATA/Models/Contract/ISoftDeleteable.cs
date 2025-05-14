@@ -8,7 +8,7 @@
         public void Delete()
         {
             IsDeleted = true;
-            DateDeleted = DateTime.Now;
+            DateDeleted = DateTime.UtcNow;
         }
 
         public void UndoDelete()
