@@ -1,4 +1,5 @@
 using API.Hubs;
+using API.Services;
 using CORE.BackgroundJobs;
 using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.DTOs.AppUser;
@@ -163,6 +164,11 @@ namespace API
                         {
                             context.Token = accessToken;
                         }
+                        // Read the token for SignalR connections
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/Notification"))
+                        {
+                            context.Token = accessToken;
+                        }
                         return Task.CompletedTask;
                     }
                 };
@@ -203,6 +209,7 @@ namespace API
             builder.Services.AddScoped<IUserReviewService, UserReviewService>();
             builder.Services.AddScoped<IVehicleReviewService, VehicleReviewService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
 
             builder.Services.AddScoped<IUserRatingUpdateJob, UserRatingUpdateJob>();
             builder.Services.AddScoped<IUserManagementJob, UserManagementJob>();
@@ -210,6 +217,7 @@ namespace API
             builder.Services.AddScoped<IVehicleRatingUpdateJob, VehicleRatingUpdateJob>();
             builder.Services.AddScoped<IVehiclePopularityManagementJob, VehiclePopularityManagementJob>();
             builder.Services.AddScoped<IBookingReminderJob, BookingReminderJob>();
+            builder.Services.AddScoped<INotificationJob, NotificationJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
 
@@ -287,6 +295,7 @@ namespace API
 
 
             app.MapHub<ChatHub>("/Chat");
+            app.MapHub<NotificationHub>("/Notification");
 
             app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 

@@ -12,5 +12,6 @@ namespace CORE.Services.IServices
     {
         Task<ResponseDto<object>> AcknowledgeAsync(HashSet<int> notificationIds, int userId); 
         Task<ResponseDto<PagedResultDto<IEnumerable<GetNotificationDto>>>> GetNotificationsAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100);
+        Task<ResponseDto<GetNotificationDto>> CreateNotificationAsync(CreateNotificationDto notificationDto);
     }
 }

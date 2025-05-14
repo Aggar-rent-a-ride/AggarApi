@@ -7,9 +7,12 @@ using AutoMapper;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Notification;
+using CORE.DTOs.Report;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
+using DATA.Models;
+using DATA.Models.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace CORE.Services
@@ -48,6 +51,89 @@ namespace CORE.Services
             {
                 StatusCode = 200,
                 Message = "Notifications acknowledged successfully",
+            };
+        }
+        private bool SetNotificationTarget(Notification notification, CreateNotificationDto notificationDto)
+        {
+            notification.TargetType = notificationDto.TargetType;
+
+            switch (notificationDto.TargetType)
+            {
+                case TargetType.CustomerReview:
+                    notification.TargetCustomerReviewId = notificationDto.TargetId;
+                    break;
+
+                case TargetType.RenterReview:
+                    notification.TargetRenterReviewId = notificationDto.TargetId;
+                    break;
+
+                case TargetType.Booking:
+                    notification.TargetBookingId = notificationDto.TargetId;
+                    break;
+
+                case TargetType.Rental:
+                    notification.TargetRentalId = notificationDto.TargetId;
+                    break;
+
+                case TargetType.Message:
+                    notification.TargetMessageId = notificationDto.TargetId;
+                    break;
+
+                default:
+                    return false;
+            };
+            return true;
+        }
+        private ResponseDto<Notification> BuildNotification(CreateNotificationDto notificationDto)
+        {
+            var notification = new Notification
+            {
+                ReceiverId = notificationDto.ReceiverId,
+                Content = notificationDto.Content,
+            };
+            if (SetNotificationTarget(notification, notificationDto) == false)
+            {
+                return new ResponseDto<Notification>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Invalid target type",
+                };
+            }
+            return new ResponseDto<Notification>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = notification,
+            };
+        }
+        public async Task<ResponseDto<GetNotificationDto>> CreateNotificationAsync(CreateNotificationDto notificationDto)
+        {
+            var notificationResponse = BuildNotification(notificationDto);
+            if (notificationResponse.StatusCode != StatusCodes.OK)
+            {
+                return new ResponseDto<GetNotificationDto>
+                {
+                    StatusCode = notificationResponse.StatusCode,
+                    Message = notificationResponse.Message,
+                };
+            }
+
+            var notification = notificationResponse.Data;
+
+            await _unitOfWork.Notifications.AddOrUpdateAsync(notification);
+            var changes = await _unitOfWork.CommitAsync();
+            if (changes == 0)
+            {
+                _logger.LogWarning("Failed to create notification");
+                return new ResponseDto<GetNotificationDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to create notification",
+                };
+            }
+            return new ResponseDto<GetNotificationDto>
+            {
+                StatusCode = StatusCodes.Created,
+                Data = _mapper.Map<GetNotificationDto>(notification),
             };
         }
 
