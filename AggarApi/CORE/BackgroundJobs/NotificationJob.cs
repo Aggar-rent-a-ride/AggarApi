@@ -28,7 +28,7 @@ namespace CORE.BackgroundJobs
             _signalRNotificationService = signalRNotificationService;
         }
 
-        public async Task ExecuteAsync(CreateNotificationDto dto)
+        public async Task SendNotificationAsync(CreateNotificationDto dto)
         {
             BackgroundJob.Enqueue(() => CreateAndSendNotification(dto));
         }

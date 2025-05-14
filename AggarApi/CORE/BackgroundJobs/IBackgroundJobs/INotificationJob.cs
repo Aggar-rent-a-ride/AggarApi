@@ -9,6 +9,6 @@ namespace CORE.BackgroundJobs.IBackgroundJobs
 {
     public interface INotificationJob
     {
-        Task ExecuteAsync(CreateNotificationDto dto);
+        Task SendNotificationAsync(CreateNotificationDto dto);
     }
 }

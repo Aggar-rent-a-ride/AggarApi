@@ -3,11 +3,14 @@ using CORE.BackgroundJobs;
 using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.Notification;
 using CORE.DTOs.Rental;
 using CORE.DTOs.Review;
 using CORE.Helpers;
 using CORE.Services.IServices;
+using DATA.Constants;
 using DATA.Constants.Includes;
+using DATA.DataAccess.Context.Configurations;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.AspNetCore.Razor.Language.Intermediate;
@@ -30,8 +33,9 @@ namespace CORE.Services
         private readonly IMapper _mapper;
         private readonly IUserRatingUpdateJob _userRatingUpdateJob;
         private readonly IVehicleRatingUpdateJob _vehicleRatingUpdateJob;
+        private readonly INotificationJob _notificationJob;
 
-        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, IUserRatingUpdateJob ratingUpdateJob, IVehicleRatingUpdateJob vehicleRatingUpdateJob)
+        public ReviewService(IRentalService rentalService, IUnitOfWork unitOfWork, ILogger<ReviewService> logger, IRentalReviewService rentalReviewService, IMapper mapper, IUserRatingUpdateJob ratingUpdateJob, IVehicleRatingUpdateJob vehicleRatingUpdateJob, INotificationJob notificationJob)
         {
             _rentalService = rentalService;
             _unitOfWork = unitOfWork;
@@ -40,6 +44,7 @@ namespace CORE.Services
             _mapper = mapper;
             _userRatingUpdateJob = ratingUpdateJob;
             _vehicleRatingUpdateJob = vehicleRatingUpdateJob;
+            _notificationJob = notificationJob;
         }
 
         private string? CheckReviewRates(CreateReviewDto reviewDto, string role)
@@ -91,9 +96,6 @@ namespace CORE.Services
                         Message = "You are not allowed to review this rental"
                     };
                 }
-
-                _userRatingUpdateJob.ScheduleUserRatingUpdate(rental.RenterId);
-                _vehicleRatingUpdateJob.ScheduleVehicleRatingUpdate(rental.VehicleId);
 
                 _logger.LogDebug("Creating CustomerReview for rental {RentalId}", reviewDto.RentalId);
                 return new ResponseDto<T>
@@ -212,8 +214,35 @@ namespace CORE.Services
                 };
             }
 
+            _userRatingUpdateJob.ScheduleUserRatingUpdate(rental.Value.RenterId);
+            _vehicleRatingUpdateJob.ScheduleVehicleRatingUpdate(rental.Value.VehicleId);
+            //notification
+            if(role == Roles.Customer)
+            {
+                var dto = new CreateNotificationDto
+                {
+                    Content = NotificationContent.Review,
+                    ReceiverId = rental.Value.RenterId,
+                    TargetId = review.Id,
+                    TargetType = DATA.Models.Enums.TargetType.CustomerReview,
+                };
+                await _notificationJob.SendNotificationAsync(dto);
+            }
+            else
+            {
+                var dto = new CreateNotificationDto
+                {
+                    Content = NotificationContent.Review,
+                    ReceiverId = rental.Value.CustomerId,
+                    TargetId = review.Id,
+                    TargetType = DATA.Models.Enums.TargetType.RenterReview,
+                };
+                await _notificationJob.SendNotificationAsync(dto);
+            }
+
+
             _logger.LogInformation("Successfully created review for rental {RentalId} by user {UserId}",
-            reviewDto.RentalId, userId);
+                reviewDto.RentalId, userId);
             return new ResponseDto<GetReviewDto>
             {
                 StatusCode = StatusCodes.Created,
