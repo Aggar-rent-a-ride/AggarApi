@@ -21,7 +21,15 @@ namespace API.Controllers
         public async Task<IActionResult> Acknowledge([FromBody] HashSet<int> notificationIds)
         {
             var userId = UserHelpers.GetUserId(User);
-            var result = await _notificationService.Acknowledge(notificationIds, userId);
+            var result = await _notificationService.AcknowledgeAsync(notificationIds, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetNotificationsAsync(int pageNo, int pageSize)
+        {
+            var userId = UserHelpers.GetUserId(User);
+            var result = await _notificationService.GetNotificationsAsync(userId, pageNo, pageSize);
             return StatusCode(result.StatusCode, result);
         }
     }
