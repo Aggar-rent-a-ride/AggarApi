@@ -35,7 +35,7 @@ namespace DATA.Models
 
         public Customer Customer { get; set; } = null!;
         public Vehicle Vehicle { get; set; } = null!;
-        public Notification? Notification { get; set; }
+        public ICollection<Notification>? Notifications { get; set; }
         public Rental? Rental { get; set; }
     }
 }

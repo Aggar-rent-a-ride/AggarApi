@@ -10,5 +10,6 @@ namespace DATA.Models
 
         public Renter Renter { get; set; } = null!;
         public ICollection<Report>? Reports { get; set; }
+        public ICollection<Notification>? Notifications { get; set; }
     }
 }

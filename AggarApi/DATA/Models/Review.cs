@@ -13,7 +13,6 @@ namespace DATA.Models
         public double Punctuality { get; set; }
         public string? Comments { get; set; }
 
-        public Notification? Notification { get; set; }
         public Rental Rental { get; set; } = null!;
     }
 }
