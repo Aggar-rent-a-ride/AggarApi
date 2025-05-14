@@ -22,6 +22,7 @@ using DATA.Constants.Includes;
 using Microsoft.IdentityModel.Tokens;
 using CORE.DTOs.Discount;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CORE.Services
 {
@@ -33,8 +34,9 @@ namespace CORE.Services
         private readonly IMapper _mapper;
         private readonly IGeoapifyService _geoapifyService;
         private readonly IReviewService _reviewService;
+        private readonly IMemoryCache _memoryCache;
 
-        public VehicleService(IUnitOfWork unitOfWork, IFileService fileService, IOptions<Paths> paths, IMapper mapper, IGeoapifyService geoapifyService, IReviewService reviewService)
+        public VehicleService(IUnitOfWork unitOfWork, IFileService fileService, IOptions<Paths> paths, IMapper mapper, IGeoapifyService geoapifyService, IReviewService reviewService, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
             _fileService = fileService;
@@ -42,6 +44,7 @@ namespace CORE.Services
             _mapper = mapper;
             _geoapifyService = geoapifyService;
             _reviewService = reviewService;
+            _memoryCache = memoryCache;
         }
         private string? ValidateCreateVehicleDto(CreateVehicleDto dto)
         {
@@ -565,23 +568,44 @@ namespace CORE.Services
                 Data = count
             };
         }
+        private string GenerateGetMostRentedVehiclesAsyncCacheKey(int pageNo, int pageSize) =>
+            $"GetMostRentedVehiclesAsync_{pageNo}_{pageSize}";
+        private string GenerateGetPopularVehiclesAsyncCacheKey(int pageNo, int pageSize) =>
+            $"GetPopularVehiclesAsync_{pageNo}_{pageSize}";
         public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetMostRentedVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50)
         {
+
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
                 return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
                 {
                     StatusCode = StatusCodes.BadRequest,
                     Message = errorMsg
                 };
-            var vehicles = await _unitOfWork.Vehicles.GetMostRentedVehiclesAsync(pageNo, pageSize);
-            var count = await _unitOfWork.Vehicles.GetMostRentedVehiclesCountAsync();
+
+            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
+            int count = 0;
+            if(_memoryCache.TryGetValue(GenerateGetMostRentedVehiclesAsyncCacheKey(pageNo, pageSize), out HashSet<int>? vehicleIds))
+            {
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => vehicleIds.Contains(v.Id), pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.CountAsync(v => vehicleIds.Contains(v.Id));
+            }
+            else
+            {
+                vehicles = await _unitOfWork.Vehicles.GetMostRentedVehiclesAsync(pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.GetMostRentedVehiclesCountAsync();
+
+                vehicleIds = new HashSet<int>(vehicles.Select(v => v.Id));
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(12));
+                _memoryCache.Set(GenerateGetMostRentedVehiclesAsyncCacheKey(pageNo, pageSize), vehicleIds, cacheEntryOptions);
+            }
+
             return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
                 StatusCode = StatusCodes.OK,
                 Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
             };
         }
-
         public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetPopularVehiclesAsync(int pageNo, int pageSize, int maxPageSize = 50)
         {
             if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string errorMsg)
@@ -590,15 +614,31 @@ namespace CORE.Services
                     StatusCode = StatusCodes.BadRequest,
                     Message = errorMsg
                 };
-            var vehicles = await _unitOfWork.Vehicles.GetPopularVehiclesAsync(pageNo, pageSize);
-            var count = await _unitOfWork.Vehicles.GetPopularVehiclesCountAsync();
+
+            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
+            int count = 0;
+            if (_memoryCache.TryGetValue(GenerateGetPopularVehiclesAsyncCacheKey(pageNo, pageSize), out HashSet<int>? vehicleIds))
+            {
+                vehicles = await _unitOfWork.Vehicles.FindAsync(v => vehicleIds.Contains(v.Id), pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.CountAsync(v => vehicleIds.Contains(v.Id));
+            }
+            else
+            {
+                vehicles = await _unitOfWork.Vehicles.GetPopularVehiclesAsync(pageNo, pageSize);
+                count = await _unitOfWork.Vehicles.GetPopularVehiclesCountAsync();
+
+                vehicleIds = new HashSet<int>(vehicles.Select(v => v.Id));
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(12));
+                _memoryCache.Set(GenerateGetPopularVehiclesAsyncCacheKey(pageNo, pageSize), vehicleIds, cacheEntryOptions);
+            }
+
             return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
                 StatusCode = StatusCodes.OK,
                 Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<GetVehicleSummaryDto>>(vehicles), pageNo, pageSize, count)
             };
         }
-
         private async Task<ResponseDto<object>> SetVehicleAsFavourite(Vehicle vehicle, Customer customer, bool isFavourite)
         {
             if (isFavourite)
@@ -629,7 +669,6 @@ namespace CORE.Services
                 Message = "Failed to add vehicle to favourites"
             };
         }
-
         private  async Task<ResponseDto<object>> UnSetVehicleAsFavourite(Vehicle vehicle, Customer customer, bool isFavourite)
         {
             if (!isFavourite)
@@ -660,9 +699,6 @@ namespace CORE.Services
                 Message = "Failed to remove vehicle from favourites"
             };
         }
-
-
-
         public async Task<ResponseDto<object>> VehicleFavouriteAsync(int customerId, SetVehicleFavouriteDto dto)
         {
             Customer? customer = await _unitOfWork.Customers.GetAsync(customerId);
