@@ -62,6 +62,8 @@ namespace DATA.DataAccess.Context.Configurations
                 .HasIndex(r => r.Token)
                 .IsUnique(true);
 
+           // builder.HasQueryFilter(u => u.IsDeleted == false);
+
             builder.UseTptMappingStrategy();
             builder.ToTable("AppUsers");
         }

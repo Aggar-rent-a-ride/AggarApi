@@ -23,7 +23,7 @@ namespace DATA.Models
         public string? ImagePath { get; set; }
         public string? Bio { get; set; }
         public string? Address { get; set; }
-        public Location Location { get; set; } = null!;
+        public Location? Location { get; set; }
 
         public bool IsDeleted { get; set; } = false;
         public DateTime? DateDeleted { get; set; }

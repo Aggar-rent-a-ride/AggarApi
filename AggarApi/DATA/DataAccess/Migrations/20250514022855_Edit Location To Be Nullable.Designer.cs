@@ -4,6 +4,7 @@ using DATA.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATA.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514022855_Edit Location To Be Nullable")]
+    partial class EditLocationToBeNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +39,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("CustomersFavoriteVehicles", (string)null);
+                    b.ToTable("CustomersFavoriteVehicles");
                 });
 
             modelBuilder.Entity("DATA.Models.AppUser", b =>
@@ -259,7 +262,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileCache", (string)null);
+                    b.ToTable("FileCache");
                 });
 
             modelBuilder.Entity("DATA.Models.Message", b =>
@@ -557,7 +560,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasIndex("RentalId");
 
-                    b.ToTable("Review", (string)null);
+                    b.ToTable("Review");
 
                     b.UseTpcMappingStrategy();
                 });
@@ -670,7 +673,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VehicleBrands", (string)null);
+                    b.ToTable("VehicleBrands");
                 });
 
             modelBuilder.Entity("DATA.Models.VehicleImage", b =>
@@ -692,7 +695,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("VehicleImages", (string)null);
+                    b.ToTable("VehicleImages");
                 });
 
             modelBuilder.Entity("DATA.Models.VehiclePopularity", b =>
@@ -714,7 +717,7 @@ namespace DATA.DataAccess.Migrations
                     b.HasIndex("VehicleId")
                         .IsUnique();
 
-                    b.ToTable("VehiclePopularity", (string)null);
+                    b.ToTable("VehiclePopularity");
                 });
 
             modelBuilder.Entity("DATA.Models.VehicleType", b =>
@@ -740,7 +743,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VehicleTypes", (string)null);
+                    b.ToTable("VehicleTypes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -949,7 +952,7 @@ namespace DATA.DataAccess.Migrations
 
                             b1.HasKey("AppUserId");
 
-                            b1.ToTable("AppUsers", (string)null);
+                            b1.ToTable("AppUsers");
 
                             b1.WithOwner()
                                 .HasForeignKey("AppUserId");
@@ -984,7 +987,7 @@ namespace DATA.DataAccess.Migrations
                             b1.HasIndex("Token")
                                 .IsUnique();
 
-                            b1.ToTable("RefreshToken", (string)null);
+                            b1.ToTable("RefreshToken");
 
                             b1.WithOwner()
                                 .HasForeignKey("AppUserId");
@@ -1245,7 +1248,7 @@ namespace DATA.DataAccess.Migrations
 
                             b1.HasKey("VehicleId", "Id");
 
-                            b1.ToTable("Discount", (string)null);
+                            b1.ToTable("Discount");
 
                             b1.WithOwner("Vehicle")
                                 .HasForeignKey("VehicleId");
@@ -1266,7 +1269,7 @@ namespace DATA.DataAccess.Migrations
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicles", (string)null);
+                            b1.ToTable("Vehicles");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
@@ -1399,7 +1402,7 @@ namespace DATA.DataAccess.Migrations
 
                             b1.HasKey("RenterId");
 
-                            b1.ToTable("Renters", (string)null);
+                            b1.ToTable("Renters");
 
                             b1.WithOwner()
                                 .HasForeignKey("RenterId");

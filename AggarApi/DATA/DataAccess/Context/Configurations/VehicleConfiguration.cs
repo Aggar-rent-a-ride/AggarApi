@@ -53,6 +53,8 @@ namespace DATA.DataAccess.Context.Configurations
             builder.OwnsMany(v => v.Discounts)
                 .WithOwner(d => d.Vehicle);
 
+           // builder.HasQueryFilter(v => v.IsDeleted == false);
+
             builder.ToTable("Vehicles");
         }
     }
