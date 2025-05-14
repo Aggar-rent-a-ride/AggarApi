@@ -14,7 +14,7 @@ namespace DATA.Models
         public string MessageType { get; set; }
         public AppUser Sender { get; set; } = null!;
         public AppUser Receiver { get; set; } = null!;
-        public Notification? Notification { get; set; }
+        public ICollection<Notification>? Notifications { get; set; }
         public ICollection<Report>? Reports { get; set; }
         
     }
