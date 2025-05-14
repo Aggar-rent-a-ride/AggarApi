@@ -51,7 +51,8 @@ namespace UnitTests.CORE.Services
                  _mockPaths.Object,
                  _mockMapper.Object,
                  _mockGeoapifyService.Object,
-                _mockReviewService.Object
+                _mockReviewService.Object,
+                null
              );
             _mockUnitOfWork.Setup(u=>u.Vehicles).Returns(_mockVehicleRepository.Object);
         }

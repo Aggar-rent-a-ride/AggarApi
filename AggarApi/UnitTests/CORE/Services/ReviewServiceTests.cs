@@ -49,7 +49,9 @@ namespace UnitTests.CORE.Services
                 _mockLogger.Object,
                 _mockRentalReviewService.Object,
                 _mockMapper.Object,
-                null, null
+                null, 
+                null,
+                null
             );
             _userReviewService = new UserReviewService(
                 _mockUnitOfWork.Object,
