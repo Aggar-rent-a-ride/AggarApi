@@ -194,6 +194,18 @@ namespace CORE.Services
                 return new ResponseDto<AuthDto> {  StatusCode = StatusCodes.BadRequest, Message = validationMessage };
             }
 
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var minimumDateOfBirth = today.AddYears(-13);
+            if (registerDto.DateOfBirth > minimumDateOfBirth)
+            {
+                _logger.LogWarning("User registration failed. User must be at least 13 years old.");
+                return new ResponseDto<AuthDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You must be at least 13 years old to register."
+                };
+            }
+
             AppUser user = registerDto.IsCustomer ? 
                 _mapper.Map<Customer>(registerDto) : 
                 _mapper.Map<Renter>(registerDto);
