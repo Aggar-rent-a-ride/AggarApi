@@ -535,18 +535,10 @@ namespace CORE.Services
                     Message = errorMsg
                 };
 
-            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
-            var count = 0;
-            if (status == VehicleStatus.Active)
-            {
-                vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == VehicleStatus.Active, pageNo, pageSize);
-                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.Active);
-            }
-            else
-            {
-                vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == VehicleStatus.OutOfService, pageNo, pageSize);
-                count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == VehicleStatus.OutOfService);
-            }
+            var includes = new string[] { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType };
+            var vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.Status == status, pageNo, pageSize, includes);
+            var count = await _unitOfWork.Vehicles.CountAsync(v => v.Status == status);
+
 
             return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
