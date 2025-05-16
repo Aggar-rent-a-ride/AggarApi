@@ -70,6 +70,8 @@ namespace DATA.DataAccess.Repositories
         public async Task<IEnumerable<Vehicle>> GetMostRentedVehiclesAsync(int pageNo, int pageSize)
         {
             var vehicles = _context.Vehicles
+                .Include(v => v.VehicleBrand)
+                .Include(v => v.VehicleType)
                 .Select(v => new
                 {
                     Vehicle = v,
@@ -99,6 +101,10 @@ namespace DATA.DataAccess.Repositories
         public async Task<IEnumerable<Vehicle>> GetPopularVehiclesAsync(int pageNo, int pageSize)
         {
             var vehicles = _context.VehiclePopularity
+                .Include(vp=>vp.Vehicle)
+                    .ThenInclude(v => v.VehicleBrand)
+                .Include(vp=>vp.Vehicle)
+                    .ThenInclude(v => v.VehicleType)
                 .OrderByDescending(v => v.PopularityPoints)
                 .Skip((pageNo - 1) * pageSize)
                 .Take(pageSize)
