@@ -574,23 +574,9 @@ namespace CORE.Services
                     Message = errorMsg
                 };
 
-            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
-            int count = 0;
-            if(_memoryCache.TryGetValue(GenerateGetMostRentedVehiclesAsyncCacheKey(pageNo, pageSize), out HashSet<int>? vehicleIds))
-            {
-                vehicles = await _unitOfWork.Vehicles.FindAsync(v => vehicleIds.Contains(v.Id), pageNo, pageSize);
-                count = await _unitOfWork.Vehicles.CountAsync(v => vehicleIds.Contains(v.Id));
-            }
-            else
-            {
-                vehicles = await _unitOfWork.Vehicles.GetMostRentedVehiclesAsync(pageNo, pageSize);
-                count = await _unitOfWork.Vehicles.GetMostRentedVehiclesCountAsync();
-
-                vehicleIds = new HashSet<int>(vehicles.Select(v => v.Id));
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(12));
-                _memoryCache.Set(GenerateGetMostRentedVehiclesAsyncCacheKey(pageNo, pageSize), vehicleIds, cacheEntryOptions);
-            }
+            var includes = new string[] { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType };
+            IEnumerable<Vehicle> vehicles = await _unitOfWork.Vehicles.GetMostRentedVehiclesAsync(pageNo, pageSize);
+            var count = await _unitOfWork.Vehicles.GetMostRentedVehiclesCountAsync();
 
             return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
@@ -607,23 +593,9 @@ namespace CORE.Services
                     Message = errorMsg
                 };
 
-            IEnumerable<Vehicle> vehicles = new List<Vehicle>();
-            int count = 0;
-            if (_memoryCache.TryGetValue(GenerateGetPopularVehiclesAsyncCacheKey(pageNo, pageSize), out HashSet<int>? vehicleIds))
-            {
-                vehicles = await _unitOfWork.Vehicles.FindAsync(v => vehicleIds.Contains(v.Id), pageNo, pageSize);
-                count = await _unitOfWork.Vehicles.CountAsync(v => vehicleIds.Contains(v.Id));
-            }
-            else
-            {
-                vehicles = await _unitOfWork.Vehicles.GetPopularVehiclesAsync(pageNo, pageSize);
-                count = await _unitOfWork.Vehicles.GetPopularVehiclesCountAsync();
-
-                vehicleIds = new HashSet<int>(vehicles.Select(v => v.Id));
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(12));
-                _memoryCache.Set(GenerateGetPopularVehiclesAsyncCacheKey(pageNo, pageSize), vehicleIds, cacheEntryOptions);
-            }
+            var includes = new string[] { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType };
+            IEnumerable<Vehicle> vehicles = await _unitOfWork.Vehicles.GetPopularVehiclesAsync(pageNo, pageSize);
+            var count = await _unitOfWork.Vehicles.GetPopularVehiclesCountAsync();
 
             return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
             {
