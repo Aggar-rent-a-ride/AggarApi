@@ -11,5 +11,6 @@ namespace DATA.DataAccess.Repositories.IRepositories
     public interface IUserRepository: IBaseRepository<AppUser>
     {
         Task<(IEnumerable<AppUser> appUsers, int Count)> GetTotalUsersAsync(string? role, int pageNo, int pageSize, DateRangePreset? dateFilter);
+        Task<int> GetTotalUsersCountAsync(string? role);
     }
 }

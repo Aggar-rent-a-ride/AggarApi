@@ -24,12 +24,12 @@ namespace DATA.DataAccess.Repositories
             var query = _context.Users.AsQueryable();
             if(string.IsNullOrWhiteSpace(role) == false)
             {
-                if(role == Roles.Admin)
-                    query = query.Where(u=>u is Admin);
-                else if (role == Roles.Customer)
-                    query = query.Where(u => u is Customer);
-                else if (role == Roles.Renter)
-                    query = query.Where(u => u is Renter);
+                query = query.Where(u =>
+                    _context.UserRoles.Any(ur =>
+                        ur.UserId == u.Id &&
+                        _context.Roles.Any(r => r.Id == ur.RoleId && r.Name == role)
+                    )
+                );
             }
             if (dateFilter != null)
             {
@@ -63,6 +63,21 @@ namespace DATA.DataAccess.Repositories
                 .ToListAsync();
 
             return (appUsers, count);
+        }
+
+        public async Task<int> GetTotalUsersCountAsync(string? role)
+        {
+            var query = _context.Users.AsQueryable();
+            if (string.IsNullOrWhiteSpace(role) == false)
+            {
+                query = query.Where(u =>
+                    _context.UserRoles.Any(ur =>
+                        ur.UserId == u.Id &&
+                        _context.Roles.Any(r => r.Id == ur.RoleId && r.Name == role)
+                    )
+                );
+            }
+            return await query.CountAsync();
         }
     }
 }

@@ -262,30 +262,9 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<int>> GetTotalUsersCountAsync(string? role)
         {
-            var count = 0;
-            if (string.IsNullOrWhiteSpace(role) == true)
-                count = await _unitOfWork.AppUsers.CountAsync();
-            else
-            {
-                if (role == Roles.Admin)
-                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Admin);
-                else if (role == Roles.Customer)
-                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Customer);
-                else if (role == Roles.Renter)
-                    count = await _unitOfWork.AppUsers.CountAsync(u => u is DATA.Models.Renter);
-                else
-                {
-                    _logger.LogWarning("Invalid role: {Role}", role);
-                    return new ResponseDto<int>
-                    {
-                        StatusCode = StatusCodes.BadRequest,
-                        Message = "Invalid role."
-                    };
-                }
-            }
             return new ResponseDto<int>
             {
-                Data = count,
+                Data = await _unitOfWork.AppUsers.GetTotalUsersCountAsync(role),
                 StatusCode = StatusCodes.OK,
             };
         }
