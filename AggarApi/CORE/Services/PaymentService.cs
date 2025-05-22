@@ -4,6 +4,7 @@ using CORE.DTOs.Payment;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using System;
@@ -17,9 +18,12 @@ namespace CORE.Services
     public class PaymentService : IPaymentService
     {
         public IUnitOfWork _unitOfWork;
-        public PaymentService(IUnitOfWork unitOfWork)
+        public StripeSettings _stripe;
+        public PaymentService(IUnitOfWork unitOfWork, IOptions<StripeSettings> stripeSettings)
         {
             _unitOfWork = unitOfWork;
+            _stripe = stripeSettings.Value;
+            StripeConfiguration.ApiKey = _stripe.SecretKey;
         }
 
         public async Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId)
