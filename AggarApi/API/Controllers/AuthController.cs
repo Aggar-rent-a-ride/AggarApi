@@ -62,7 +62,7 @@ namespace API.Controllers
         [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdminAsync(RegisterAdminDto dto)
         {
-            var roles = new List<string> { Roles.Admin };
+            var roles = new List<string> { Roles.User, Roles.Admin };
             var result = await _authService.UpdateUserRolesAsync(dto.UserId, roles);
             return StatusCode(result.StatusCode, result);
         }

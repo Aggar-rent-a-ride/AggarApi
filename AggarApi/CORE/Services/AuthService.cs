@@ -81,6 +81,14 @@ namespace CORE.Services
         }
         private async Task<IdentityResult> UpdateUserRolesByUserAsync(AppUser user, List<string> roles)
         {
+            var userRoles = await _userManager.GetRolesAsync(user);
+            if (userRoles == null)
+                return IdentityResult.Failed(new IdentityError { Description = "User has no roles." });
+
+            var RemovingRolesResult = await _userManager.RemoveFromRolesAsync(user, userRoles);
+            if (RemovingRolesResult.Succeeded == false)
+                return RemovingRolesResult;
+
             return await _userManager.AddToRolesAsync(user, roles);
         }
         private async Task<string> CreateAccessTokenAsync(AppUser user)
