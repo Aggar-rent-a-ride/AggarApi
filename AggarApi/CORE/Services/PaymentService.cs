@@ -219,13 +219,12 @@ namespace CORE.Services
                 var options = new PaymentIntentCreateOptions
                 {
                     Amount = amountInCents,
-                    ApplicationFeeAmount = fees,
                     CaptureMethod = "automatic",
                     Description = $"Confirm Booking #{booking.Id} for Vehicle #{booking.VehicleId} by Customer #{booking.CustomerId}",
                     Currency = "USD",
                     Metadata = new Dictionary<string, string>
                     {
-                        { "bookingId", booking.Id.ToString() },
+                        { "BookingId", booking.Id.ToString() },
                         { "CustomerId", booking.CustomerId.ToString() },
                         { "VehicleId", booking.VehicleId.ToString() }
                     }

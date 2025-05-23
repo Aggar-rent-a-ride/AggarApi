@@ -115,7 +115,7 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
-            var addedBookingResult = await GetBookingByIdAsync(newBooking.Id, customerId);
+            var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<BookingDetailsDto>
                 {
@@ -130,7 +130,7 @@ namespace CORE.Services
             };
         }
             
-        public async Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int userId)
+        public async Task<ResponseDto<BookingDetailsDto>> GetBookingDetailsByIdAsync(int bookingId, int userId)
         {
             if (userId <= 0)
                 return new ResponseDto<BookingDetailsDto>
@@ -357,13 +357,12 @@ namespace CORE.Services
 
             booking.PaymentIntentId = paymentIntent.Id;
 
-            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
-            await _unitOfWork.CommitAsync();
+            bool res = await UpdateBookingAsync(booking);
 
             return new ResponseDto<ConfirmBookingDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = "Payment Intent Created Successfuly",
+                Message = res ? "Payment Intent Created Successfuly" : "Payment Intent Created Successfuly, but failed to update Booking",
                 Data = new ConfirmBookingDto
                 {
                     Amount = booking.FinalPrice,
@@ -372,6 +371,19 @@ namespace CORE.Services
                 }
             };
 
+        }
+
+        public async Task<Booking> GetBookingByIntentIdAsync(string paymentIntentId)
+        {
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId);
+            return booking;
+        }
+
+        public async Task<bool> UpdateBookingAsync(Booking booking)
+        {
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+            int res = await _unitOfWork.CommitAsync();
+            return res > 0;
         }
     }
 }

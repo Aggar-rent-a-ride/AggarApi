@@ -33,7 +33,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetBookingAsync(int id)
         {
             int userId = UserHelpers.GetUserId(User);
-            var response = await _bookingService.GetBookingByIdAsync(id, userId);
+            var response = await _bookingService.GetBookingDetailsByIdAsync(id, userId);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -67,6 +67,15 @@ namespace API.Controllers
         public async Task<IActionResult> GetBookingsByStatusCountAsync([FromQuery] BookingStatus? status)
         {
             var response = await _bookingService.GetBookingsByStatusCountAsync(status);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize(Roles = Roles.Customer)]
+        [HttpGet("confirm")]
+        public async Task<IActionResult> ConfirmBookingAsnc([FromQuery]int id)
+        {
+            int customerId = UserHelpers.GetUserId(User);
+            var response = await _bookingService.ConfirmBookingAsync(customerId, id);
             return StatusCode(response.StatusCode, response);
         }
     }
