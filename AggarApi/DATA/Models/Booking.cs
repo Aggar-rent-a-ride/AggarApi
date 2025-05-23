@@ -33,6 +33,8 @@ namespace DATA.Models
         }
         public Enums.BookingStatus Status { get; set; } = Enums.BookingStatus.Pending;
 
+        public string? PaymentIntentId { get; set; }
+
         public Customer Customer { get; set; } = null!;
         public Vehicle Vehicle { get; set; } = null!;
         public ICollection<Notification>? Notifications { get; set; }

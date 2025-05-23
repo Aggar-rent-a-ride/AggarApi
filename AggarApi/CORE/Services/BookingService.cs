@@ -12,6 +12,7 @@ using DATA.Models;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,12 @@ namespace CORE.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IPaymentService _paymentService;
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _paymentService = paymentService;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -88,7 +91,7 @@ namespace CORE.Services
             newBooking.CustomerId = customerId;
             newBooking.Price = vehicle.PricePerDay * createBookingDto.EndDate.TotalDays(createBookingDto.StartDate);
             
-            Discount? discount = vehicle.Discounts?.
+            DATA.Models.Discount? discount = vehicle.Discounts?.
                 Where(d => d.DaysRequired <= newBooking.TotalDays)
                 .OrderByDescending(d => d.DiscountPercentage)
                 .FirstOrDefault();
@@ -112,7 +115,7 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
-            var addedBookingResult = await GetBookingByIdAsync(newBooking.Id, customerId);
+            var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<BookingDetailsDto>
                 {
@@ -127,7 +130,7 @@ namespace CORE.Services
             };
         }
             
-        public async Task<ResponseDto<BookingDetailsDto>> GetBookingByIdAsync(int bookingId, int userId)
+        public async Task<ResponseDto<BookingDetailsDto>> GetBookingDetailsByIdAsync(int bookingId, int userId)
         {
             if (userId <= 0)
                 return new ResponseDto<BookingDetailsDto>
@@ -319,6 +322,68 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
                 Data = count
             };
+        }
+
+        public async Task<ResponseDto<ConfirmBookingDto>> ConfirmBookingAsync(int customerId, int bookingId)
+        {
+            Booking? booking = await _unitOfWork.Bookings.GetAsync(bookingId);
+            if (booking == null || booking.CustomerId != customerId)
+            {
+                return new ResponseDto<ConfirmBookingDto>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Booking not found"
+                };
+            }
+            if (booking.Status != BookingStatus.Accepted)
+            {
+                return new ResponseDto<ConfirmBookingDto>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "Not allowed to confirm booking"
+                };
+            }
+
+            PaymentIntent? paymentIntent = await _paymentService.CreatePaymentIntent(booking);
+
+            if (paymentIntent == null)
+            {
+                return new ResponseDto<ConfirmBookingDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed To Create Payment Intent"
+                };
+            }
+
+            booking.PaymentIntentId = paymentIntent.Id;
+
+            bool res = await UpdateBookingAsync(booking);
+
+            return new ResponseDto<ConfirmBookingDto>
+            {
+                StatusCode = StatusCodes.Created,
+                Message = res ? "Payment Intent Created Successfuly" : "Payment Intent Created Successfuly, but failed to update Booking",
+                Data = new ConfirmBookingDto
+                {
+                    Amount = booking.FinalPrice,
+                    ClientSecret = paymentIntent.ClientSecret,
+                    PaymentIntentId = booking.PaymentIntentId
+                }
+            };
+
+        }
+
+        public async Task<Booking> GetBookingByIntentIdAsync(string paymentIntentId)
+        {
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId);
+            return booking;
+        }
+
+        public async Task<bool> UpdateBookingAsync(Booking booking)
+        {
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+            int res = await _unitOfWork.CommitAsync();
+            return res > 0;
         }
     }
 }

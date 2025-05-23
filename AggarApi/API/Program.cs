@@ -174,6 +174,7 @@ namespace API
                 };
 
             });
+
             builder.Services.AddAuthorization();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JWT"));
@@ -182,8 +183,8 @@ namespace API
             builder.Services.Configure<Paths>(builder.Configuration.GetSection("Paths"));
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             builder.Services.Configure<WarningManagement>(builder.Configuration.GetSection("WarningManagement"));
-
-            StripeConfiguration.ApiKey = "sk_test_51QzlxRLiWNEAMEsfjrFuHkNa7PsMPBzXJvX4fyMjgSyPB4fs0dW0agdisBuQlv1yXZ5WftnP1sjsfKlK8bPzzH8c00wMhcalwd";//builder.Configuration["Stripe:SecretKey"];
+            builder.Services.Configure<TaxPolicy>(builder.Configuration.GetSection("TaxPolicy"));
+            builder.Services.Configure<CancelationPolicy>(builder.Configuration.GetSection("CancelationPolicy"));
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
