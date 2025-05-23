@@ -173,6 +173,9 @@ namespace UnitTests.CORE.Services
             _mockUserManager.Setup(x => x.AddToRolesAsync(It.IsAny<AppUser>(), roles))
                             .ReturnsAsync(IdentityResult.Success);
 
+            _mockUserManager.Setup(x => x.RemoveFromRolesAsync(It.IsAny<AppUser>(), roles))
+                .ReturnsAsync(IdentityResult.Success);
+
             _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<AppUser>()))
                             .ReturnsAsync(roles);
 
