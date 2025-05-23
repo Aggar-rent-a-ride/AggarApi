@@ -1,5 +1,7 @@
 ﻿using CORE.DTOs;
 using CORE.DTOs.Payment;
+using DATA.Models;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +13,6 @@ namespace CORE.Services.IServices
     public interface IPaymentService
     {
         public Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId);
+        public Task<PaymentIntent?> CreatePaymentIntent(Booking booking);
     }
 }
