@@ -29,8 +29,8 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetBookingAsync(int id)
+        [HttpGet]
+        public async Task<IActionResult> GetBookingAsync([FromQuery] int id)
         {
             int userId = UserHelpers.GetUserId(User);
             var response = await _bookingService.GetBookingDetailsByIdAsync(id, userId);
@@ -38,20 +38,20 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Customer")]
-        [HttpPut("cancel-booking")]
-        public async Task<IActionResult> CancelBookingAsync([FromQuery] int bookingId)
+        [HttpPut("cancel")]
+        public async Task<IActionResult> CancelBookingAsync([FromQuery] int id)
         {
             int customerId = UserHelpers.GetUserId(User);
-            var response = await _bookingService.CancelBookingAsync(bookingId, customerId);
+            var response = await _bookingService.CancelBookingAsync(id, customerId);
             return StatusCode(response.StatusCode, response);
         }
 
         [Authorize(Roles = "Renter")]
-        [HttpPut("response-booking")]
-        public async Task<IActionResult> ResponseBookingAsync([FromQuery] int bookingId, [FromQuery] bool isAccepted)
+        [HttpPut("response")]
+        public async Task<IActionResult> ResponseBookingAsync([FromQuery] int id, [FromQuery] bool isAccepted)
         {
             int customerId = UserHelpers.GetUserId(User);
-            var response = await _bookingService.ResponseBookingRequestAsync(bookingId, customerId, isAccepted);
+            var response = await _bookingService.ResponseBookingRequestAsync(id, customerId, isAccepted);
             return StatusCode(response.StatusCode, response);
         }
 

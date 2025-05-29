@@ -178,25 +178,27 @@ namespace CORE.Services
                     Message = "customer Id is required"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.GetAsync(bookingId);
-            if (booking == null)
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId);
+            if (booking == null) Console.WriteLine("\n\n\n i am null (:..\n\n");
+            if (booking == null || booking.CustomerId != customerId)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
-                    Message = "Booking not found"
+                    Message = "Booking is not found"
                 };
 
             if(booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Accepted)
             {
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.Conflict,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "You can't Cancel This Booking"
                 };
             }
 
             booking.Status = BookingStatus.Canceled;
-            // remove
+
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify renter
 
@@ -235,8 +237,8 @@ namespace CORE.Services
             {
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.Conflict,
-                    Message = "You can't Response This Booking"
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You can't response this booking"
                 };
             }
 
@@ -247,8 +249,9 @@ namespace CORE.Services
             else
             {
                 booking.Status = BookingStatus.Rejected;
-                // remove
             }
+
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify customer
 
@@ -257,12 +260,13 @@ namespace CORE.Services
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.OK,
-                    Message = "Booking responsed successfuly"
+                    Message = $"You {(booking.Status == BookingStatus.Accepted ? "accepted" : "rejected")} this booking successfuly."
                 };
+
             return new ResponseDto<object>
             {
                 StatusCode = StatusCodes.InternalServerError,
-                Message = "Faild to response booking"
+                Message = "Faild to response this booking"
             };
         }
 
@@ -357,7 +361,9 @@ namespace CORE.Services
 
             booking.PaymentIntentId = paymentIntent.Id;
 
-            bool res = await UpdateBookingAsync(booking);
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+            bool res = await _unitOfWork.CommitAsync() > 0;
 
             return new ResponseDto<ConfirmBookingDto>
             {
@@ -379,11 +385,9 @@ namespace CORE.Services
             return booking;
         }
 
-        public async Task<bool> UpdateBookingAsync(Booking booking)
+        public async Task UpdateBookingAsync(Booking booking)
         {
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
-            int res = await _unitOfWork.CommitAsync();
-            return res > 0;
         }
     }
 }
