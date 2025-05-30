@@ -241,6 +241,7 @@ namespace CORE.Services
             string qrToken = _qrCodeService.GenerateQrHashToken(qrData);
             string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrToken);
             string hashedQrToken = _hashingService.Hash(qrToken);
+            Console.WriteLine($"qr token: {qrCodeBase64}");
 
             Rental rental = new Rental
             {
@@ -300,7 +301,6 @@ namespace CORE.Services
             }
 
             string recievedHashedQrCodeToken = _hashingService.Hash(receivedQrCodeToken);
-            Console.WriteLine($"\n\nhahsed: {recievedHashedQrCodeToken}, here: {rental.hashedQrToken}\n\n");
             if (recievedHashedQrCodeToken != rental.hashedQrToken)
             {
                 return new ResponseDto<object>
