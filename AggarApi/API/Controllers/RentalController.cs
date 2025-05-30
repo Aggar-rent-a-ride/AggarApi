@@ -1,7 +1,9 @@
-﻿using CORE.Helpers;
+﻿using CORE.Constants;
+using CORE.Helpers;
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -24,6 +26,15 @@ namespace API.Controllers
             var userId = UserHelpers.GetUserId(User);
             var result = await _rentalService.GetUserRentalHistoryAsync(userId, pageNo, pageSize);
             
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [Authorize(Roles = Roles.Customer)]
+        [HttpPost("confirm")]
+        public async Task<IActionResult> ConfirmRentalAsync([FromQuery] int rentalId, [FromBody] string qrCodeToken)
+        {
+            int customerId = UserHelpers.GetUserId(User);
+            var result = await _rentalService.ConfirmRentalAsync(customerId, rentalId, qrCodeToken);
             return StatusCode(result.StatusCode, result);
         }
     }

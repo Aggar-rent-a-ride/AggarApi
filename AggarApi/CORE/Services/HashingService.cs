@@ -1,5 +1,7 @@
-﻿using CORE.Services.IServices;
+﻿using CORE.DTOs.Keys;
+using CORE.Services.IServices;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,9 +17,9 @@ namespace CORE.Services
     {
         private readonly string secretKey;
 
-        public HashingService(IConfiguration configuration)
+        public HashingService(IOptions<SecretKeys> options)
         {
-            secretKey = configuration["SecretKey"]!;
+            secretKey = "MSaid,Naru,Dos,Esraa=AggarTeam.";
         }
 
         public string Hash(string token)

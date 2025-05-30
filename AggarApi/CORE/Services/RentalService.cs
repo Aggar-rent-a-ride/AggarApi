@@ -5,6 +5,7 @@ using CORE.DTOs.Rental;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.Constants;
+using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.Extensions.Logging;
@@ -237,13 +238,14 @@ namespace CORE.Services
             Guid guid = Guid.NewGuid();
             string qrData = $"{booking.Id}, {guid.ToString()}";
 
-            string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrData);
-            string hashedQrCode = _hashingService.Hash(qrCodeBase64);
+            string qrToken = _qrCodeService.GenerateQrHashToken(qrData);
+            string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrToken);
+            string hashedQrToken = _hashingService.Hash(qrToken);
 
             Rental rental = new Rental
             {
                 BookingId = booking.Id,
-                hashedQrToken = hashedQrCode
+                hashedQrToken = hashedQrToken
             };
 
             await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
@@ -259,11 +261,11 @@ namespace CORE.Services
             await _emailService.SendEmailAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
                 await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 
                 new { 
-                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id), 
+                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id.ToString()), 
                     VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name), 
                     VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model), 
-                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate), 
-                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate), 
+                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString()), 
+                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString()), 
                     Base64QrImage = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
 
             // notify renter
@@ -275,11 +277,11 @@ namespace CORE.Services
             };
         }
 
-        public async Task<ResponseDto<object>> ConfirmRentalAsync(int rentalId, string receivedQrCodeToken)
+        public async Task<ResponseDto<object>> ConfirmRentalAsync(int customerId, int rentalId, string receivedQrCodeToken)
         {
-            Rental? rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking]);
 
-            if(rental == null)
+            if(rental == null || customerId != rental.Booking.CustomerId)
             {
                 return new ResponseDto<object>
                 {
@@ -288,7 +290,7 @@ namespace CORE.Services
                 };
             }
 
-            if(rental.Booking.StartDate >  DateTime.UtcNow /* || staus not pending*/)
+            if(rental.Booking.StartDate ==  DateTime.UtcNow /* || staus not pending*/)
             {
                 return new ResponseDto<object>
                 {
@@ -298,6 +300,7 @@ namespace CORE.Services
             }
 
             string recievedHashedQrCodeToken = _hashingService.Hash(receivedQrCodeToken);
+            Console.WriteLine($"\n\nhahsed: {recievedHashedQrCodeToken}, here: {rental.hashedQrToken}\n\n");
             if (recievedHashedQrCodeToken != rental.hashedQrToken)
             {
                 return new ResponseDto<object>

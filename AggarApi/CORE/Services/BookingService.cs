@@ -387,7 +387,7 @@ namespace CORE.Services
 
         public async Task HandleBookingPaymentSuccededAsync(int bookingId, string paymentIntentId)
         {
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId, includes: [BookingIncludes.Vehicle]);
+            Booking? booking = await _unitOfWork.Bookings.GetBookingByIntentIdAsync(paymentIntentId);
             if (booking != null && bookingId == booking.Id)
             {
                 booking.Status = BookingStatus.Confirmed;

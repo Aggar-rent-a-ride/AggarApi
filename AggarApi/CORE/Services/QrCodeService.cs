@@ -1,10 +1,12 @@
-﻿using CORE.Services.IServices;
+﻿using CORE.DTOs.Keys;
+using CORE.Services.IServices;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using QRCoder;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Security.Cryptography;
@@ -18,9 +20,10 @@ namespace CORE.Services
     {
         private string qrSecretKey;
 
-        public QrCodeService(IConfiguration configuration)
+        public QrCodeService(IOptions<SecretKeys> options)
         {
-            qrSecretKey = configuration["QrSecretKey"]!;
+            qrSecretKey = "PleaseDon'tUnLockOurQrSecrectKey,AndGiveUsAnIntern(:";
+
         }
 
         public string GenerateQrHashToken(string data)

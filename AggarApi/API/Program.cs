@@ -7,6 +7,7 @@ using CORE.DTOs.Auth;
 using CORE.DTOs.Chat;
 using CORE.DTOs.Email;
 using CORE.DTOs.Geoapify;
+using CORE.DTOs.Keys;
 using CORE.DTOs.Paths;
 using CORE.DTOs.Payment;
 using CORE.Helpers;
@@ -185,6 +186,7 @@ namespace API
             builder.Services.Configure<WarningManagement>(builder.Configuration.GetSection("WarningManagement"));
             builder.Services.Configure<TaxPolicy>(builder.Configuration.GetSection("TaxPolicy"));
             builder.Services.Configure<CancelationPolicy>(builder.Configuration.GetSection("CancelationPolicy"));
+            builder.Services.Configure<SecretKeys>(builder.Configuration.GetSection("Secret"));
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
