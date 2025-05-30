@@ -27,10 +27,12 @@ namespace CORE.Services
         private readonly IHashingService _hashingService;
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
+        private readonly IPaymentService _paymentService;
 
         public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
             IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
-            IEmailTemplateRendererService emailTemplateRendererService)
+            IEmailTemplateRendererService emailTemplateRendererService,
+            IPaymentService paymentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -39,6 +41,7 @@ namespace CORE.Services
             _hashingService = hashingService;
             _emailService = emailService;
             _emailTemplateRendererService = emailTemplateRendererService;
+            _paymentService = paymentService;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -304,7 +307,6 @@ namespace CORE.Services
                 };
             }
 
-            // transfer
             // send email, notify renter
 
             return new ResponseDto<object>

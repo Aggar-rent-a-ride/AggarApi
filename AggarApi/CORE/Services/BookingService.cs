@@ -2,6 +2,7 @@
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Booking;
+using CORE.DTOs.Rental;
 using CORE.DTOs.Vehicle;
 using CORE.Extensions;
 using CORE.Helpers;
@@ -12,6 +13,7 @@ using DATA.Models;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -26,11 +28,15 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IPaymentService _paymentService;
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService)
+        private readonly IRentalService _rentalService;
+        private readonly ILogger<BookingService> _logger;
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService, ILogger<BookingService> logger, IRentalService rentalService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _paymentService = paymentService;
+            _logger = logger;
+            _rentalService = rentalService;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -379,15 +385,42 @@ namespace CORE.Services
 
         }
 
-        public async Task<Booking> GetBookingByIntentIdAsync(string paymentIntentId)
+        public async Task HandleBookingPaymentSuccededAsync(int bookingId, string paymentIntentId)
         {
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId, includes:[BookingIncludes.Vehicle]);
-            return booking;
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId, includes: [BookingIncludes.Vehicle]);
+            if (booking != null && bookingId == booking.Id)
+            {
+                booking.Status = BookingStatus.Confirmed;
+
+                await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+                _logger.LogInformation($"Booking {bookingId} Confirmed Successfuly");
+
+                CreatedRentalDto createdRental = await _rentalService.CreateRentalAsync(booking);
+            }
         }
 
-        public async Task UpdateBookingAsync(Booking booking)
+        public async Task HandleBookingPaymentFailedAsync(int bookingId, string paymentIntentId)
         {
-            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId, includes: [BookingIncludes.Vehicle]);
+            if (booking != null && bookingId == booking.Id)
+            {
+                try
+                {
+                    var service = new PaymentIntentService();
+
+                    await service.CancelAsync(paymentIntentId);
+                    booking.PaymentIntentId = null;
+
+                    await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+                    _logger.LogInformation($"Booking {bookingId} Not Confirmed");
+                }
+                catch (StripeException ex)
+                {
+                    _logger.LogError(ex, "Failed to Cancel payment intent for booking {BookingId}", booking.Id);
+                }
+            }
         }
     }
 }

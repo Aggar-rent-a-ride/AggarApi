@@ -94,7 +94,7 @@ namespace API.Controllers
             if (paymentIntent.Metadata.TryGetValue("BookingId", out string bookingIdStr) &&
                 int.TryParse(bookingIdStr, out int bookingId))
             {
-                await _paymentService.PaymentSucceededAsync(bookingId, paymentIntent.Id);
+                await _bookingService.HandleBookingPaymentSuccededAsync(bookingId, paymentIntent.Id);
             }
         }
 
@@ -105,7 +105,7 @@ namespace API.Controllers
             if (paymentIntent.Metadata.TryGetValue("BookingId", out string bookingIdStr) &&
                 int.TryParse(bookingIdStr, out int bookingId))
             {
-                await _paymentService.PaymentFailedAsync(bookingId, paymentIntent.Id);
+                await _bookingService.HandleBookingPaymentFailedAsync(bookingId, paymentIntent.Id);
             }
         }
     }

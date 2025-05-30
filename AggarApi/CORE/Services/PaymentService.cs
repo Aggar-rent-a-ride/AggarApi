@@ -26,22 +26,16 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly StripeSettings _stripe;
         private readonly ILogger<PaymentService> _logger;
-        private readonly IBookingService _bookingService;
-        private readonly IRentalService _rentalService;
         public PaymentService(IUnitOfWork unitOfWork, 
             IOptions<StripeSettings> stripeSettings, 
             IOptions<TaxPolicy> taxPolicy,
-            ILogger<PaymentService> logger,
-            IBookingService bookingService,
-            IRentalService rentalService)
+            ILogger<PaymentService> logger)
         {
             _unitOfWork = unitOfWork;
             _stripe = stripeSettings.Value;
             StripeConfiguration.ApiKey = _stripe.SecretKey;
             _taxPolicy = taxPolicy.Value;
             _logger = logger;
-            _bookingService = bookingService;
-            _rentalService = rentalService;
         }
 
         public async Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId)
@@ -258,41 +252,46 @@ namespace CORE.Services
             }
         }
 
-        public async Task PaymentSucceededAsync(int bookingId, string paymentIntentId)
+        public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, long amount)
         {
-            var booking = await _bookingService.GetBookingByIntentIdAsync(paymentIntentId);
-            if (booking != null && bookingId == booking.Id)
+            var chargeService = new ChargeService();
+            var charges = await chargeService.ListAsync(new ChargeListOptions
             {
-                booking.Status = BookingStatus.Confirmed;
+                PaymentIntent = paymentIntentId
+            });
 
-                await _bookingService.UpdateBookingAsync(booking);
-
-                _logger.LogInformation($"Booking {bookingId} Confirmed Successfuly");
-
-                CreatedRentalDto createdRental = await _rentalService.CreateRentalAsync(booking);
+            var charge = charges.FirstOrDefault();
+            if (charge == null)
+            {
+                _logger.LogError($"No charge found for payment intent {paymentIntentId}");
+                throw new InvalidOperationException("Original payment not found");
             }
-        }
 
-        public async Task PaymentFailedAsync(int bookingId, string paymentIntentId)
-        {
-            var booking = await _bookingService.GetBookingByIntentIdAsync(paymentIntentId);
-            if (booking != null && bookingId == booking.Id)
+            var transferService = new TransferService();
+            var transferOptions = new TransferCreateOptions
             {
-                try
-                {
-                    var service = new PaymentIntentService();
+                Amount = amount,
+                Currency = "USD",
+                Destination = connectedAccountId,
+                SourceTransaction = charge.Id,
+                Description = $"Rental payout for payment {paymentIntentId}",
+                Metadata = new Dictionary<string, string>
+            {
+                { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" }
+            }
+            };
 
-                    await service.CancelAsync(paymentIntentId);
-                    booking.PaymentIntentId = null;
+            try
+            {
+                var transfer = await transferService.CreateAsync(transferOptions);
+                _logger.LogInformation($"Transfer {transfer.Id} created for {amount} to account {connectedAccountId}");
 
-                    await _bookingService.UpdateBookingAsync(booking);
-
-                    _logger.LogInformation($"Booking {bookingId} Not Confirmed");
-                }
-                catch (StripeException ex)
-                {
-                    _logger.LogError(ex, "Failed to Cancel payment intent for booking {BookingId}", booking.Id);
-                }
+                return transfer;
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, $"Failed to create transfer for payment {paymentIntentId}");
+                return null;
             }
         }
     }

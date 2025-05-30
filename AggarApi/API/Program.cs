@@ -211,6 +211,8 @@ namespace API
             builder.Services.AddScoped<IVehicleReviewService, VehicleReviewService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<ISignalRNotificationService, SignalRNotificationService>();
+            builder.Services.AddScoped<IHashingService, HashingService>();
+            builder.Services.AddScoped<IQrCodeService, QrCodeService>();
 
             builder.Services.AddScoped<IUserRatingUpdateJob, UserRatingUpdateJob>();
             builder.Services.AddScoped<IUserManagementJob, UserManagementJob>();
