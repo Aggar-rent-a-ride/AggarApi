@@ -307,13 +307,48 @@ namespace CORE.Services
                 };
             }
 
+            bool transferResult = await TransferToRenter(rental);
+
+            if (transferResult)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.OK,
+                    Message = "Rental Cofirmed Successfuly"
+                };
+            }
+            else
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "QR Code Validated Successfuly, but Transfer Not Succeded"
+                };
+            }
+        }
+
+        private async Task<bool> TransferToRenter(Rental rental)
+        {
+            Booking? booking = await _unitOfWork.Bookings.GetBookingByRentalIdAsync(rental.Id);
+            // get the percentage from configurations
+            long platformFee = (long)(booking.FinalPrice * 0.10m * 100);
+            long renterAmount = (long)(booking.FinalPrice * 100) - platformFee;
+            Transfer? transfer =  await _paymentService.TransferToRenterAsync(booking.PaymentIntentId, booking.Vehicle.Renter.StripeAccount.StripeAccountId, renterAmount);
+
+
+            if (transfer == null)
+            {
+                return false;
+            }
+            
             // send email, notify renter
 
-            return new ResponseDto<object>
-            {
-                StatusCode = StatusCodes.OK,
-                Message = "Rental Cofirmed Successfuly"
-            };
+            rental.PaymentTransferId = transfer.Id;
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            int changes = await _unitOfWork.CommitAsync();
+
+            return changes > 0;
         }
     }
 }

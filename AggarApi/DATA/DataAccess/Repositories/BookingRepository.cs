@@ -28,5 +28,16 @@ namespace DATA.DataAccess.Repositories
 
             return rental?.Booking;
         }
+        public async Task<Booking?> GetBookingByIntentIdAsync(int intentId)
+        {
+            Booking? booking = await _context.bookings
+                .Include(b => b.Vehicle)
+                .ThenInclude(v => v.VehicleBrand)
+                .Include(b => b.Vehicle)
+                .ThenInclude(v => v.Renter)
+                .FirstOrDefaultAsync();
+
+            return booking;
+        }
     }
 }
