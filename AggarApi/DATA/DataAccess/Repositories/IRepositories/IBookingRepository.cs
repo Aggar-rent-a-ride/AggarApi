@@ -10,5 +10,6 @@ namespace DATA.DataAccess.Repositories.IRepositories
     public interface IBookingRepository : IBaseRepository<Booking>
     {
         Task<Booking?> GetBookingByRentalIdAsync(int rentalId);
+        Task<Booking?> GetBookingByIntentIdAsync(string intentId);
     }
 }

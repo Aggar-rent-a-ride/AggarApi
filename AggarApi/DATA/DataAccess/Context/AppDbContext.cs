@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DATA.DataAccess.Context
-{//- review DB mapping of SSMS
+{
     public class AppDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
         public DbSet<AppUser> AppUsers { get; set; }

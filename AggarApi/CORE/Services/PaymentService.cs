@@ -2,9 +2,11 @@
 using CORE.DTOs;
 using CORE.DTOs.Booking;
 using CORE.DTOs.Payment;
+using CORE.DTOs.Rental;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using DATA.Models.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -212,6 +214,13 @@ namespace CORE.Services
         {
             try
             {
+                var service = new PaymentIntentService();
+                if(booking.PaymentIntentId != null)
+                {
+                    await service.CancelAsync(booking.PaymentIntentId);
+                    booking.PaymentIntentId = null;
+                }
+
                 long amountInCents = (long)(booking.FinalPrice * 100);
 
                 long fees = amountInCents * _taxPolicy.FeesPercentage / 100;
@@ -230,7 +239,6 @@ namespace CORE.Services
                     }
                 };
 
-                var service = new PaymentIntentService();
                 var paymentIntent = await service.CreateAsync(options);
 
                 _logger.LogInformation($"Confirm Booking #{booking.Id} for Vehicle #{booking.VehicleId} by Customer #{booking.CustomerId}");
@@ -244,5 +252,47 @@ namespace CORE.Services
             }
         }
 
+        public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, long amount)
+        {
+            var chargeService = new ChargeService();
+            var charges = await chargeService.ListAsync(new ChargeListOptions
+            {
+                PaymentIntent = paymentIntentId
+            });
+
+            var charge = charges.FirstOrDefault();
+            if (charge == null)
+            {
+                _logger.LogError($"No charge found for payment intent {paymentIntentId}");
+                throw new InvalidOperationException("Original payment not found");
+            }
+
+            var transferService = new TransferService();
+            var transferOptions = new TransferCreateOptions
+            {
+                Amount = amount,
+                Currency = "USD",
+                Destination = connectedAccountId,
+                SourceTransaction = charge.Id,
+                Description = $"Rental payout for payment {paymentIntentId}",
+                Metadata = new Dictionary<string, string>
+            {
+                { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" }
+            }
+            };
+
+            try
+            {
+                var transfer = await transferService.CreateAsync(transferOptions);
+                _logger.LogInformation($"Transfer {transfer.Id} created for {amount} to account {connectedAccountId}");
+
+                return transfer;
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, $"Failed to create transfer for payment {paymentIntentId}");
+                return null;
+            }
+        }
     }
 }

@@ -63,7 +63,7 @@ namespace API.Controllers
                         break;
 
                     case "payment_intent.payment_failed":
-                        //await HandlePaymentFailed(stripeEvent);
+                        await HandlePaymentFailed(stripeEvent);
                         break;
 
                     case "charge.refunded":
@@ -94,18 +94,18 @@ namespace API.Controllers
             if (paymentIntent.Metadata.TryGetValue("BookingId", out string bookingIdStr) &&
                 int.TryParse(bookingIdStr, out int bookingId))
             {
-                var booking = await _bookingService.GetBookingByIntentIdAsync(paymentIntent.Id);
-                if (booking != null && bookingId == booking.Id)
-                {
-                    booking.Status = BookingStatus.Confirmed;
+                await _bookingService.HandleBookingPaymentSuccededAsync(bookingId, paymentIntent.Id);
+            }
+        }
 
-                    await _bookingService.UpdateBookingAsync(booking);
+        private async Task HandlePaymentFailed(Event stripeEvent)
+        {
+            var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
-                    _logger.LogInformation($"Booking {bookingId} Confirmed Successfuly");
-
-                    // rental process (qr, email, notification)
-                    
-                }
+            if (paymentIntent.Metadata.TryGetValue("BookingId", out string bookingIdStr) &&
+                int.TryParse(bookingIdStr, out int bookingId))
+            {
+                await _bookingService.HandleBookingPaymentFailedAsync(bookingId, paymentIntent.Id);
             }
         }
     }

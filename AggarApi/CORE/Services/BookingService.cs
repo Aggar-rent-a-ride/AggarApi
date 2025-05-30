@@ -2,6 +2,7 @@
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Booking;
+using CORE.DTOs.Rental;
 using CORE.DTOs.Vehicle;
 using CORE.Extensions;
 using CORE.Helpers;
@@ -12,6 +13,7 @@ using DATA.Models;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -26,11 +28,15 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IPaymentService _paymentService;
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService)
+        private readonly IRentalService _rentalService;
+        private readonly ILogger<BookingService> _logger;
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService, ILogger<BookingService> logger, IRentalService rentalService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _paymentService = paymentService;
+            _logger = logger;
+            _rentalService = rentalService;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -178,25 +184,27 @@ namespace CORE.Services
                     Message = "customer Id is required"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.GetAsync(bookingId);
-            if (booking == null)
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId);
+            if (booking == null) Console.WriteLine("\n\n\n i am null (:..\n\n");
+            if (booking == null || booking.CustomerId != customerId)
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
-                    Message = "Booking not found"
+                    Message = "Booking is not found"
                 };
 
             if(booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Accepted)
             {
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.Conflict,
+                    StatusCode = StatusCodes.BadRequest,
                     Message = "You can't Cancel This Booking"
                 };
             }
 
             booking.Status = BookingStatus.Canceled;
-            // remove
+
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify renter
 
@@ -235,8 +243,8 @@ namespace CORE.Services
             {
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.Conflict,
-                    Message = "You can't Response This Booking"
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "You can't response this booking"
                 };
             }
 
@@ -247,8 +255,9 @@ namespace CORE.Services
             else
             {
                 booking.Status = BookingStatus.Rejected;
-                // remove
             }
+
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify customer
 
@@ -257,12 +266,13 @@ namespace CORE.Services
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.OK,
-                    Message = "Booking responsed successfuly"
+                    Message = $"You {(booking.Status == BookingStatus.Accepted ? "accepted" : "rejected")} this booking successfuly."
                 };
+
             return new ResponseDto<object>
             {
                 StatusCode = StatusCodes.InternalServerError,
-                Message = "Faild to response booking"
+                Message = "Faild to response this booking"
             };
         }
 
@@ -357,7 +367,9 @@ namespace CORE.Services
 
             booking.PaymentIntentId = paymentIntent.Id;
 
-            bool res = await UpdateBookingAsync(booking);
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+            bool res = await _unitOfWork.CommitAsync() > 0;
 
             return new ResponseDto<ConfirmBookingDto>
             {
@@ -373,17 +385,42 @@ namespace CORE.Services
 
         }
 
-        public async Task<Booking> GetBookingByIntentIdAsync(string paymentIntentId)
+        public async Task HandleBookingPaymentSuccededAsync(int bookingId, string paymentIntentId)
         {
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId);
-            return booking;
+            Booking? booking = await _unitOfWork.Bookings.GetBookingByIntentIdAsync(paymentIntentId);
+            if (booking != null && bookingId == booking.Id)
+            {
+                booking.Status = BookingStatus.Confirmed;
+
+                await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+                _logger.LogInformation($"Booking {bookingId} Confirmed Successfuly");
+
+                CreatedRentalDto createdRental = await _rentalService.CreateRentalAsync(booking);
+            }
         }
 
-        public async Task<bool> UpdateBookingAsync(Booking booking)
+        public async Task HandleBookingPaymentFailedAsync(int bookingId, string paymentIntentId)
         {
-            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
-            int res = await _unitOfWork.CommitAsync();
-            return res > 0;
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId, includes: [BookingIncludes.Vehicle]);
+            if (booking != null && bookingId == booking.Id)
+            {
+                try
+                {
+                    var service = new PaymentIntentService();
+
+                    await service.CancelAsync(paymentIntentId);
+                    booking.PaymentIntentId = null;
+
+                    await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+                    _logger.LogInformation($"Booking {bookingId} Not Confirmed");
+                }
+                catch (StripeException ex)
+                {
+                    _logger.LogError(ex, "Failed to Cancel payment intent for booking {BookingId}", booking.Id);
+                }
+            }
         }
     }
 }

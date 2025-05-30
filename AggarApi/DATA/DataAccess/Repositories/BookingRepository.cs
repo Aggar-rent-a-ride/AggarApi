@@ -19,9 +19,26 @@ namespace DATA.DataAccess.Repositories
         {
             var rental = await _context.Rentals
                 .Include(r => r.Booking)
+                .ThenInclude(b => b.Vehicle)
+                .ThenInclude(v => v.VehicleBrand)
+                .Include(r => r.Booking)
+                .ThenInclude(b => b.Vehicle)
+                .ThenInclude(v => v.Renter)
                 .FirstOrDefaultAsync(r => r.Id == rentalId);
 
             return rental?.Booking;
+        }
+        public async Task<Booking?> GetBookingByIntentIdAsync(string intentId)
+        {
+            Booking? booking = await _context.bookings
+                .Where(b => b.PaymentIntentId == intentId)
+                .Include(b => b.Vehicle)
+                .ThenInclude(v => v.VehicleBrand)
+                .Include(b => b.Vehicle)
+                .ThenInclude(v => v.Renter)
+                .FirstOrDefaultAsync();
+
+            return booking;
         }
     }
 }

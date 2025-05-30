@@ -5,9 +5,11 @@ using CORE.DTOs.Rental;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using DATA.Constants;
+using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.Extensions.Logging;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +24,25 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<RentalService> _logger;
+        private readonly IQrCodeService _qrCodeService;
+        private readonly IHashingService _hashingService;
+        private readonly IEmailService _emailService;
+        private readonly IEmailTemplateRendererService _emailTemplateRendererService;
+        private readonly IPaymentService _paymentService;
 
-        public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger)
+        public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
+            IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
+            IEmailTemplateRendererService emailTemplateRendererService,
+            IPaymentService paymentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _qrCodeService = qrCodeService;
+            _hashingService = hashingService;
+            _emailService = emailService;
+            _emailTemplateRendererService = emailTemplateRendererService;
+            _paymentService = paymentService;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -216,6 +231,127 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
                 Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
             };
+        }
+
+        public async Task<CreatedRentalDto> CreateRentalAsync(Booking booking)
+        {
+            Guid guid = Guid.NewGuid();
+            string qrData = $"{booking.Id}, {guid.ToString()}";
+
+            string qrToken = _qrCodeService.GenerateQrHashToken(qrData);
+            string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrToken);
+            string hashedQrToken = _hashingService.Hash(qrToken);
+
+            Rental rental = new Rental
+            {
+                BookingId = booking.Id,
+                hashedQrToken = hashedQrToken
+            };
+
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+            {
+                _logger.LogError($"Failed to create image for booking {booking.Id}");
+                return new CreatedRentalDto { RentalId = 0 };
+            }
+
+            await _emailService.SendEmailAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
+                await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 
+                new { 
+                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id.ToString()), 
+                    VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name), 
+                    VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model), 
+                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString()), 
+                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString()), 
+                    Base64QrImage = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
+
+            // notify renter
+
+            return new CreatedRentalDto
+            {
+                QrCodeBase64 = qrCodeBase64,
+                RentalId = rental.Id,
+            };
+        }
+
+        public async Task<ResponseDto<object>> ConfirmRentalAsync(int customerId, int rentalId, string receivedQrCodeToken)
+        {
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking]);
+
+            if(rental == null || customerId != rental.Booking.CustomerId)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Rental is not found"
+                };
+            }
+
+            if(rental.Booking.StartDate ==  DateTime.UtcNow /* || staus not pending*/)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Rental can not confirmed in this time"
+                };
+            }
+
+            string recievedHashedQrCodeToken = _hashingService.Hash(receivedQrCodeToken);
+            Console.WriteLine($"\n\nhahsed: {recievedHashedQrCodeToken}, here: {rental.hashedQrToken}\n\n");
+            if (recievedHashedQrCodeToken != rental.hashedQrToken)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "QR Code is not valid"
+                };
+            }
+
+            bool transferResult = await TransferToRenter(rental);
+
+            if (transferResult)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.OK,
+                    Message = "Rental Cofirmed Successfuly"
+                };
+            }
+            else
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "QR Code Validated Successfuly, but Transfer Not Succeded"
+                };
+            }
+        }
+
+        private async Task<bool> TransferToRenter(Rental rental)
+        {
+            Booking? booking = await _unitOfWork.Bookings.GetBookingByRentalIdAsync(rental.Id);
+            // get the percentage from configurations
+            long platformFee = (long)(booking.FinalPrice * 0.10m * 100);
+            long renterAmount = (long)(booking.FinalPrice * 100) - platformFee;
+            Transfer? transfer =  await _paymentService.TransferToRenterAsync(booking.PaymentIntentId, booking.Vehicle.Renter.StripeAccount.StripeAccountId, renterAmount);
+
+
+            if (transfer == null)
+            {
+                return false;
+            }
+            
+            // send email, notify renter
+
+            rental.PaymentTransferId = transfer.Id;
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            int changes = await _unitOfWork.CommitAsync();
+
+            return changes > 0;
         }
     }
 }
