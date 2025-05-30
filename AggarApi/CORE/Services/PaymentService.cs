@@ -2,9 +2,11 @@
 using CORE.DTOs;
 using CORE.DTOs.Booking;
 using CORE.DTOs.Payment;
+using CORE.DTOs.Rental;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
+using DATA.Models.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -24,16 +26,22 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly StripeSettings _stripe;
         private readonly ILogger<PaymentService> _logger;
+        private readonly IBookingService _bookingService;
+        private readonly IRentalService _rentalService;
         public PaymentService(IUnitOfWork unitOfWork, 
             IOptions<StripeSettings> stripeSettings, 
             IOptions<TaxPolicy> taxPolicy,
-            ILogger<PaymentService> logger)
+            ILogger<PaymentService> logger,
+            IBookingService bookingService,
+            IRentalService rentalService)
         {
             _unitOfWork = unitOfWork;
             _stripe = stripeSettings.Value;
             StripeConfiguration.ApiKey = _stripe.SecretKey;
             _taxPolicy = taxPolicy.Value;
             _logger = logger;
+            _bookingService = bookingService;
+            _rentalService = rentalService;
         }
 
         public async Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId)
@@ -212,6 +220,13 @@ namespace CORE.Services
         {
             try
             {
+                var service = new PaymentIntentService();
+                if(booking.PaymentIntentId != null)
+                {
+                    await service.CancelAsync(booking.PaymentIntentId);
+                    booking.PaymentIntentId = null;
+                }
+
                 long amountInCents = (long)(booking.FinalPrice * 100);
 
                 long fees = amountInCents * _taxPolicy.FeesPercentage / 100;
@@ -230,7 +245,6 @@ namespace CORE.Services
                     }
                 };
 
-                var service = new PaymentIntentService();
                 var paymentIntent = await service.CreateAsync(options);
 
                 _logger.LogInformation($"Confirm Booking #{booking.Id} for Vehicle #{booking.VehicleId} by Customer #{booking.CustomerId}");
@@ -244,5 +258,42 @@ namespace CORE.Services
             }
         }
 
+        public async Task PaymentSucceededAsync(int bookingId, string paymentIntentId)
+        {
+            var booking = await _bookingService.GetBookingByIntentIdAsync(paymentIntentId);
+            if (booking != null && bookingId == booking.Id)
+            {
+                booking.Status = BookingStatus.Confirmed;
+
+                await _bookingService.UpdateBookingAsync(booking);
+
+                _logger.LogInformation($"Booking {bookingId} Confirmed Successfuly");
+
+                CreatedRentalDto createdRental = await _rentalService.CreateRentalAsync(booking);
+            }
+        }
+
+        public async Task PaymentFailedAsync(int bookingId, string paymentIntentId)
+        {
+            var booking = await _bookingService.GetBookingByIntentIdAsync(paymentIntentId);
+            if (booking != null && bookingId == booking.Id)
+            {
+                try
+                {
+                    var service = new PaymentIntentService();
+
+                    await service.CancelAsync(paymentIntentId);
+                    booking.PaymentIntentId = null;
+
+                    await _bookingService.UpdateBookingAsync(booking);
+
+                    _logger.LogInformation($"Booking {bookingId} Not Confirmed");
+                }
+                catch (StripeException ex)
+                {
+                    _logger.LogError(ex, "Failed to Cancel payment intent for booking {BookingId}", booking.Id);
+                }
+            }
+        }
     }
 }

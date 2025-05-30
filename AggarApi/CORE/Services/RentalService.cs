@@ -8,6 +8,7 @@ using DATA.Constants;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.Extensions.Logging;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +23,22 @@ namespace CORE.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<RentalService> _logger;
+        private readonly IQrCodeService _qrCodeService;
+        private readonly IHashingService _hashingService;
+        private readonly IEmailService _emailService;
+        private readonly IEmailTemplateRendererService _emailTemplateRendererService;
 
-        public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger)
+        public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
+            IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
+            IEmailTemplateRendererService emailTemplateRendererService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _qrCodeService = qrCodeService;
+            _hashingService = hashingService;
+            _emailService = emailService;
+            _emailTemplateRendererService = emailTemplateRendererService;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -215,6 +226,91 @@ namespace CORE.Services
             {
                 StatusCode = StatusCodes.OK,
                 Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
+            };
+        }
+
+        public async Task<CreatedRentalDto> CreateRentalAsync(Booking booking)
+        {
+            Guid guid = Guid.NewGuid();
+            string qrData = $"{booking.Id}, {guid.ToString()}";
+
+            string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrData);
+            string hashedQrCode = _hashingService.Hash(qrCodeBase64);
+
+            Rental rental = new Rental
+            {
+                BookingId = booking.Id,
+                hashedQrToken = hashedQrCode
+            };
+
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+            {
+                _logger.LogError($"Failed to create image for booking {booking.Id}");
+                return new CreatedRentalDto { RentalId = 0 };
+            }
+
+            await _emailService.SendEmailAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
+                await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 
+                new { 
+                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id), 
+                    VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name), 
+                    VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model), 
+                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate), 
+                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate), 
+                    Base64QrImage = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
+
+            // notify renter
+
+            return new CreatedRentalDto
+            {
+                QrCodeBase64 = qrCodeBase64,
+                RentalId = rental.Id,
+            };
+        }
+
+        public async Task<ResponseDto<object>> ConfirmRentalAsync(int rentalId, string receivedQrCodeToken)
+        {
+            Rental? rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+
+            if(rental == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Rental is not found"
+                };
+            }
+
+            if(rental.Booking.StartDate >  DateTime.UtcNow /* || staus not pending*/)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Rental can not confirmed in this time"
+                };
+            }
+
+            string recievedHashedQrCodeToken = _hashingService.Hash(receivedQrCodeToken);
+            if (recievedHashedQrCodeToken != rental.hashedQrToken)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "QR Code is not valid"
+                };
+            }
+
+            // transfer
+            // send email, notify renter
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Rental Cofirmed Successfuly"
             };
         }
     }

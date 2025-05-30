@@ -381,7 +381,7 @@ namespace CORE.Services
 
         public async Task<Booking> GetBookingByIntentIdAsync(string paymentIntentId)
         {
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId);
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.PaymentIntentId == paymentIntentId, includes:[BookingIncludes.Vehicle]);
             return booking;
         }
 

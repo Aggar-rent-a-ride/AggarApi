@@ -1,0 +1,45 @@
+﻿using CORE.Services.IServices;
+using Microsoft.Extensions.Configuration;
+using QRCoder;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace CORE.Services
+{
+    public class QrCodeService : IQrCodeService
+    {
+        private string qrSecretKey;
+
+        public QrCodeService(IConfiguration configuration)
+        {
+            qrSecretKey = configuration["QrSecretKey"]!;
+        }
+
+        public string GenerateQrHashToken(string data)
+        {
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(qrSecretKey));
+            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+            return Convert.ToBase64String(hash);
+        }
+
+        public string GenerateQrCode(string token)
+        {
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(token, QRCodeGenerator.ECCLevel.Q);
+            PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
+
+            byte[] qrCodeImage =  qrCode.GetGraphic(20);
+            string qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
+
+            return qrCodeBase64;
+        }
+    }
+}

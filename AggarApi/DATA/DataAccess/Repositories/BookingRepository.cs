@@ -19,6 +19,11 @@ namespace DATA.DataAccess.Repositories
         {
             var rental = await _context.Rentals
                 .Include(r => r.Booking)
+                .ThenInclude(b => b.Vehicle)
+                .ThenInclude(v => v.VehicleBrand)
+                .Include(r => r.Booking)
+                .ThenInclude(b => b.Vehicle)
+                .ThenInclude(v => v.Renter)
                 .FirstOrDefaultAsync(r => r.Id == rentalId);
 
             return rental?.Booking;

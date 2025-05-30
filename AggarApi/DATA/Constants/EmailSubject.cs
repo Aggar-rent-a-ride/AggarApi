@@ -13,5 +13,6 @@ namespace DATA.Constants
         public const string AccountBanned = "Account Suspended";
         public const string AccountWarned = "Account Warned";
         public const string AccountRemoved= "Account Removed";
+        public const string RentalConfirmationQRCode = "Rental Confirmation QR Code";
     }
 }

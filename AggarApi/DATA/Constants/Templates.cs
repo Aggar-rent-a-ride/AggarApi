@@ -12,5 +12,6 @@ namespace DATA.Constants
         public const string Notification = "Notification";
         public const string Ban = "Ban";
         public const string Warning = "Warning";
+        public const string RentalConfirmationQRCode = "RentalConfirmationQRCode";
     }
 }
