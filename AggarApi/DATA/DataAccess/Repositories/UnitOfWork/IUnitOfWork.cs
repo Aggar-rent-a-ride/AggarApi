@@ -26,6 +26,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         IBaseRepository<VehiclePopularity> VehiclePopularity { get; }
         IBaseRepository<Customer> Customers { get; }
         IBaseRepository<Notification> Notifications { get; }
+        IBaseRepository<CustomersFavoriteVehicles> CustomersFavoriteVehicles { get; }
 
         Task<int> CommitAsync();
 

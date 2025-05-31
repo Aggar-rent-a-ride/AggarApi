@@ -40,7 +40,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetVehicleByIdAsync([FromQuery] int id)
         {
             var renterId = UserHelpers.GetUserId(User);
-            var response = await _vehicleService.GetVehicleByIdAsync(id);
+            var response = await _vehicleService.GetVehicleByIdAsync(id, renterId);
 
             if (response.StatusCode == CORE.Constants.StatusCodes.OK)
                 _vehiclePopularityManagementJob.Execute(id, renterId);

@@ -26,6 +26,7 @@ namespace DATA.DataAccess.Context
         public DbSet<RecommendedType> RecommendedTypes { get; set; }
         public DbSet<FileCache> FileCache { get; set; }
         public DbSet<VehiclePopularity> VehiclePopularity { get; set; }
+        public DbSet<CustomersFavoriteVehicles> CustomersFavoriteVehicles { get; set; }
 
         public AppDbContext() { }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
