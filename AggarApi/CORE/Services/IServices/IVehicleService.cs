@@ -9,7 +9,7 @@ namespace CORE.Services.IServices
     public interface IVehicleService
     {
         Task<ResponseDto<GetVehicleDto>> CreateVehicleAsync(CreateVehicleDto createVehicleDto, int? renterId);
-        Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId);
+        Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId, int? userId);
         Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetVehiclesAsync(int userId, VehiclesSearchQuery searchQuery);
         Task<ResponseDto<object>> DeleteVehicleByIdAsync(int vehicleId, int? renterId, string[] roles);
         Task<ResponseDto<GetVehicleDto>> UpdateVehicleImagesAsync(UpdateVehicleImagesDto updateVehicleImagesDto, int? renterId);

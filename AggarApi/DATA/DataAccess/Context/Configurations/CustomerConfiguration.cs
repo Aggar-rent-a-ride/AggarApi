@@ -20,18 +20,17 @@ namespace DATA.DataAccess.Context.Configurations
 
             builder.HasMany(c => c.FavoriteVehicles)
                 .WithMany(v => v.FavoriteCustomers)
-                .UsingEntity<Dictionary<string, object>>(
-                "CustomersFavoriteVehicles",
+                .UsingEntity<CustomersFavoriteVehicles>(
                 right => right
-                .HasOne<Vehicle>()
-                .WithMany()
-                .HasForeignKey("VehicleId")
-                .OnDelete(DeleteBehavior.NoAction),
+                    .HasOne<Vehicle>()
+                    .WithMany()
+                    .HasForeignKey(x=>x.VehicleId)
+                    .OnDelete(DeleteBehavior.NoAction),
                 left => left
-                .HasOne<Customer>()
-                .WithMany()
-                .HasForeignKey("CustomerId")
-                .OnDelete(DeleteBehavior.Cascade));
+                    .HasOne<Customer>()
+                    .WithMany()
+                    .HasForeignKey(x=>x.CustomerId)
+                    .OnDelete(DeleteBehavior.Cascade));
 
             builder.HasMany(c => c.Bookings)
                 .WithOne(b => b.Customer)

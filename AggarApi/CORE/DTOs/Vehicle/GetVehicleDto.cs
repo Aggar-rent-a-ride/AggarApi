@@ -32,6 +32,7 @@ namespace CORE.DTOs.Vehicle
         public string? Requirements { get; set; }
         public string? ExtraDetails { get; set; }
         public string? Address { get; set; }
+        public bool IsFavourite { get; set; }
         public Location Location { get; set; }
         public VehicleTypeDto VehicleType { get; set; }
         public VehicleBrandDto VehicleBrand { get; set; }

@@ -34,6 +34,8 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
         public IBaseRepository<VehiclePopularity> VehiclePopularity { get; private set; }
         public IBaseRepository<Notification> Notifications { get; private set; }
 
+        public IBaseRepository<CustomersFavoriteVehicles> CustomersFavoriteVehicles { get; private set; }
+
         public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
         {
             _context = context;
@@ -54,6 +56,7 @@ namespace DATA.DataAccess.Repositories.UnitOfWork
             VehiclePopularity = new BaseRepository<VehiclePopularity>(_context);
             Customers = new BaseRepository<Customer>(_context);
             Notifications = new BaseRepository<Notification>(_context);
+            CustomersFavoriteVehicles = new BaseRepository<CustomersFavoriteVehicles>(_context);
         }
 
         public async Task<int> CommitAsync()

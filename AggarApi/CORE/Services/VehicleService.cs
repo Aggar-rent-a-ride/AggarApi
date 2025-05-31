@@ -134,7 +134,7 @@ namespace CORE.Services
                     Message = "Failed to add vehicle"
                 };
             }
-            var addedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            var addedVehicleResult = await GetVehicleByIdAsync(vehicle.Id, null);
             if (addedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
                 {
@@ -148,7 +148,7 @@ namespace CORE.Services
                 Data = addedVehicleResult.Data
             };
         }
-        public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId)
+        public async Task<ResponseDto<GetVehicleDto>> GetVehicleByIdAsync(int vehicleId, int? userId)
         {
             string[] includes = { VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType, VehicleIncludes.Renter, VehicleIncludes.VehicleImages, VehicleIncludes.Discounts };
             var vehicle = await _unitOfWork.Vehicles.FindAsync(v => v.Id == vehicleId, includes);
@@ -162,7 +162,9 @@ namespace CORE.Services
 
 
             var result = _mapper.Map<GetVehicleDto>(vehicle);
-
+            if(userId != null)
+                result.IsFavourite = await _unitOfWork.CustomersFavoriteVehicles.CheckAnyAsync(c => c.CustomerId == userId && c.VehicleId == vehicleId);
+            
             return new ResponseDto<GetVehicleDto>
             {
                 StatusCode = StatusCodes.OK,
@@ -369,7 +371,7 @@ namespace CORE.Services
                     Message = "Failed to update vehicle"
                 };
 
-            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id, null);
             if (updatedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
                 {
@@ -440,7 +442,7 @@ namespace CORE.Services
                     StatusCode = StatusCodes.InternalServerError,
                     Message = "Failed to update vehicle images"
                 };
-            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id, null);
             if (updatedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
                 {
@@ -492,7 +494,7 @@ namespace CORE.Services
                     Message = "Failed to update vehicle discounts"
                 };
 
-            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id);
+            var updatedVehicleResult = await GetVehicleByIdAsync(vehicle.Id, null);
 
             if (updatedVehicleResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<GetVehicleDto>
