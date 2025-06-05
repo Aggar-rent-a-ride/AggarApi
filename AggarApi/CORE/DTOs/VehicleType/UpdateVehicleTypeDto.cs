@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace CORE.DTOs.VehicleType
 {
-    public class CreateVehicleTypeDto
+    public class UpdateVehicleTypeDto
     {
-        public string Name { get; set; } = null!;
+        public int Id { get; set; }
+        public string Name { get; set; }
         public IFormFile? Slogan { get; set; }
     }
 }

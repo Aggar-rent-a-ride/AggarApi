@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace CORE.DTOs.VehicleType
+namespace CORE.DTOs.VehicleBrand
 {
-    public class CreateVehicleTypeDto
+    public class CreateVehicleBrandDto
     {
         public string Name { get; set; } = null!;
-        public IFormFile? Slogan { get; set; }
+        public string Country { get; set; } = null!;
+        public IFormFile? Logo { get; set; }
     }
 }

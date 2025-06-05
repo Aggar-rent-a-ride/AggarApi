@@ -64,6 +64,36 @@ namespace CORE.Services
             };
         }
 
+        public  async Task<ResponseDto<object>> DeleteAsync(int id)
+        {
+            var vehicleType = await _unitOfWork.VehicleTypes.GetAsync(id);
+            if(vehicleType == null)
+            {
+                _logger.LogWarning("Vehicle type with that id: {id} wasn't found", id);
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Vehicle type with that id wasn't found"
+                };
+            }
+
+            _unitOfWork.VehicleTypes.Delete(vehicleType);
+            var changes = await _unitOfWork.CommitAsync();
+            if(changes == 0)
+            {
+                _logger.LogError("Couldn't Delete Vehicle Type with Id: {id}", id);
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Couldn't Delete Vehicle Type with that Id"
+                };
+            }
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+            };
+        }
+
         public async Task<ResponseDto<List<VehicleTypeDto>>> GetAllAsync()
         {
             var types = await _unitOfWork.VehicleTypes.GetAllAsync(t => t.Id > 0);
@@ -78,6 +108,44 @@ namespace CORE.Services
                 Data = dto
             };
 
+        }
+
+        public async Task<ResponseDto<VehicleTypeDto>> UpdateAsync(UpdateVehicleTypeDto dto)
+        {
+            var vehicleType = await _unitOfWork.VehicleTypes.GetAsync(dto.Id);
+            if(vehicleType == null)
+            {
+                _logger.LogWarning("Failed to get vehicle type with that id: {id}", dto.Id);
+                return new ResponseDto<VehicleTypeDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to get vehicle type with that id"
+                };
+            }
+            vehicleType.Name = dto.Name;
+            if (dto.Slogan != null)
+                vehicleType.SlogenPath = await _fileService.UploadFileAsync(_paths.Value.VehicleTypes, null, dto.Slogan, AllowedExtensions.ImageExtensions);
+
+            await _unitOfWork.VehicleTypes.AddOrUpdateAsync(vehicleType);
+            var changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+            {
+                _logger.LogError("Failed to update vehicle type: {Name}", dto.Name);
+                return new ResponseDto<VehicleTypeDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Failed to update vehicle type"
+                };
+            }
+
+            _logger.LogInformation("updating vehicle type: {Name}", dto.Name);
+            return new ResponseDto<VehicleTypeDto>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = _mapper.Map<VehicleTypeDto>(vehicleType),
+                Message = "Vehicle type updated successfully"
+            };
         }
     }
 }
