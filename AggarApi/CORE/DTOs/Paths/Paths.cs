@@ -10,5 +10,7 @@ namespace CORE.DTOs.Paths
     {
         public string VehicleImages { get; set; }
         public string MessageFiles { get; set; }
+        public string VehicleTypes { get; set; }
+        public string VehicleBrands { get; set; }
     }
 }

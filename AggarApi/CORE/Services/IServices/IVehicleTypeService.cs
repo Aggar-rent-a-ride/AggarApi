@@ -12,5 +12,8 @@ namespace CORE.Services.IServices
     public interface IVehicleTypeService
     {
         Task<ResponseDto<List<VehicleTypeDto>>> GetAllAsync();
+        Task<ResponseDto<VehicleTypeDto>> CreateAsync(CreateVehicleTypeDto dto);
+        Task<ResponseDto<VehicleTypeDto>> UpdateAsync(UpdateVehicleTypeDto dto);
+        Task<ResponseDto<object>> DeleteAsync(int id);
     }
 }

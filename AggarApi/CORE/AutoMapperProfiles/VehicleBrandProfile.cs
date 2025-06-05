@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CORE.DTOs.VehicleBrand;
+using CORE.DTOs.VehicleType;
 using DATA.Models;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,10 @@ namespace CORE.AutoMapperProfiles
         {
             CreateMap<VehicleBrand, VehicleBrandDto>()
                 .ReverseMap();
+            CreateMap<CreateVehicleBrandDto, VehicleBrand>()
+                .ForMember(dest => dest.LogoPath, opt => opt.Ignore());
+            CreateMap<UpdateVehicleBrandDto, VehicleBrand>()
+                .ForMember(dest => dest.LogoPath, opt => opt.Ignore());
         }
     }
 }
