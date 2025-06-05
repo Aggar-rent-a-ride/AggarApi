@@ -15,6 +15,8 @@ namespace CORE.AutoMapperProfiles
         {
             CreateMap<VehicleType, VehicleTypeDto>()
                 .ReverseMap();
+            CreateMap<CreateVehicleTypeDto, VehicleType>()
+                .ForMember(dest => dest.SlogenPath, opt => opt.Ignore());
         }
     }
 }
