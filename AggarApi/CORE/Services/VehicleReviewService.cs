@@ -12,6 +12,7 @@ using CORE.Constants;
 using Microsoft.Extensions.Logging;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using AutoMapper;
+using CORE.DTOs.AppUser;
 
 namespace CORE.Services
 {
@@ -57,11 +58,13 @@ namespace CORE.Services
             var rentals = vehicleRentalsResponse.Data;
             if (rentals == null || rentals.Any() == false)
             {
+                var emptyResult = new List<SummarizedReviewDto>();
                 _logger.LogInformation("No rentals found for vehicle {VehicleId}", vehicleId);
                 return new ResponseDto<PagedResultDto<IEnumerable<SummarizedReviewDto>>>
                 {
-                    StatusCode = StatusCodes.BadRequest,
-                    Message = "No rentals found for this vehicle"
+                    StatusCode = StatusCodes.OK,
+                    Message = "No rentals found for this vehicle",
+                    Data = PaginationHelpers.CreatePagedResult(emptyResult.AsEnumerable(), pageNo, pageSize, 0)
                 };
             }
 
