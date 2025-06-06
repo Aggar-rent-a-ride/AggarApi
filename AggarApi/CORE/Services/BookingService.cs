@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Booking;
@@ -30,13 +31,23 @@ namespace CORE.Services
         private readonly IPaymentService _paymentService;
         private readonly IRentalService _rentalService;
         private readonly ILogger<BookingService> _logger;
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService, ILogger<BookingService> logger, IRentalService rentalService)
+        private readonly IBookingReminderJob _bookingReminderJob;
+        private readonly INotificationJob _notificationJob;
+        public BookingService(IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IPaymentService paymentService,
+            ILogger<BookingService> logger,
+            IRentalService rentalService,
+            IBookingReminderJob bookingReminderJob,
+            INotificationJob notificationJob)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _paymentService = paymentService;
             _logger = logger;
             _rentalService = rentalService;
+            _bookingReminderJob = bookingReminderJob;
+            _notificationJob = notificationJob;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -121,6 +132,15 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
+            // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = $"Your have got a new booking request!",
+                ReceiverId = vehicle.RenterId,
+                TargetId = newBooking.Id,
+                TargetType = TargetType.Booking
+            });
+
             var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<BookingDetailsDto>
@@ -184,7 +204,7 @@ namespace CORE.Services
                     Message = "customer Id is required"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId);
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
             if (booking == null) Console.WriteLine("\n\n\n i am null (:..\n\n");
             if (booking == null || booking.CustomerId != customerId)
                 return new ResponseDto<object>
@@ -207,6 +227,13 @@ namespace CORE.Services
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = $"The Custmer canceled the Booking",
+                ReceiverId = booking.Vehicle.RenterId,
+                TargetId = booking.Id,
+                TargetType = TargetType.Booking
+            });
 
             int changes = await _unitOfWork.CommitAsync();
             if (changes > 0)
@@ -260,6 +287,16 @@ namespace CORE.Services
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify customer
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = $"The renter accepted your booking request, Your booking on {booking.StartDate:d} is coming up!",
+                ReceiverId = booking.CustomerId,
+                TargetId = booking.Id,
+                TargetType = TargetType.Booking
+            });
+
+            // mail customer
+            _bookingReminderJob.ScheduleBookingReminderNotification(booking.StartDate, booking.CustomerId, (booking.StartDate - DateTime.UtcNow).Days);
 
             int changes = await _unitOfWork.CommitAsync();
             if (changes > 0)

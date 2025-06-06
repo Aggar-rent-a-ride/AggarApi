@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Rental;
@@ -29,11 +30,12 @@ namespace CORE.Services
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IPaymentService _paymentService;
+        private readonly INotificationJob _notificationJob;
 
         public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
             IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
             IEmailTemplateRendererService emailTemplateRendererService,
-            IPaymentService paymentService)
+            IPaymentService paymentService, INotificationJob notificationJob)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -43,6 +45,7 @@ namespace CORE.Services
             _emailService = emailService;
             _emailTemplateRendererService = emailTemplateRendererService;
             _paymentService = paymentService;
+            _notificationJob = notificationJob;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -255,7 +258,7 @@ namespace CORE.Services
 
             if (changes == 0)
             {
-                _logger.LogError($"Failed to create image for booking {booking.Id}");
+                _logger.LogError($"Failed to create rental for booking {booking.Id}");
                 return new CreatedRentalDto { RentalId = 0 };
             }
 
@@ -270,6 +273,13 @@ namespace CORE.Services
                     Base64Qr = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
 
             // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Your rental QR code confirmation has been sent to your email.",
+                ReceiverId = booking.Vehicle.RenterId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
 
             return new CreatedRentalDto
             {
@@ -312,15 +322,7 @@ namespace CORE.Services
 
             bool transferResult = await TransferToRenter(rental);
 
-            if (transferResult)
-            {
-                return new ResponseDto<object>
-                {
-                    StatusCode = StatusCodes.OK,
-                    Message = "Rental Cofirmed Successfuly"
-                };
-            }
-            else
+            if (!transferResult)
             {
                 return new ResponseDto<object>
                 {
@@ -328,6 +330,31 @@ namespace CORE.Services
                     Message = "QR Code Validated Successfuly, but Transfer Not Succeded"
                 };
             }
+
+            // notify renter
+            /*await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "",
+                ReceiverId = rental.Booking.,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });*/
+
+            // notify customer
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "You have Successfuly confirm your rental.",
+                ReceiverId = rental.Booking.CustomerId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Rental Cofirmed Successfuly"
+            };
         }
 
         private async Task<bool> TransferToRenter(Rental rental)
