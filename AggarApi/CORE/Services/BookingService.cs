@@ -377,9 +377,7 @@ namespace CORE.Services
                 Message = res ? "Payment Intent Created Successfuly" : "Payment Intent Created Successfuly, but failed to update Booking",
                 Data = new ConfirmBookingDto
                 {
-                    Amount = booking.FinalPrice,
-                    ClientSecret = paymentIntent.ClientSecret,
-                    PaymentIntentId = booking.PaymentIntentId
+                    ClientSecret = paymentIntent.ClientSecret
                 }
             };
 
