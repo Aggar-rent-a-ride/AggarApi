@@ -261,13 +261,13 @@ namespace CORE.Services
 
             await _emailService.SendEmailAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
                 await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 
-                new { 
-                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id.ToString()), 
-                    VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name), 
-                    VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model), 
-                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString()), 
-                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString()), 
-                    Base64QrImage = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
+                new {
+                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id.ToString()),
+                    VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name),
+                    VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model),
+                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString("MMMM dd, yyyy hh: mm tt")), 
+                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString("MMMM dd, yyyy hh: mm tt")),
+                    Base64Qr = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
 
             // notify renter
 

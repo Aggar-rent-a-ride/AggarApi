@@ -111,7 +111,7 @@ namespace CORE.Services
                         {
                             Schedule = new AccountSettingsPayoutsScheduleOptions
                             {
-                                Interval = "manual"
+                                Interval = "automatic"
                             }
                         }
                     }
