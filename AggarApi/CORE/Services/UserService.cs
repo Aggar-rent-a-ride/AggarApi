@@ -268,5 +268,25 @@ namespace CORE.Services
                 StatusCode = StatusCodes.OK,
             };
         }
+
+        public async Task<ResponseDto<SummerizedUserDto>> GetUserByIdAsync(int userId)
+        {
+            var user = await _unitOfWork.AppUsers.GetAsync(userId);
+            
+            if(user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                return new ResponseDto<SummerizedUserDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "User not found."
+                };
+            }
+            return new ResponseDto<SummerizedUserDto>
+            {
+                Data = _mapper.Map<SummerizedUserDto>(user),
+                StatusCode = StatusCodes.OK,
+            };
+        }
     }
 }

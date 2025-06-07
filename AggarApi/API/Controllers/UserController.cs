@@ -35,7 +35,7 @@ namespace API.Controllers
         {
             var authUserId = UserHelpers.GetUserId(User);
             var roles = UserHelpers.GetUserRoles(User);
-            var result = await _userService.DeleteUserAsync(userId, authUserId, roles == null? new string[] { }: roles.ToArray());
+            var result = await _userService.DeleteUserAsync(userId, authUserId, roles == null ? new string[] { } : roles.ToArray());
             return StatusCode(result.StatusCode, result);
         }
         [HttpPut("punish")]
@@ -61,6 +61,13 @@ namespace API.Controllers
         public async Task<IActionResult> GetTotalUsersAsync([FromQuery] string? role)
         {
             var result = await _userService.GetTotalUsersCountAsync(role);
+            return StatusCode(result.StatusCode, result);
+        }
+        [HttpGet("{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserByIdAsync([FromRoute] int userId)
+        {
+            var result = await _userService.GetUserByIdAsync(userId);
             return StatusCode(result.StatusCode, result);
         }
     }
