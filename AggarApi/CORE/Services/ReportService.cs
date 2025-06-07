@@ -44,6 +44,10 @@ namespace CORE.Services
                 return "Target type is required";
             else if (type == TargetType.None)
                 return null;
+            else if (type == TargetType.Booking)
+                return "Booking reports are not supported";
+            else if (type == TargetType.Rental)
+                return "Rental reports are not supported";
             else if (type == TargetType.AppUser)
             {
                 if (await _unitOfWork.AppUsers.CheckAnyAsync(t => t.Id == targetId, null) == false)
@@ -241,6 +245,22 @@ namespace CORE.Services
                         Message = "Target vehicle not found",
                     };
                 result.TargetVehicle = _mapper.Map<GetVehicleSummaryDto>(vehicle);
+            }
+            else if (report.TargetType == TargetType.Booking)
+            {
+                return new ResponseDto<GetReportDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Booking reports are not supported",
+                };
+            }
+            else if (report.TargetType == TargetType.Rental)
+            {
+                return new ResponseDto<GetReportDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Rental reports are not supported",
+                };
             }
             return new ResponseDto<GetReportDto>
             {
