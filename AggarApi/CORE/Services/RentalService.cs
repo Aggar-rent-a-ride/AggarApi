@@ -290,7 +290,7 @@ namespace CORE.Services
 
         public async Task<ResponseDto<object>> ConfirmRentalAsync(int customerId, int rentalId, string receivedQrCodeToken)
         {
-            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking]);
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}"]);
 
             if(rental == null || customerId != rental.Booking.CustomerId)
             {
@@ -332,13 +332,13 @@ namespace CORE.Services
             }
 
             // notify renter
-            /*await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "",
-                ReceiverId = rental.Booking.,
+                Content = "Your Rental Confirmed Successfuly, Your payment will be transfered to your bank account in 3 days.",
+                ReceiverId = rental.Booking.Vehicle.RenterId,
                 TargetId = rental.Id,
                 TargetType = DATA.Models.Enums.TargetType.Rental
-            });*/
+            });
 
             // notify customer
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
@@ -365,13 +365,10 @@ namespace CORE.Services
             long renterAmount = (long)(booking.FinalPrice * 100) - platformFee;
             Transfer? transfer =  await _paymentService.TransferToRenterAsync(booking.PaymentIntentId, booking.Vehicle.Renter.StripeAccount.StripeAccountId, renterAmount);
 
-
             if (transfer == null)
             {
                 return false;
             }
-            
-            // send email, notify renter
 
             rental.PaymentTransferId = transfer.Id;
             await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
