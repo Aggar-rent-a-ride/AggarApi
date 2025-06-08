@@ -247,9 +247,11 @@ namespace CORE.Services
             string qrData = $"{booking.Id}, {guid.ToString()}";
 
             string qrToken = _qrCodeService.GenerateQrHashToken(qrData);
-            string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrToken);
+            byte[] qrCodeImage = _qrCodeService.GenerateQrCode(qrToken);
+            string qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
             string hashedQrToken = _hashingService.Hash(qrToken);
             Console.WriteLine($"qr token: {qrCodeBase64}");
+
 
             Rental rental = new Rental
             {
@@ -274,8 +276,7 @@ namespace CORE.Services
                     VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name),
                     VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model),
                     StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString("MMMM dd, yyyy hh: mm tt")), 
-                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString("MMMM dd, yyyy hh: mm tt")),
-                    Base64Qr = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
+                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString("MMMM dd, yyyy hh: mm tt")) }));
 
             // notify renter
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using QRCoder;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -33,16 +34,15 @@ namespace CORE.Services
             return Convert.ToBase64String(hash);
         }
 
-        public string GenerateQrCode(string token)
+        public byte[] GenerateQrCode(string token)
         {
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(token, QRCodeGenerator.ECCLevel.Q);
             PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
 
             byte[] qrCodeImage =  qrCode.GetGraphic(20);
-            string qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
 
-            return qrCodeBase64;
+            return qrCodeImage;
         }
     }
 }
