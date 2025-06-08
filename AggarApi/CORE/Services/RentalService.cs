@@ -2,6 +2,7 @@
 using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.Payment;
 using CORE.DTOs.Rental;
 using CORE.Helpers;
 using CORE.Services.IServices;
@@ -10,6 +11,7 @@ using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -31,11 +33,12 @@ namespace CORE.Services
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IPaymentService _paymentService;
         private readonly INotificationJob _notificationJob;
+        private readonly PaymentPolicy _paymentPolicy;
 
         public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
             IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
             IEmailTemplateRendererService emailTemplateRendererService,
-            IPaymentService paymentService, INotificationJob notificationJob)
+            IPaymentService paymentService, INotificationJob notificationJob, IOptions<PaymentPolicy> paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -46,6 +49,7 @@ namespace CORE.Services
             _emailTemplateRendererService = emailTemplateRendererService;
             _paymentService = paymentService;
             _notificationJob = notificationJob;
+            _paymentPolicy = paymentPolicy.Value;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -361,7 +365,7 @@ namespace CORE.Services
         {
             Booking? booking = await _unitOfWork.Bookings.GetBookingByRentalIdAsync(rental.Id);
             // get the percentage from configurations
-            long platformFee = (long)(booking.FinalPrice * 0.10m * 100);
+            long platformFee = (long)(booking.FinalPrice * _paymentPolicy.FeesPercentage * 100);
             long renterAmount = (long)(booking.FinalPrice * 100) - platformFee;
             Transfer? transfer =  await _paymentService.TransferToRenterAsync(booking.PaymentIntentId, booking.Vehicle.Renter.StripeAccount.StripeAccountId, renterAmount);
 

@@ -3,6 +3,7 @@ using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Booking;
+using CORE.DTOs.Payment;
 using CORE.DTOs.Rental;
 using CORE.DTOs.Vehicle;
 using CORE.Extensions;
@@ -15,6 +16,7 @@ using DATA.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -33,13 +35,16 @@ namespace CORE.Services
         private readonly ILogger<BookingService> _logger;
         private readonly IBookingReminderJob _bookingReminderJob;
         private readonly INotificationJob _notificationJob;
+        private readonly PaymentPolicy _paymentPolicy;
+
         public BookingService(IUnitOfWork unitOfWork,
             IMapper mapper,
             IPaymentService paymentService,
             ILogger<BookingService> logger,
             IRentalService rentalService,
             IBookingReminderJob bookingReminderJob,
-            INotificationJob notificationJob)
+            INotificationJob notificationJob,
+            IOptions<PaymentPolicy> paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -48,6 +53,7 @@ namespace CORE.Services
             _rentalService = rentalService;
             _bookingReminderJob = bookingReminderJob;
             _notificationJob = notificationJob;
+            _paymentPolicy = paymentPolicy.Value;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -151,7 +157,7 @@ namespace CORE.Services
             return new ResponseDto<BookingDetailsDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = "Booking added successfully",
+                Message = $"Booking added successfully, Your have {_paymentPolicy.AllowedConfirmDays} days to confirm the booking",
                 Data = addedBookingResult.Data
             };
         }
@@ -205,7 +211,7 @@ namespace CORE.Services
                 };
 
             Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
-            if (booking == null) Console.WriteLine("\n\n\n i am null (:..\n\n");
+
             if (booking == null || booking.CustomerId != customerId)
                 return new ResponseDto<object>
                 {
@@ -379,7 +385,7 @@ namespace CORE.Services
                 return new ResponseDto<ConfirmBookingDto>
                 {
                     StatusCode = StatusCodes.NotFound,
-                    Message = "Booking not found"
+                    Message = "Booking is not found"
                 };
             }
             if (booking.Status != BookingStatus.Accepted)
@@ -387,7 +393,7 @@ namespace CORE.Services
                 return new ResponseDto<ConfirmBookingDto>
                 {
                     StatusCode = StatusCodes.Conflict,
-                    Message = "Not allowed to confirm booking"
+                    Message = "Not allowed to confirm this booking"
                 };
             }
 
@@ -398,7 +404,7 @@ namespace CORE.Services
                 return new ResponseDto<ConfirmBookingDto>
                 {
                     StatusCode = StatusCodes.InternalServerError,
-                    Message = "Failed To Create Payment Intent"
+                    Message = "Failed To Create Payment Sessions"
                 };
             }
 
@@ -411,7 +417,7 @@ namespace CORE.Services
             return new ResponseDto<ConfirmBookingDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = res ? "Payment Intent Created Successfuly" : "Payment Intent Created Successfuly, but failed to update Booking",
+                Message = res ? "Payment Sessions Created Successfuly" : "Payment Sessions Created Successfuly, but failed to update the Booking",
                 Data = new ConfirmBookingDto
                 {
                     ClientSecret = paymentIntent.ClientSecret
@@ -453,7 +459,7 @@ namespace CORE.Services
                 }
                 catch (StripeException ex)
                 {
-                    _logger.LogError(ex, "Failed to Cancel payment intent for booking {BookingId}", booking.Id);
+                    _logger.LogError(ex, $"Failed to Cancel payment session for booking {booking.Id}", booking.Id);
                 }
             }
         }
