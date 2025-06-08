@@ -1,10 +1,12 @@
-﻿using System;
+﻿using CORE.DTOs.Review;
+using DATA.Constants.Enums;
+using DATA.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using CORE.DTOs.Review;
-using DATA.Constants.Enums;
 
 namespace CORE.DTOs.Rental
 {
@@ -16,7 +18,8 @@ namespace CORE.DTOs.Rental
         public int TotalDays { get; set; }
         public decimal Discount { get; set; }
         public decimal FinalPrice { get; set; }
-        public string RentalStatus { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public RentalStatus RentalStatus { get; set; }
         public ReviewDetails? RenterReview { get; set; }
         public ReviewDetails? CustomerReview { get; set; }
         public VehicleDetails Vehicle { get; set; }

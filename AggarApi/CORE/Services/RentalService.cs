@@ -159,7 +159,7 @@ namespace CORE.Services
             };
         }
 
-        private string GetRentalStatus(Booking booking)
+        /*private string GetRentalStatus(Booking booking)
         {
             if (booking.Status == DATA.Models.Enums.BookingStatus.Canceled)
                 return RentalStatus.Cancelled;
@@ -172,7 +172,8 @@ namespace CORE.Services
                 return RentalStatus.InProgress;
 
             return RentalStatus.Completed;
-        }
+        }*/
+
         public async Task<ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50)
         {
             _logger.LogInformation("Getting rental history for user with ID: {UserId}", userId);
@@ -201,7 +202,7 @@ namespace CORE.Services
                     EndDate = rental.Booking.EndDate,
                     TotalDays = rental.Booking.TotalDays,
                     FinalPrice = rental.Booking.FinalPrice,
-                    RentalStatus = GetRentalStatus(rental.Booking),
+                    RentalStatus = rental.Status,
                     Discount = rental.Booking.Discount,
                     RenterReview = rental.RenterReview != null ? new RentalHistoryItemDto.ReviewDetails
                     {
@@ -380,9 +381,19 @@ namespace CORE.Services
             return changes > 0;
         }
 
-        public Task HandleTransferAsync(int rentalId)
+        public async Task HandleTransferAsync(int rentalId)
         {
-            throw new NotImplementedException();
+            Rental? rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+            if (rental == null)
+            {
+                _logger.LogError($"Rental {rentalId} not found");
+                return;
+            }
+            rental.Status = DATA.Models.Enums.RentalStatus.Confirmed; 
+            
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            await _unitOfWork.CommitAsync();
         }
     }
 }
