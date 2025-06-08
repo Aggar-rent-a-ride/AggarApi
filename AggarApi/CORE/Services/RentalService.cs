@@ -363,11 +363,9 @@ namespace CORE.Services
 
         private async Task<bool> TransferToRenter(Rental rental)
         {
-            Booking? booking = await _unitOfWork.Bookings.GetBookingByRentalIdAsync(rental.Id);
-            // get the percentage from configurations
-            long platformFee = (long)(booking.FinalPrice * _paymentPolicy.FeesPercentage * 100);
-            long renterAmount = (long)(booking.FinalPrice * 100) - platformFee;
-            Transfer? transfer =  await _paymentService.TransferToRenterAsync(booking.PaymentIntentId, booking.Vehicle.Renter.StripeAccount.StripeAccountId, renterAmount);
+            long platformFee = (long)(rental.Booking.FinalPrice * _paymentPolicy.FeesPercentage * 100);
+            long renterAmount = (long)(rental.Booking.FinalPrice * 100) - platformFee;
+            Transfer? transfer =  await _paymentService.TransferToRenterAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rental.Id, renterAmount);
 
             if (transfer == null)
             {
@@ -380,6 +378,11 @@ namespace CORE.Services
             int changes = await _unitOfWork.CommitAsync();
 
             return changes > 0;
+        }
+
+        public Task HandleTransferAsync(int rentalId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

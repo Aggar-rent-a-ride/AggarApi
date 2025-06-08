@@ -253,7 +253,7 @@ namespace CORE.Services
             }
         }
 
-        public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, long amount)
+        public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, int rentalId, long amount)
         {
             var chargeService = new ChargeService();
             var charges = await chargeService.ListAsync(new ChargeListOptions
@@ -279,6 +279,7 @@ namespace CORE.Services
                 Metadata = new Dictionary<string, string>
             {
                 { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" },
+                { "RentalId", rentalId.ToString() },
                 { "Fees", charge.Metadata.TryGetValue("Fees", out var fees) ? fees : "unknown" }
             }
             };

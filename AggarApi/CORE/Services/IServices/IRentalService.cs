@@ -19,5 +19,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50);
         public Task<CreatedRentalDto> CreateRentalAsync(Booking booking);
         public Task<ResponseDto<object>> ConfirmRentalAsync(int customerId, int rentalId, string receivedQrCodeToken);
+        public Task HandleTransferAsync(int rentalId);
     }
 }

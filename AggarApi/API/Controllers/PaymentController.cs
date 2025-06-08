@@ -22,13 +22,15 @@ namespace API.Controllers
         private readonly StripeSettings _stripe;
         private readonly ILogger<PaymentController> _logger;
         private readonly IBookingService _bookingService;
+        private readonly IRentalService _rentalService;
 
-        public PaymentController(IPaymentService paymentService, IOptions<StripeSettings> stripeSettings, ILogger<PaymentController> logger, IBookingService bookingService)
+        public PaymentController(IPaymentService paymentService, IOptions<StripeSettings> stripeSettings, ILogger<PaymentController> logger, IBookingService bookingService, IRentalService rentalService)
         {
             _paymentService = paymentService;
             _stripe = stripeSettings.Value;
             _logger = logger;
             _bookingService = bookingService;
+            _rentalService = rentalService;
         }
 
         [Authorize(Roles = Roles.Renter)]
@@ -71,7 +73,8 @@ namespace API.Controllers
                         break;
 
                     case "transfer.created":
-                        // await HandleTransferCreated(stripeEvent);
+                        await HandleTransferCreated(stripeEvent);
+                        break;
 
                     default:
                         _logger.LogWarning("Unhandled Stripe event type: {EventType}", stripeEvent.Type);
@@ -106,6 +109,17 @@ namespace API.Controllers
                 int.TryParse(bookingIdStr, out int bookingId))
             {
                 await _bookingService.HandleBookingPaymentFailedAsync(bookingId, paymentIntent.Id);
+            }
+        }
+
+        private async Task HandleTransferCreated(Event stripeEvent)
+        {
+            var transfer = stripeEvent.Data.Object as Transfer;
+
+            if (transfer.Metadata.TryGetValue("RentalId", out string rentalIdstr) &&
+                 int.TryParse(rentalIdstr, out int rentalId))
+            {
+                await _rentalService.HandleTransferAsync(rentalId);
             }
         }
     }
