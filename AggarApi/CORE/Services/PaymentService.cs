@@ -22,20 +22,20 @@ namespace CORE.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly TaxPolicy _taxPolicy;
         private readonly IUnitOfWork _unitOfWork;
         private readonly StripeSettings _stripe;
         private readonly ILogger<PaymentService> _logger;
-        public PaymentService(IUnitOfWork unitOfWork, 
-            IOptions<StripeSettings> stripeSettings, 
-            IOptions<TaxPolicy> taxPolicy,
-            ILogger<PaymentService> logger)
+        private readonly PaymentPolicy _paymentPolicy;
+        public PaymentService(IUnitOfWork unitOfWork,
+            IOptions<StripeSettings> stripeSettings,
+            ILogger<PaymentService> logger,
+            IOptions<PaymentPolicy> paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _stripe = stripeSettings.Value;
             StripeConfiguration.ApiKey = _stripe.SecretKey;
-            _taxPolicy = taxPolicy.Value;
             _logger = logger;
+            _paymentPolicy = paymentPolicy.Value;
         }
 
         public async Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId)
@@ -111,7 +111,7 @@ namespace CORE.Services
                         {
                             Schedule = new AccountSettingsPayoutsScheduleOptions
                             {
-                                Interval = "manual"
+                                Interval = "automatic"
                             }
                         }
                     }
@@ -223,7 +223,7 @@ namespace CORE.Services
 
                 long amountInCents = (long)(booking.FinalPrice * 100);
 
-                long fees = amountInCents * _taxPolicy.FeesPercentage / 100;
+                long fees = (long)(booking.FinalPrice * (_paymentPolicy.FeesPercentage / 100m) * 100);
 
                 var options = new PaymentIntentCreateOptions
                 {
@@ -235,7 +235,8 @@ namespace CORE.Services
                     {
                         { "BookingId", booking.Id.ToString() },
                         { "CustomerId", booking.CustomerId.ToString() },
-                        { "VehicleId", booking.VehicleId.ToString() }
+                        { "VehicleId", booking.VehicleId.ToString() },
+                        { "Fees", fees.ToString() },
                     }
                 };
 
@@ -247,12 +248,12 @@ namespace CORE.Services
             }
             catch(StripeException ex)
             {
-                _logger.LogError(ex, "Failed to create payment intent for booking {BookingId}", booking.Id);
+                _logger.LogError(ex, $"Failed to create payment intent for booking {booking.Id}", booking.Id);
                 return null;
             }
         }
 
-        public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, long amount)
+        public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, int rentalId, long amount)
         {
             var chargeService = new ChargeService();
             var charges = await chargeService.ListAsync(new ChargeListOptions
@@ -277,7 +278,9 @@ namespace CORE.Services
                 Description = $"Rental payout for payment {paymentIntentId}",
                 Metadata = new Dictionary<string, string>
             {
-                { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" }
+                { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" },
+                { "RentalId", rentalId.ToString() },
+                { "Fees", charge.Metadata.TryGetValue("Fees", out var fees) ? fees : "unknown" }
             }
             };
 

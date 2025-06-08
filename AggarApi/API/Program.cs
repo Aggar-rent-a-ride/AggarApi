@@ -184,8 +184,7 @@ namespace API
             builder.Services.Configure<Paths>(builder.Configuration.GetSection("Paths"));
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
             builder.Services.Configure<WarningManagement>(builder.Configuration.GetSection("WarningManagement"));
-            builder.Services.Configure<TaxPolicy>(builder.Configuration.GetSection("TaxPolicy"));
-            builder.Services.Configure<CancelationPolicy>(builder.Configuration.GetSection("CancelationPolicy"));
+            builder.Services.Configure<PaymentPolicy>(builder.Configuration.GetSection("PaymentPolicy"));
             builder.Services.Configure<SecretKeys>(builder.Configuration.GetSection("Secret"));
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

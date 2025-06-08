@@ -22,13 +22,15 @@ namespace API.Controllers
         private readonly StripeSettings _stripe;
         private readonly ILogger<PaymentController> _logger;
         private readonly IBookingService _bookingService;
+        private readonly IRentalService _rentalService;
 
-        public PaymentController(IPaymentService paymentService, IOptions<StripeSettings> stripeSettings, ILogger<PaymentController> logger, IBookingService bookingService)
+        public PaymentController(IPaymentService paymentService, IOptions<StripeSettings> stripeSettings, ILogger<PaymentController> logger, IBookingService bookingService, IRentalService rentalService)
         {
             _paymentService = paymentService;
             _stripe = stripeSettings.Value;
             _logger = logger;
             _bookingService = bookingService;
+            _rentalService = rentalService;
         }
 
         [Authorize(Roles = Roles.Renter)]
@@ -69,9 +71,6 @@ namespace API.Controllers
                     case "charge.refunded":
                         //await HandleChargeRefunded(stripeEvent);
                         break;
-
-                    case "transfer.created":
-                        // await HandleTransferCreated(stripeEvent);
 
                     default:
                         _logger.LogWarning("Unhandled Stripe event type: {EventType}", stripeEvent.Type);

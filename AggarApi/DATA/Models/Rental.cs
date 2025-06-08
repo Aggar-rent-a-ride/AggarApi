@@ -1,4 +1,7 @@
-﻿namespace DATA.Models
+﻿using DATA.Constants;
+using DATA.Models.Enums;
+
+namespace DATA.Models
 {
     public class Rental
     {
@@ -8,6 +11,7 @@
         public int RenterReviewId { get; set; }
         public string hashedQrToken { get; set; } = null!;
         public string? PaymentTransferId { get; set; }
+        public RentalStatus Status { get; set; } = RentalStatus.NotStarted;
         public Booking Booking { get; set; } = null!;
         public CustomerReview? CustomerReview { get; set; }
         public RenterReview? RenterReview { get; set; }

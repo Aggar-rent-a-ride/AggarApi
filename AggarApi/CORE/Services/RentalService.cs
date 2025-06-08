@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
+using CORE.DTOs.Payment;
 using CORE.DTOs.Rental;
 using CORE.Helpers;
 using CORE.Services.IServices;
@@ -9,6 +11,7 @@ using DATA.Constants.Includes;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -29,11 +32,13 @@ namespace CORE.Services
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IPaymentService _paymentService;
+        private readonly INotificationJob _notificationJob;
+        private readonly PaymentPolicy _paymentPolicy;
 
         public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
             IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
             IEmailTemplateRendererService emailTemplateRendererService,
-            IPaymentService paymentService)
+            IPaymentService paymentService, INotificationJob notificationJob, IOptions<PaymentPolicy> paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -43,6 +48,8 @@ namespace CORE.Services
             _emailService = emailService;
             _emailTemplateRendererService = emailTemplateRendererService;
             _paymentService = paymentService;
+            _notificationJob = notificationJob;
+            _paymentPolicy = paymentPolicy.Value;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -152,7 +159,7 @@ namespace CORE.Services
             };
         }
 
-        private string GetRentalStatus(Booking booking)
+        /*private string GetRentalStatus(Booking booking)
         {
             if (booking.Status == DATA.Models.Enums.BookingStatus.Canceled)
                 return RentalStatus.Cancelled;
@@ -165,7 +172,8 @@ namespace CORE.Services
                 return RentalStatus.InProgress;
 
             return RentalStatus.Completed;
-        }
+        }*/
+
         public async Task<ResponseDto<PagedResultDto<IEnumerable<RentalHistoryItemDto>>>> GetUserRentalHistoryAsync(int userId, int pageNo, int pageSize, int maxPageSize = 50)
         {
             _logger.LogInformation("Getting rental history for user with ID: {UserId}", userId);
@@ -194,7 +202,7 @@ namespace CORE.Services
                     EndDate = rental.Booking.EndDate,
                     TotalDays = rental.Booking.TotalDays,
                     FinalPrice = rental.Booking.FinalPrice,
-                    RentalStatus = GetRentalStatus(rental.Booking),
+                    RentalStatus = rental.Status,
                     Discount = rental.Booking.Discount,
                     RenterReview = rental.RenterReview != null ? new RentalHistoryItemDto.ReviewDetails
                     {
@@ -239,9 +247,11 @@ namespace CORE.Services
             string qrData = $"{booking.Id}, {guid.ToString()}";
 
             string qrToken = _qrCodeService.GenerateQrHashToken(qrData);
-            string qrCodeBase64 = _qrCodeService.GenerateQrCode(qrToken);
+            byte[] qrCodeImage = _qrCodeService.GenerateQrCode(qrToken);
+            string qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
             string hashedQrToken = _hashingService.Hash(qrToken);
             Console.WriteLine($"qr token: {qrCodeBase64}");
+
 
             Rental rental = new Rental
             {
@@ -255,21 +265,28 @@ namespace CORE.Services
 
             if (changes == 0)
             {
-                _logger.LogError($"Failed to create image for booking {booking.Id}");
+                _logger.LogError($"Failed to create rental for booking {booking.Id}");
                 return new CreatedRentalDto { RentalId = 0 };
             }
 
-            await _emailService.SendEmailAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
+            await _emailService.SendEmailWithImageAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
                 await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 
-                new { 
-                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id.ToString()), 
-                    VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name), 
-                    VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model), 
-                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString()), 
-                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString()), 
-                    Base64QrImage = System.Web.HttpUtility.HtmlEncode(qrCodeBase64) }));
+                new {
+                    BookingId = System.Web.HttpUtility.HtmlEncode(booking.Id.ToString()),
+                    VehicleBrand = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.VehicleBrand.Name),
+                    VehicleModel = System.Web.HttpUtility.HtmlEncode(booking.Vehicle.Model),
+                    StartDate = System.Web.HttpUtility.HtmlEncode(booking.StartDate.ToString("MMMM dd, yyyy hh: mm tt")), 
+                    EndDate = System.Web.HttpUtility.HtmlEncode(booking.EndDate.ToString("MMMM dd, yyyy hh: mm tt")) })
+                , qrCodeImage);
 
             // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Your rental QR code confirmation has been sent to your email.",
+                ReceiverId = booking.Vehicle.RenterId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
 
             return new CreatedRentalDto
             {
@@ -280,7 +297,7 @@ namespace CORE.Services
 
         public async Task<ResponseDto<object>> ConfirmRentalAsync(int customerId, int rentalId, string receivedQrCodeToken)
         {
-            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking]);
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}", $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}"]);
 
             if(rental == null || customerId != rental.Booking.CustomerId)
             {
@@ -291,7 +308,7 @@ namespace CORE.Services
                 };
             }
 
-            if(rental.Booking.StartDate ==  DateTime.UtcNow /* || staus not pending*/)
+            if(rental.Booking.StartDate ==  DateTime.UtcNow  || rental.Status != DATA.Models.Enums.RentalStatus.NotStarted)
             {
                 return new ResponseDto<object>
                 {
@@ -312,15 +329,7 @@ namespace CORE.Services
 
             bool transferResult = await TransferToRenter(rental);
 
-            if (transferResult)
-            {
-                return new ResponseDto<object>
-                {
-                    StatusCode = StatusCodes.OK,
-                    Message = "Rental Cofirmed Successfuly"
-                };
-            }
-            else
+            if (!transferResult)
             {
                 return new ResponseDto<object>
                 {
@@ -328,30 +337,70 @@ namespace CORE.Services
                     Message = "QR Code Validated Successfuly, but Transfer Not Succeded"
                 };
             }
+
+            // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Your Rental Confirmed Successfuly, Your payment will be transfered to your bank account in 3 days.",
+                ReceiverId = rental.Booking.Vehicle.RenterId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+            // notify customer
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "You have Successfuly confirm your rental.",
+                ReceiverId = rental.Booking.CustomerId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+            _logger.LogInformation("Rental {rentalId} Confirmed Successfuly.", rentalId);
+
+
+            return new ResponseDto<object>
+            {
+                StatusCode = StatusCodes.OK,
+                Message = "Rental Cofirmed Successfuly"
+            };
         }
 
         private async Task<bool> TransferToRenter(Rental rental)
         {
-            Booking? booking = await _unitOfWork.Bookings.GetBookingByRentalIdAsync(rental.Id);
-            // get the percentage from configurations
-            long platformFee = (long)(booking.FinalPrice * 0.10m * 100);
-            long renterAmount = (long)(booking.FinalPrice * 100) - platformFee;
-            Transfer? transfer =  await _paymentService.TransferToRenterAsync(booking.PaymentIntentId, booking.Vehicle.Renter.StripeAccount.StripeAccountId, renterAmount);
-
+            long platformFee = (long)(rental.Booking.FinalPrice * (_paymentPolicy.FeesPercentage / 100m) * 100);
+            long renterAmount = (long)(rental.Booking.FinalPrice * 100) - platformFee;
+            Transfer? transfer =  await _paymentService.TransferToRenterAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rental.Id, renterAmount);
 
             if (transfer == null)
             {
                 return false;
             }
-            
-            // send email, notify renter
 
             rental.PaymentTransferId = transfer.Id;
             await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+            rental.Status = DATA.Models.Enums.RentalStatus.Confirmed;
 
             int changes = await _unitOfWork.CommitAsync();
 
             return changes > 0;
+        }
+
+        public async Task HandleTransferAsync(int rentalId)
+        {
+            Rental? rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+            if (rental == null)
+            {
+                _logger.LogError($"Rental {rentalId} not found");
+                return;
+            }
+            rental.Status = DATA.Models.Enums.RentalStatus.Confirmed; 
+            
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            await _unitOfWork.CommitAsync();
+
+            _logger.LogInformation("Rental {rentalId} Confirmed Successfuly.", rentalId);
         }
     }
 }

@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace CORE.DTOs.Payment
 {
-    public class TaxPolicy
+    public class PaymentPolicy
     {
         public int FeesPercentage { get; set; }
-        public int RefundPercentage { get; set; }
+        public int AllowedConfirmDays { get; set; }
+        public int AllowedRefundDays { get; set; }
+        public int RefundPenalityPercentage { get; set; }
     }
 }

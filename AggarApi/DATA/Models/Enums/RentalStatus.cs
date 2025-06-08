@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CORE.DTOs.Booking
+namespace DATA.Models.Enums
 {
-    public class ConfirmBookingDto
+    public enum RentalStatus
     {
-        public string ClientSecret { get; set; }
+        NotStarted,
+        Refunded,
+        Confirmed,
+        Canceled
     }
 }

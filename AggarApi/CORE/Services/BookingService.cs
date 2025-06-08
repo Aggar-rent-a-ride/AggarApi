@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.Booking;
+using CORE.DTOs.Payment;
 using CORE.DTOs.Rental;
 using CORE.DTOs.Vehicle;
 using CORE.Extensions;
@@ -14,6 +16,7 @@ using DATA.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -30,13 +33,27 @@ namespace CORE.Services
         private readonly IPaymentService _paymentService;
         private readonly IRentalService _rentalService;
         private readonly ILogger<BookingService> _logger;
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, IPaymentService paymentService, ILogger<BookingService> logger, IRentalService rentalService)
+        private readonly IBookingReminderJob _bookingReminderJob;
+        private readonly INotificationJob _notificationJob;
+        private readonly PaymentPolicy _paymentPolicy;
+
+        public BookingService(IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IPaymentService paymentService,
+            ILogger<BookingService> logger,
+            IRentalService rentalService,
+            IBookingReminderJob bookingReminderJob,
+            INotificationJob notificationJob,
+            IOptions<PaymentPolicy> paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _paymentService = paymentService;
             _logger = logger;
             _rentalService = rentalService;
+            _bookingReminderJob = bookingReminderJob;
+            _notificationJob = notificationJob;
+            _paymentPolicy = paymentPolicy.Value;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -121,6 +138,15 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
+            // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = $"Your have got a new booking request!",
+                ReceiverId = vehicle.RenterId,
+                TargetId = newBooking.Id,
+                TargetType = TargetType.Booking
+            });
+
             var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
                 return new ResponseDto<BookingDetailsDto>
@@ -131,7 +157,7 @@ namespace CORE.Services
             return new ResponseDto<BookingDetailsDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = "Booking added successfully",
+                Message = $"Booking added successfully, Your have {_paymentPolicy.AllowedConfirmDays} days to confirm the booking",
                 Data = addedBookingResult.Data
             };
         }
@@ -184,8 +210,8 @@ namespace CORE.Services
                     Message = "customer Id is required"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId);
-            if (booking == null) Console.WriteLine("\n\n\n i am null (:..\n\n");
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
+
             if (booking == null || booking.CustomerId != customerId)
                 return new ResponseDto<object>
                 {
@@ -207,6 +233,13 @@ namespace CORE.Services
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = $"The Custmer canceled the Booking",
+                ReceiverId = booking.Vehicle.RenterId,
+                TargetId = booking.Id,
+                TargetType = TargetType.Booking
+            });
 
             int changes = await _unitOfWork.CommitAsync();
             if (changes > 0)
@@ -236,8 +269,28 @@ namespace CORE.Services
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
-                    Message = "Booking not found"
+                    Message = "Booking is not found"
                 };
+
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+
+            if(renter == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Renter is not found"
+                };
+            }
+
+            if(renter.StripeAccount.StripeAccountId == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "You can't accept bookings now, Create a payment account to activate this functionality."
+                };
+            }
 
             if(booking.Status != BookingStatus.Pending)
             {
@@ -260,6 +313,16 @@ namespace CORE.Services
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
             // notify customer
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = $"The renter accepted your booking request, Your booking on {booking.StartDate:d} is coming up!",
+                ReceiverId = booking.CustomerId,
+                TargetId = booking.Id,
+                TargetType = TargetType.Booking
+            });
+
+            // mail customer
+            _bookingReminderJob.ScheduleBookingReminderNotification(booking.StartDate, booking.CustomerId, (booking.StartDate - DateTime.UtcNow).Days);
 
             int changes = await _unitOfWork.CommitAsync();
             if (changes > 0)
@@ -342,7 +405,7 @@ namespace CORE.Services
                 return new ResponseDto<ConfirmBookingDto>
                 {
                     StatusCode = StatusCodes.NotFound,
-                    Message = "Booking not found"
+                    Message = "Booking is not found"
                 };
             }
             if (booking.Status != BookingStatus.Accepted)
@@ -350,7 +413,7 @@ namespace CORE.Services
                 return new ResponseDto<ConfirmBookingDto>
                 {
                     StatusCode = StatusCodes.Conflict,
-                    Message = "Not allowed to confirm booking"
+                    Message = "Not allowed to confirm this booking"
                 };
             }
 
@@ -361,7 +424,7 @@ namespace CORE.Services
                 return new ResponseDto<ConfirmBookingDto>
                 {
                     StatusCode = StatusCodes.InternalServerError,
-                    Message = "Failed To Create Payment Intent"
+                    Message = "Failed To Create Payment Sessions"
                 };
             }
 
@@ -374,12 +437,10 @@ namespace CORE.Services
             return new ResponseDto<ConfirmBookingDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = res ? "Payment Intent Created Successfuly" : "Payment Intent Created Successfuly, but failed to update Booking",
+                Message = res ? "Payment Sessions Created Successfuly" : "Payment Sessions Created Successfuly, but failed to update the Booking",
                 Data = new ConfirmBookingDto
                 {
-                    Amount = booking.FinalPrice,
-                    ClientSecret = paymentIntent.ClientSecret,
-                    PaymentIntentId = booking.PaymentIntentId
+                    ClientSecret = paymentIntent.ClientSecret
                 }
             };
 
@@ -418,7 +479,7 @@ namespace CORE.Services
                 }
                 catch (StripeException ex)
                 {
-                    _logger.LogError(ex, "Failed to Cancel payment intent for booking {BookingId}", booking.Id);
+                    _logger.LogError(ex, $"Failed to Cancel payment session for booking {booking.Id}", booking.Id);
                 }
             }
         }
