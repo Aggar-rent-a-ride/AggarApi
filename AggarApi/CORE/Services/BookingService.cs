@@ -269,8 +269,28 @@ namespace CORE.Services
                 return new ResponseDto<object>
                 {
                     StatusCode = StatusCodes.BadRequest,
-                    Message = "Booking not found"
+                    Message = "Booking is not found"
                 };
+
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+
+            if(renter == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = "Renter is not found"
+                };
+            }
+
+            if(renter.StripeAccount.StripeAccountId == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "You can't accept bookings now, Create a payment account to activate this functionality."
+                };
+            }
 
             if(booking.Status != BookingStatus.Pending)
             {
