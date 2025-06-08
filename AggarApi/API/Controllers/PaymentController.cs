@@ -72,10 +72,6 @@ namespace API.Controllers
                         //await HandleChargeRefunded(stripeEvent);
                         break;
 
-                    case "transfer.created":
-                        await HandleTransferCreated(stripeEvent);
-                        break;
-
                     default:
                         _logger.LogWarning("Unhandled Stripe event type: {EventType}", stripeEvent.Type);
                         break;
@@ -109,17 +105,6 @@ namespace API.Controllers
                 int.TryParse(bookingIdStr, out int bookingId))
             {
                 await _bookingService.HandleBookingPaymentFailedAsync(bookingId, paymentIntent.Id);
-            }
-        }
-
-        private async Task HandleTransferCreated(Event stripeEvent)
-        {
-            var transfer = stripeEvent.Data.Object as Transfer;
-
-            if (transfer.Metadata.TryGetValue("RentalId", out string rentalIdstr) &&
-                 int.TryParse(rentalIdstr, out int rentalId))
-            {
-                await _rentalService.HandleTransferAsync(rentalId);
             }
         }
     }

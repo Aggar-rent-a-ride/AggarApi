@@ -223,7 +223,7 @@ namespace CORE.Services
 
                 long amountInCents = (long)(booking.FinalPrice * 100);
 
-                long fees = amountInCents * _paymentPolicy.FeesPercentage / 100;
+                long fees = (long)(booking.FinalPrice * (_paymentPolicy.FeesPercentage / 100m) * 100);
 
                 var options = new PaymentIntentCreateOptions
                 {
