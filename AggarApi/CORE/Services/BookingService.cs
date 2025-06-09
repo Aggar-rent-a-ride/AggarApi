@@ -36,6 +36,7 @@ namespace CORE.Services
         private readonly IBookingReminderJob _bookingReminderJob;
         private readonly INotificationJob _notificationJob;
         private readonly PaymentPolicy _paymentPolicy;
+        private readonly INotificationService _notificationService;
 
         public BookingService(IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -44,7 +45,8 @@ namespace CORE.Services
             IRentalService rentalService,
             IBookingReminderJob bookingReminderJob,
             INotificationJob notificationJob,
-            IOptions<PaymentPolicy> paymentPolicy)
+            IOptions<PaymentPolicy> paymentPolicy,
+            INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -54,6 +56,7 @@ namespace CORE.Services
             _bookingReminderJob = bookingReminderJob;
             _notificationJob = notificationJob;
             _paymentPolicy = paymentPolicy.Value;
+            _notificationService = notificationService;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -446,7 +449,7 @@ namespace CORE.Services
 
         }
 
-        public async Task HandleBookingPaymentSuccededAsync(int bookingId, string paymentIntentId)
+        public async Task HandleBookingPaymentSucceededAsync(int bookingId, string paymentIntentId)
         {
             Booking? booking = await _unitOfWork.Bookings.GetBookingByIntentIdAsync(paymentIntentId);
             if (booking != null && bookingId == booking.Id)
@@ -454,6 +457,16 @@ namespace CORE.Services
                 booking.Status = BookingStatus.Confirmed;
 
                 await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+                await _unitOfWork.CommitAsync();
+
+                await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+                {
+                    Content = $"Your payment for booking vehicle {booking.Vehicle.Model} completed successfuly.",
+                    ReceiverId = booking.CustomerId,
+                    TargetId = booking.Id,
+                    TargetType = TargetType.Booking
+                });
 
                 _logger.LogInformation($"Booking {bookingId} Confirmed Successfuly");
 
@@ -474,6 +487,14 @@ namespace CORE.Services
                     booking.PaymentIntentId = null;
 
                     await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+
+                    await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+                    {
+                        Content = $"Your payment for booking vehicle {booking.Vehicle.Model} has been failed",
+                        ReceiverId = booking.CustomerId,
+                        TargetId = booking.Id,
+                        TargetType = TargetType.Booking
+                    });
 
                     _logger.LogInformation($"Booking {bookingId} Not Confirmed");
                 }

@@ -10,7 +10,7 @@ namespace CORE.DTOs.Payment
     {
         public int FeesPercentage { get; set; }
         public int AllowedConfirmDays { get; set; }
-        public int AllowedRefundDays { get; set; }
+        public int AllowedRefundDaysBefore { get; set; }
         public int RefundPenalityPercentage { get; set; }
     }
 }

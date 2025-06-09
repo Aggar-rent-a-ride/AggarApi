@@ -22,7 +22,7 @@ namespace CORE.Services.IServices
         Task<ResponseDto<BookingDetailsDto>> GetBookingByRentalIdAsync(int rentalId);
         Task<ResponseDto<PagedResultDto<IEnumerable<BookingDetailsDto>>>> GetBookingsByStatusAsync(BookingStatus? status, int pageNo, int pageSize, int maxPageSize = 50);
         Task<ResponseDto<int>> GetBookingsByStatusCountAsync(BookingStatus? status);
-        public Task HandleBookingPaymentSuccededAsync(int bookingId, string paymentIntentId);
+        public Task HandleBookingPaymentSucceededAsync(int bookingId, string paymentIntentId);
         public Task HandleBookingPaymentFailedAsync(int bookingId, string paymentIntentId);
     }
 }

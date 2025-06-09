@@ -15,5 +15,6 @@ namespace CORE.Services.IServices
         public Task<ResponseDto<StripeAccountDto>> CreateStripeAccountAsync(CreateConnectedAccountDto dto, int renterId);
         public Task<PaymentIntent?> CreatePaymentIntent(Booking booking);
         public Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, int rentalId, long amount);
+        Task<Refund?> RefundAsync(string paymentIntentId, string connectedAccountId, int rentalId, long amount);
     }
 }
