@@ -222,6 +222,8 @@ namespace API
             builder.Services.AddScoped<IVehiclePopularityManagementJob, VehiclePopularityManagementJob>();
             builder.Services.AddScoped<IBookingReminderJob, BookingReminderJob>();
             builder.Services.AddScoped<INotificationJob, NotificationJob>();
+            builder.Services.AddScoped<IBookingHandlerJob, BookingHandlerJob>();
+            builder.Services.AddScoped<IRentalHandlerJob, RentalHandlerJob>();
 
             builder.Services.AddHttpClient<IGeoapifyService, GeoapifyService>();
 

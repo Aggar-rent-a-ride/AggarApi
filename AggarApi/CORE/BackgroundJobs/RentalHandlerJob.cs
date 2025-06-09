@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace CORE.BackgroundJobs
 {
-    internal class RentalHandlerJob : IRentalHandlerJob
+    public class RentalHandlerJob : IRentalHandlerJob
     {
         private readonly ILogger<RentalHandlerJob> _logger;
         private readonly IRecurringJobManager _recurringJobManager;
