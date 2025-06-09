@@ -39,6 +39,10 @@ namespace CORE.AutoMapperProfiles
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.VehicleBrand.Name))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.VehicleType.Name));
 
+            CreateMap<Vehicle, RenterVehiclesDto>()
+                .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.VehicleBrand.Name))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.VehicleType.Name));
+
             CreateMap<Vehicle, VehicleDetails>();
         }
     }

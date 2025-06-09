@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DATA.DataAccess.Repositories
 {
@@ -121,6 +122,17 @@ namespace DATA.DataAccess.Repositories
             return await _context.Rentals
                 .Where(r => r.Booking.VehicleId == vehicleId && r.CustomerReviewId > 0)
                 .CountAsync();
+        }
+
+        public IQueryable<Vehicle> GetFavouriteVehicles(int customerId)
+        {
+            IQueryable<Vehicle> vehicles = _context.Vehicles
+                .Where(v => _context.CustomersFavoriteVehicles
+                .Any(f => f.CustomerId == customerId && f.VehicleId == v.Id))
+                .Include(v => v.VehicleBrand)
+                .Include(v => v.VehicleType);
+
+            return vehicles;
         }
 
     }

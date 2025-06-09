@@ -226,7 +226,6 @@ namespace CORE.Services
                     Rate = v.Rate,
                     Transmission = v.Transmission,
                     MainImagePath = v.MainImagePath,
-                    IsFavourite = v.FavoriteCustomers != null && v.FavoriteCustomers.Any(c => c.Id == user.Id),
                     Distance = (6371 * Math.Acos(
                         Math.Cos(location.Latitude * Math.PI / 180.0) *
                         Math.Cos(v.Location.Latitude * Math.PI / 180.0) *
@@ -700,6 +699,90 @@ namespace CORE.Services
                 return await UnSetVehicleAsFavourite(vehicle, customer, isFavourite);
             }
 
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<RenterVehiclesDto>>>> GetRenterVehiclesAsync(int renterId, int pageNo, int pageSize)
+        {
+            pageNo = pageNo > 0 ? pageNo : 1;
+            pageSize = pageSize > 0 ? pageSize : 1;
+
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+            if(renter == null)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<RenterVehiclesDto>>>
+                {
+                    Message = "Renter Id is required",
+                    StatusCode = StatusCodes.Unauthorized,
+                };
+            }
+
+            var vehicles = await _unitOfWork.Vehicles.FindAsync(v => v.RenterId == renterId, pageNo, pageSize, [VehicleIncludes.VehicleBrand, VehicleIncludes.VehicleType]);
+            int count = await _unitOfWork.Vehicles.CountAsync(v => v.RenterId == renterId);
+
+            return new ResponseDto<PagedResultDto<IEnumerable<RenterVehiclesDto>>>
+            {
+                StatusCode = StatusCodes.OK,
+                Data = PaginationHelpers.CreatePagedResult(_mapper.Map<IEnumerable<RenterVehiclesDto>>(vehicles), pageNo, pageSize, count)
+            };
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>> GetCustomerFavouriteVehiclesAsync(int customerId, int pageNo, int pageSize)
+        {
+            pageNo = pageNo > 0 ? pageNo : 1;
+            pageSize = pageSize > 0 ? pageSize : 1;
+
+            Customer? customer = await _unitOfWork.Customers.GetAsync(customerId);
+            if (customer == null)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+                {
+                    Message = "Customer Id is required",
+                    StatusCode = StatusCodes.Unauthorized,
+                };
+            }
+
+            IQueryable<Vehicle> vehicles = _unitOfWork.Vehicles.GetFavouriteVehicles(customerId);
+
+            var vehiclesSummary = vehicles
+                .Select(v => new GetVehicleSummaryDto
+                {
+                    Id = v.Id,
+                    Brand = v.VehicleBrand != null ? v.VehicleBrand.Name : null,
+                    Type = v.VehicleType != null ? v.VehicleType.Name : null,
+                    Model = v.Model,
+                    Year = v.Year,
+                    PricePerDay = v.PricePerDay,
+                    Rate = v.Rate,
+                    Transmission = v.Transmission,
+                    MainImagePath = v.MainImagePath,
+                    Distance = (6371 * Math.Acos(
+                        Math.Cos(customer.Location.Latitude * Math.PI / 180.0) *
+                        Math.Cos(v.Location.Latitude * Math.PI / 180.0) *
+                        Math.Cos((v.Location.Longitude - customer.Location.Longitude) * Math.PI / 180.0) +
+                        Math.Sin(customer.Location.Latitude * Math.PI / 180.0) *
+                        Math.Sin(v.Location.Latitude * Math.PI / 180.0)
+                    )),
+                });
+
+            var data = await vehiclesSummary
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var pagedData = new PagedResultDto<IEnumerable<GetVehicleSummaryDto>>
+            {
+                Data = data,
+                PageNumber = pageNo,
+                PageSize = pageSize,
+                TotalPages = PaginationHelpers.CalculateTotalPages(vehicles.Count(), pageSize)
+            };
+
+            return new ResponseDto<PagedResultDto<IEnumerable<GetVehicleSummaryDto>>>
+            {
+                Data = pagedData,
+                Message = "Vehicles Loaded Successfully...",
+                StatusCode = StatusCodes.OK,
+            };
         }
 
     }

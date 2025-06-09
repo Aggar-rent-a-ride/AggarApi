@@ -1,5 +1,4 @@
 ﻿using DATA.Models.Enums;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace CORE.DTOs.Vehicle
 {
-    public class GetVehicleSummaryDto
+    public class RenterVehiclesDto
     {
         public int Id { get; set; }
-        public double Distance { get; set; }
         public string Brand { get; set; } = null!;
         public string Type { get; set; } = null!;
         public string? Model { get; set; }
