@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
@@ -35,11 +36,12 @@ namespace CORE.Services
         private readonly IPaymentService _paymentService;
         private readonly INotificationJob _notificationJob;
         private readonly PaymentPolicy _paymentPolicy;
+        private readonly IRentalHandlerJob _rentalHandlerJob;
 
         public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
             IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
             IEmailTemplateRendererService emailTemplateRendererService,
-            IPaymentService paymentService, INotificationJob notificationJob, IOptions<PaymentPolicy> paymentPolicy)
+            IPaymentService paymentService, INotificationJob notificationJob, IOptions<PaymentPolicy> paymentPolicy, IRentalHandlerJob rentalHandlerJob)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -51,6 +53,7 @@ namespace CORE.Services
             _paymentService = paymentService;
             _notificationJob = notificationJob;
             _paymentPolicy = paymentPolicy.Value;
+            _rentalHandlerJob = rentalHandlerJob;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -269,6 +272,10 @@ namespace CORE.Services
                 _logger.LogError($"Failed to create rental for booking {booking.Id}");
                 return new CreatedRentalDto { RentalId = 0 };
             }
+
+            // handle cancel rental after startdate without confirmation
+            DateTime cancelDate = booking.StartDate.AddDays(1);
+            await _rentalHandlerJob.ScheduleCancelNotConfirmedRentalAfterStartDateAsync(rental.Id, cancelDate);
 
             await _emailService.SendEmailWithImageAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
                 await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 

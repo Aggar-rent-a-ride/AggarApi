@@ -36,7 +36,7 @@ namespace CORE.Services
         private readonly IBookingReminderJob _bookingReminderJob;
         private readonly INotificationJob _notificationJob;
         private readonly PaymentPolicy _paymentPolicy;
-        private readonly INotificationService _notificationService;
+        private readonly IBookingHandlerJob _bookingHandlerJob;
 
         public BookingService(IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -46,7 +46,7 @@ namespace CORE.Services
             IBookingReminderJob bookingReminderJob,
             INotificationJob notificationJob,
             IOptions<PaymentPolicy> paymentPolicy,
-            INotificationService notificationService)
+            IBookingHandlerJob bookingHandlerJob)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -56,7 +56,7 @@ namespace CORE.Services
             _bookingReminderJob = bookingReminderJob;
             _notificationJob = notificationJob;
             _paymentPolicy = paymentPolicy.Value;
-            _notificationService = notificationService;
+            _bookingHandlerJob = bookingHandlerJob;
         }
 
         public async Task<bool> CheckVehicleAvailability(int vehicleId, DateTime startDate, DateTime endDate)
@@ -149,6 +149,12 @@ namespace CORE.Services
                 TargetId = newBooking.Id,
                 TargetType = TargetType.Booking
             });
+
+            // handle cancel booking after n days without confirmation
+            DateTime cancelDate = newBooking.StartDate < newBooking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays)
+                ? newBooking.StartDate
+                : newBooking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays);
+            await _bookingHandlerJob.ScheduleCancelNotConfirmedBookingAfterNDaysAsync(newBooking.Id, cancelDate);
 
             var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
