@@ -489,7 +489,6 @@ namespace CORE.Services
 
             await _emailService.SendEmailAsync(rental.Booking.Vehicle.Renter.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode($"Customer refund the rental for vehicle {rental.Booking.Vehicle.Model}, you will collect a part of the payment if there is a penality"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.MoneyReceived) }));
 
-
             bool result = true;
             // refund to customer
             Refund? refund = await _paymentService.RefundAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rental.Id, refundedAmount);
@@ -500,6 +499,15 @@ namespace CORE.Services
                 // transfer penality to renter
                 Transfer? transfer = await _paymentService.TransferToRenterAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rentalId, transferedAmount);
                 result &= transfer != null;
+
+                // notify customer about penality
+                await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+                {
+                    Content = $"There is {_paymentPolicy.FeesPercentage + _paymentPolicy.RefundPenalityPercentage} % penality on your refund.",
+                    ReceiverId = rental.Booking.CustomerId,
+                    TargetId = rental.Id,
+                    TargetType = DATA.Models.Enums.TargetType.Rental
+                });
             }
 
             return new ResponseDto<object>
