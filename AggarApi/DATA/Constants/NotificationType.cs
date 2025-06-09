@@ -19,5 +19,7 @@ namespace DATA.Constants
         public const string AssignedToAdmin = "Assigned To Admin";
         public const string RentalReviewed = "Rental Reviewed";
         public const string BookingReminder = "Booking Reminder";
+        public const string BookingCanceled = "Booking Canceled";
+        public const string RentalCanceled = "Rental Canceled";
     }
 }

@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -210,6 +211,7 @@ namespace CORE.Services
             }
         }
 
+        // https://docs.stripe.com/payments/payment-intents
         public async Task<PaymentIntent?> CreatePaymentIntent(Booking booking)
         {
             try
@@ -255,45 +257,89 @@ namespace CORE.Services
 
         public async Task<Transfer?> TransferToRenterAsync(string paymentIntentId, string connectedAccountId, int rentalId, long amount)
         {
-            var chargeService = new ChargeService();
-            var charges = await chargeService.ListAsync(new ChargeListOptions
-            {
-                PaymentIntent = paymentIntentId
-            });
-
-            var charge = charges.FirstOrDefault();
-            if (charge == null)
-            {
-                _logger.LogError($"No charge found for payment intent {paymentIntentId}");
-                throw new InvalidOperationException("Original payment not found");
-            }
-
-            var transferService = new TransferService();
-            var transferOptions = new TransferCreateOptions
-            {
-                Amount = amount,
-                Currency = "USD",
-                Destination = connectedAccountId,
-                SourceTransaction = charge.Id,
-                Description = $"Rental payout for payment {paymentIntentId}",
-                Metadata = new Dictionary<string, string>
-            {
-                { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" },
-                { "RentalId", rentalId.ToString() },
-                { "Fees", charge.Metadata.TryGetValue("Fees", out var fees) ? fees : "unknown" }
-            }
-            };
-
             try
             {
+                var chargeService = new ChargeService();
+                var charges = await chargeService.ListAsync(new ChargeListOptions
+                {
+                    PaymentIntent = paymentIntentId
+                });
+
+                var charge = charges.FirstOrDefault();
+                if (charge == null)
+                {
+                    _logger.LogError($"No charge found for payment intent {paymentIntentId}");
+                    throw new InvalidOperationException("Original payment not found");
+                }
+
+                var transferService = new TransferService();
+                var transferOptions = new TransferCreateOptions
+                {
+                    Amount = amount,
+                    Currency = "USD",
+                    Destination = connectedAccountId,
+                    SourceTransaction = charge.Id,
+                    Description = $"Rental payout for payment {paymentIntentId}",
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" },
+                        { "RentalId", rentalId.ToString() },
+                        { "Fees", charge.Metadata.TryGetValue("Fees", out var fees) ? fees : "unknown" }
+                    }
+                };
+
                 var transfer = await transferService.CreateAsync(transferOptions);
-                _logger.LogInformation($"Transfer {transfer.Id} created for {amount} to account {connectedAccountId}");
+                _logger.LogInformation($"Transfer {transfer.Id} created for {amount} to account {connectedAccountId}, Rental: {rentalId}");
 
                 return transfer;
             }
             catch (StripeException ex)
             {
                 _logger.LogError(ex, $"Failed to create transfer for payment {paymentIntentId}");
+                return null;
+            }
+        }
+
+        public async Task<Refund?> RefundAsync(string paymentIntentId, string connectedAccountId, int rentalId, long amount)
+        {
+            try
+            {
+                var chargeService = new ChargeService();
+                var charges = await chargeService.ListAsync(new ChargeListOptions
+                {
+                    PaymentIntent = paymentIntentId
+                });
+
+                var charge = charges.FirstOrDefault();
+                if (charge == null)
+                {
+                    _logger.LogError($"No charge found for payment intent {paymentIntentId}");
+                    throw new InvalidOperationException("Original payment not found");
+                }
+
+                var options = new RefundCreateOptions
+                {
+                    PaymentIntent = charge.PaymentIntentId,
+                    Amount = amount,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "BookingId", charge.Metadata.TryGetValue("BookingId", out var id) ? id : "unknown" },
+                        { "RentalId", rentalId.ToString() }
+
+                    }
+                };
+
+                RefundService refundService = new RefundService();
+                var refund = await refundService.CreateAsync(options);
+
+                _logger.LogInformation($"Refund {refund.Id}, Amount: {amount}, Rental: {rentalId}");
+
+                return refund;
+
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, $"Failed to create refund for payment {paymentIntentId}");
                 return null;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CORE.BackgroundJobs;
 using CORE.BackgroundJobs.IBackgroundJobs;
 using CORE.Constants;
 using CORE.DTOs;
@@ -13,6 +14,7 @@ using DATA.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
+using Stripe.FinancialConnections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,11 +36,12 @@ namespace CORE.Services
         private readonly IPaymentService _paymentService;
         private readonly INotificationJob _notificationJob;
         private readonly PaymentPolicy _paymentPolicy;
+        private readonly IRentalHandlerJob _rentalHandlerJob;
 
         public RentalService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RentalService> logger,
             IQrCodeService qrCodeService, IHashingService hashingService, IEmailService emailService,
             IEmailTemplateRendererService emailTemplateRendererService,
-            IPaymentService paymentService, INotificationJob notificationJob, IOptions<PaymentPolicy> paymentPolicy)
+            IPaymentService paymentService, INotificationJob notificationJob, IOptions<PaymentPolicy> paymentPolicy, IRentalHandlerJob rentalHandlerJob)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -50,6 +53,7 @@ namespace CORE.Services
             _paymentService = paymentService;
             _notificationJob = notificationJob;
             _paymentPolicy = paymentPolicy.Value;
+            _rentalHandlerJob = rentalHandlerJob;
         }
 
         public async Task<ResponseDto<GetRentalDto?>> GetRentalByIdAsync(int rentalId)
@@ -269,6 +273,10 @@ namespace CORE.Services
                 return new CreatedRentalDto { RentalId = 0 };
             }
 
+            // handle cancel rental after startdate without confirmation
+            DateTime cancelDate = booking.StartDate.AddDays(1);
+            await _rentalHandlerJob.ScheduleCancelNotConfirmedRentalAfterStartDateAsync(rental.Id, cancelDate);
+
             await _emailService.SendEmailWithImageAsync(booking.Vehicle.Renter.Email, EmailSubject.RentalConfirmationQRCode, 
                 await _emailTemplateRendererService.RenderTemplateAsync(Templates.RentalConfirmationQRCode, 
                 new {
@@ -308,14 +316,15 @@ namespace CORE.Services
                 };
             }
 
-            if(rental.Booking.StartDate ==  DateTime.UtcNow  || rental.Status != DATA.Models.Enums.RentalStatus.NotStarted)
+            // remove comment after test
+            /*if(rental.Booking.StartDate >  DateTime.UtcNow  || rental.Status != DATA.Models.Enums.RentalStatus.NotStarted)
             {
                 return new ResponseDto<object>
                 {
-                    StatusCode = StatusCodes.BadRequest,
+                    StatusCode = StatusCodes.Conflict,
                     Message = "Rental can not confirmed in this time"
                 };
-            }
+            }*/
 
             string recievedHashedQrCodeToken = _hashingService.Hash(receivedQrCodeToken);
             if (recievedHashedQrCodeToken != rental.hashedQrToken)
@@ -341,7 +350,7 @@ namespace CORE.Services
             // notify renter
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "Your Rental Confirmed Successfuly, Your payment will be transfered to your bank account in 3 days.",
+                Content = "Your Rental Confirmed Successfuly",
                 ReceiverId = rental.Booking.Vehicle.RenterId,
                 TargetId = rental.Id,
                 TargetType = DATA.Models.Enums.TargetType.Rental
@@ -350,7 +359,7 @@ namespace CORE.Services
             // notify customer
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "You have Successfuly confirm your rental.",
+                Content = "You have Successfuly confirm your rental. Payment transfer created...",
                 ReceiverId = rental.Booking.CustomerId,
                 TargetId = rental.Id,
                 TargetType = DATA.Models.Enums.TargetType.Rental
@@ -378,17 +387,17 @@ namespace CORE.Services
             }
 
             rental.PaymentTransferId = transfer.Id;
-            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
             rental.Status = DATA.Models.Enums.RentalStatus.Confirmed;
 
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
             int changes = await _unitOfWork.CommitAsync();
 
             return changes > 0;
         }
 
-        public async Task HandleTransferAsync(int rentalId)
+        public async Task HandleTransferSucceededAsync(int rentalId)
         {
-            Rental? rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}", $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}"]);
             if (rental == null)
             {
                 _logger.LogError($"Rental {rentalId} not found");
@@ -400,7 +409,173 @@ namespace CORE.Services
 
             await _unitOfWork.CommitAsync();
 
-            _logger.LogInformation("Rental {rentalId} Confirmed Successfuly.", rentalId);
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Transfer Succeeded to your payment account, Your payment will be transfered to your bank account in 3 days",
+                ReceiverId = rental.Booking.Vehicle.RenterId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+            await _emailService.SendEmailAsync(rental.Booking.Vehicle.Renter.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Transfer Succeeded to your payment account, Your payment will be transfered to your bank account in 3 days"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.MoneyReceived) }));
+
+            _logger.LogInformation($"Rental {rentalId} payment transfer Successfuly, transfer: {rental.PaymentTransferId}.", rentalId, rental.PaymentTransferId);
+        }
+
+        public async Task HandleTransferFailedAsync(int rentalId)
+        {
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}", $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}"]);
+            if (rental == null)
+            {
+                _logger.LogError($"Rental {rentalId} not found");
+                return;
+            }
+
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Pyamnet Transfer failed, Your payment will be retransfered soon...",
+                ReceiverId = rental.Booking.Vehicle.RenterId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+            _logger.LogError($"Payment trasfer failed for rental {rentalId}, transfer: {rental.PaymentTransferId}.", rentalId, rental.PaymentTransferId);
+        }
+
+        private (long refundedAmount, long transferedAmount) HandleRefund(Rental rental)
+        {
+            // in cents
+            long platformFee = (long)(rental.Booking.FinalPrice * (_paymentPolicy.FeesPercentage / 100m) * 100);
+            long renterAmount = (long)(rental.Booking.FinalPrice * 100) - platformFee;
+
+            // no penality => refund the hole amount //the customer is my friend (:
+            if((rental.Booking.StartDate - DateTime.UtcNow).Days > _paymentPolicy.AllowedRefundDaysBefore)
+            {
+                return (renterAmount, 0);
+            }
+
+            long refundedAmount = renterAmount - (renterAmount * (_paymentPolicy.RefundPenalityPercentage / 100));
+            long transferedAmount = renterAmount - refundedAmount;
+
+            return (refundedAmount, transferedAmount);
+        }
+
+        public async Task<ResponseDto<object>> RefundRentalAsync(int customerId, int rentalId)
+        {
+
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}",
+                $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}"]);
+
+            if (rental == null || customerId != rental.Booking.CustomerId)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.NotFound,
+                    Message = "Rental is not found"
+                };
+            }
+
+            if (rental.Status != DATA.Models.Enums.RentalStatus.NotStarted)
+            {
+                return new ResponseDto<object>
+                {
+                    Message = "This operation can't be performed",
+                    StatusCode = StatusCodes.Conflict
+                };
+            }
+
+            (long refundedAmount, long transferedAmount) = HandleRefund(rental);
+
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Customer refund the rental for vehicle {rental.Booking.Vehicle.Model}, you will collect a part of the payment if there is a penality",
+                ReceiverId = rental.Booking.Vehicle.RenterId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+            await _emailService.SendEmailAsync(rental.Booking.Vehicle.Renter.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode($"Customer refund the rental for vehicle {rental.Booking.Vehicle.Model}, you will collect a part of the payment if there is a penality"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.MoneyReceived) }));
+
+            bool result = true;
+            // refund to customer
+            Refund? refund = await _paymentService.RefundAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rental.Id, refundedAmount);
+
+            result &= refund != null;
+
+            if (transferedAmount > 0) {
+                // transfer penality to renter
+                Transfer? transfer = await _paymentService.TransferToRenterAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rentalId, transferedAmount);
+                result &= transfer != null;
+
+                // notify customer about penality
+                await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+                {
+                    Content = $"There is {_paymentPolicy.FeesPercentage + _paymentPolicy.RefundPenalityPercentage} % penality on your refund.",
+                    ReceiverId = rental.Booking.CustomerId,
+                    TargetId = rental.Id,
+                    TargetType = DATA.Models.Enums.TargetType.Rental
+                });
+            }
+
+            return new ResponseDto<object>
+            {
+                StatusCode = (result ? StatusCodes.OK : StatusCodes.InternalServerError),
+                Message = (result ? "Refund created successfuly." : "Failed to create refund")
+            };
+
+        }
+
+        public async Task HandleRefundSucceededAsync(int rentalId)
+        {
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Customer}"]);
+            if (rental == null)
+            {
+                _logger.LogError($"Rental {rentalId} not found");
+                return;
+            }
+            rental.Status = DATA.Models.Enums.RentalStatus.Refunded;
+
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            await _unitOfWork.CommitAsync();
+
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Fefund completed successfuly",
+                ReceiverId = rental.Booking.CustomerId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            }); 
+
+            await _emailService.SendEmailAsync(rental.Booking.Customer.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode($"Refund completed successfuly"), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.MoneyReceived) }));
+
+
+            _logger.LogInformation($"Rental {rentalId} refunded successfuly.", rentalId);
+        }
+
+        public async Task HandleRefundFailedAsync(int rentalId)
+        {
+            Rental? rental = await _unitOfWork.Rentals.FindAsync(r => r.Id == rentalId, includes: [RentalIncludes.Booking]);
+            if (rental == null)
+            {
+                _logger.LogError($"Rental {rentalId} not found");
+                return;
+            }
+            rental.Status = DATA.Models.Enums.RentalStatus.Refunded;
+
+            await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
+
+            await _unitOfWork.CommitAsync();
+
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = "Rental refunded failed",
+                ReceiverId = rental.Booking.CustomerId,
+                TargetId = rental.Id,
+                TargetType = DATA.Models.Enums.TargetType.Rental
+            });
+
+            _logger.LogError($"Rental {rentalId} refunded failed.", rentalId);
         }
     }
 }

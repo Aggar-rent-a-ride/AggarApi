@@ -43,6 +43,7 @@ namespace API.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        // https://docs.stripe.com/webhooks
         [HttpPost("webhook")]
         [AllowAnonymous]
         public async Task<IActionResult> StripeWebhook()
@@ -61,15 +62,27 @@ namespace API.Controllers
                 switch (stripeEvent.Type)
                 {
                     case "payment_intent.succeeded":
-                        await HandlePaymentSucceeded(stripeEvent);
+                        await HandlePaymentSucceededAsync(stripeEvent);
                         break;
 
                     case "payment_intent.payment_failed":
-                        await HandlePaymentFailed(stripeEvent);
+                        await HandlePaymentFailedAsync(stripeEvent);
                         break;
 
                     case "charge.refunded":
-                        //await HandleChargeRefunded(stripeEvent);
+                        await HandleRefundSucceededAsync(stripeEvent);
+                        break;
+
+                    case "refund.failed":
+                        await HandleRefundFailedAsync(stripeEvent);
+                        break;
+
+                    case "transfer.paid":
+                        await HandleTransferSucceededAsync(stripeEvent);
+                        break;
+
+                    case "transfer.failed":
+                        await HandleTransferFailedAsync(stripeEvent);
                         break;
 
                     default:
@@ -86,18 +99,18 @@ namespace API.Controllers
             }
         }
 
-        private async Task HandlePaymentSucceeded(Event stripeEvent)
+        private async Task HandlePaymentSucceededAsync(Event stripeEvent)
         {
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
             if (paymentIntent.Metadata.TryGetValue("BookingId", out string bookingIdStr) &&
                 int.TryParse(bookingIdStr, out int bookingId))
             {
-                await _bookingService.HandleBookingPaymentSuccededAsync(bookingId, paymentIntent.Id);
+                await _bookingService.HandleBookingPaymentSucceededAsync(bookingId, paymentIntent.Id);
             }
         }
 
-        private async Task HandlePaymentFailed(Event stripeEvent)
+        private async Task HandlePaymentFailedAsync(Event stripeEvent)
         {
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
@@ -107,5 +120,50 @@ namespace API.Controllers
                 await _bookingService.HandleBookingPaymentFailedAsync(bookingId, paymentIntent.Id);
             }
         }
+
+        private async Task HandleRefundSucceededAsync(Event stripeEvent)
+        {
+            var refund = stripeEvent.Data.Object as Refund;
+
+            if (refund.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
+                int.TryParse(tentalIdStr, out int rentalId))
+            {
+                await _rentalService.HandleRefundSucceededAsync(rentalId);
+            }
+        }
+
+        private async Task HandleRefundFailedAsync(Event stripeEvent)
+        {
+            var refund = stripeEvent.Data.Object as Refund;
+
+            if (refund.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
+                int.TryParse(tentalIdStr, out int rentalId))
+            {
+                await _rentalService.HandleRefundFailedAsync(rentalId);
+            }
+        }
+
+        private async Task HandleTransferSucceededAsync(Event stripeEvent)
+        {
+            var transfer = stripeEvent.Data.Object as Transfer;
+
+            if (transfer.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
+                int.TryParse(tentalIdStr, out int rentalId))
+            {
+                await _rentalService.HandleTransferSucceededAsync(rentalId);
+            }
+        }
+
+        private async Task HandleTransferFailedAsync(Event stripeEvent)
+        {
+            var transfer = stripeEvent.Data.Object as Transfer;
+
+            if (transfer.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
+                int.TryParse(tentalIdStr, out int rentalId))
+            {
+                await _rentalService.HandleTransferFailedAsync(rentalId);
+            }
+        }
+
     }
 }

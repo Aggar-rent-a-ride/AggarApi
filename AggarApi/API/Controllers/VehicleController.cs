@@ -127,5 +127,23 @@ namespace API.Controllers
             var result = await _vehicleService.VehicleFavouriteAsync(userId, dto);
             return StatusCode(result.StatusCode, result);
         }
+
+        [Authorize(Roles = Roles.Customer)]
+        [HttpPut("get-favourites")]
+        public async Task<IActionResult> GetFavoutieVehiclesAsync(int pageNo, int pageSize)
+        {
+            int userId = UserHelpers.GetUserId(User);
+            var result = await _vehicleService.GetCustomerFavouriteVehiclesAsync(userId, pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [Authorize(Roles = Roles.Renter)]
+        [HttpPut("renter")]
+        public async Task<IActionResult> GetRenterVehicles(int pageNo, int pageSize)
+        {
+            int userId = UserHelpers.GetUserId(User);
+            var result = await _vehicleService.GetRenterVehiclesAsync(userId, pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
