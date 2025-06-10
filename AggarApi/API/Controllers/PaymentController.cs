@@ -77,7 +77,7 @@ namespace API.Controllers
                         await HandleRefundFailedAsync(stripeEvent);
                         break;
 
-                    case "transfer.paid":
+                    case "transfer.created":
                         await HandleTransferSucceededAsync(stripeEvent);
                         break;
 

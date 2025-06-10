@@ -1,4 +1,5 @@
 ﻿using CORE.BackgroundJobs.IBackgroundJobs;
+using CORE.DTOs.Payment;
 using CORE.Services.IServices;
 using DATA.Constants;
 using DATA.Constants.Includes;
@@ -22,8 +23,10 @@ namespace CORE.BackgroundJobs
         private readonly INotificationJob _notificationJob;
         private readonly IEmailSendingJob _emailSendingJob;
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
+        private readonly IPaymentService _paymentService;
+        private readonly PaymentPolicy _paymentPolicy;
 
-        public RentalHandlerJob(IUnitOfWork unitOfWork, IRecurringJobManager recurringJobManager, ILogger<RentalHandlerJob> logger, INotificationJob notificationJob, IEmailSendingJob emailSendingJob, IEmailTemplateRendererService emailTemplateRendererService)
+        public RentalHandlerJob(IUnitOfWork unitOfWork, IRecurringJobManager recurringJobManager, ILogger<RentalHandlerJob> logger, INotificationJob notificationJob, IEmailSendingJob emailSendingJob, IEmailTemplateRendererService emailTemplateRendererService, IPaymentService paymentService, PaymentPolicy paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _recurringJobManager = recurringJobManager;
@@ -31,6 +34,8 @@ namespace CORE.BackgroundJobs
             _notificationJob = notificationJob;
             _emailSendingJob = emailSendingJob;
             _emailTemplateRendererService = emailTemplateRendererService;
+            _paymentService = paymentService;
+            _paymentPolicy = paymentPolicy;
         }
 
         public async Task ScheduleCancelNotConfirmedRentalAfterStartDateAsync(int rentalId, DateTime cancelDate)
@@ -85,7 +90,7 @@ namespace CORE.BackgroundJobs
             // notify customer
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "Your Rental has been cancelled because it exceeded the allowed days before confirmation.",
+                Content = "Your Rental has been cancelled because it exceeded the allowed days before confirmation, Refund created...",
                 ReceiverId = rental.Booking.CustomerId,
                 TargetId = rental.Booking.Id,
                 TargetType = DATA.Models.Enums.TargetType.Rental
@@ -94,6 +99,10 @@ namespace CORE.BackgroundJobs
             _emailSendingJob.SendEmail(rental.Booking.Customer.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Your rental has been cancelled because it exceeded the allowed days before confirmation."), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.RentalCanceled) }));
 
             _recurringJobManager.RemoveIfExists(jobId);
+
+            long platformFee = (long)(rental.Booking.FinalPrice * (_paymentPolicy.FeesPercentage / 100m) * 100);
+            long refundedAmount = (long)(rental.Booking.FinalPrice * 100) - platformFee;
+            await _paymentService.RefundAsync(rental.Booking.PaymentIntentId, rental.Booking.Vehicle.Renter.StripeAccount.StripeAccountId, rentalId, refundedAmount);
         }
     }
 }
