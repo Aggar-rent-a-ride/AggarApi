@@ -37,27 +37,78 @@ namespace CORE.BackgroundJobs
         {
             string jobId = $"cancel-not-confirmed-booking-{bookingId}";
 
-            BackgroundJob.Schedule(() => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotConfirmedBookingAfterNDays), cancelDate);
+            BackgroundJob.Schedule(() => CancelNotConfirmedBookingAfterNDaysAsync(bookingId, jobId, message), cancelDate);
         }
 
         public void ReScheduleCancelNotConfirmedBookingAfterNDays(int bookingId, string jobId, string message)
         {
-            _recurringJobManager.AddOrUpdate(jobId, () => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotConfirmedBookingAfterNDays), Cron.Daily);
+            _recurringJobManager.AddOrUpdate(jobId, () => CancelNotConfirmedBookingAfterNDaysAsync(bookingId, jobId, message), Cron.Daily);
+        }
+
+        public async Task CancelNotConfirmedBookingAfterNDaysAsync(int bookingId, string jobId, string message)
+        {
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, includes: [BookingIncludes.Customer, BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}",]);
+            if (booking == null)
+            {
+                _logger.LogWarning($"Booking {bookingId} is not found");
+                return;
+            }
+
+            if (booking.Status != DATA.Models.Enums.BookingStatus.Pending && booking.Status != DATA.Models.Enums.BookingStatus.Accepted)
+            {
+                _logger.LogWarning($"Booking {bookingId} can't be canceled");
+                return;
+            }
+
+            booking.Status = DATA.Models.Enums.BookingStatus.Canceled;
+            await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+            {
+                _logger.LogWarning($"Failed to cancel Booking {bookingId}, try again tommorow");
+                ReScheduleCancelNotConfirmedBookingAfterNDays(bookingId, jobId, message);
+                return;
+            }
+
+            _logger.LogInformation($"Canceled booking {bookingId} successfuly");
+
+            // notify renter
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = message,
+                ReceiverId = booking.Vehicle.RenterId,
+                TargetId = booking.Id,
+                TargetType = DATA.Models.Enums.TargetType.Booking
+            });
+
+            // notify customer
+            await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
+            {
+                Content = message,
+                ReceiverId = booking.CustomerId,
+                TargetId = booking.Id,
+                TargetType = DATA.Models.Enums.TargetType.Booking
+            });
+
+            _emailSendingJob.SendEmail(booking.Customer.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode(message), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.BookingCanceled) }));
+
+            _recurringJobManager.RemoveIfExists(jobId);
         }
 
         public async Task ScheduleCancelNotResponsedBookingAsync(int bookingId, DateTime cancelDate, string message)
         {
             string jobId = $"cancel-not-responsed-booking-{bookingId}";
 
-            BackgroundJob.Schedule(() => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotResponsedBooking), cancelDate);
+            BackgroundJob.Schedule(() => CancelNotResponsedBookingAsync(bookingId, jobId, message), cancelDate);
         }
 
         public void ReScheduleCancelNotResponsedBooking(int bookingId, string jobId, string message)
         {
-            _recurringJobManager.AddOrUpdate(jobId, () => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotResponsedBooking), Cron.Daily);
+            _recurringJobManager.AddOrUpdate(jobId, () => CancelNotResponsedBookingAsync(bookingId, jobId, message), Cron.Daily);
         }
 
-        public async Task CancelBookingAsync(int bookingId, string jobId, string message, Action<int, string, string> rescheduledJob)
+        public async Task CancelNotResponsedBookingAsync(int bookingId, string jobId, string message)
         {
             Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, includes: [BookingIncludes.Customer, BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}", ]);
             if(booking == null)
@@ -79,7 +130,7 @@ namespace CORE.BackgroundJobs
             if(changes == 0)
             {
                 _logger.LogWarning($"Failed to cancel Booking {bookingId}, try again tommorow");
-                rescheduledJob(bookingId, jobId, message); // avoid duplication
+                ReScheduleCancelNotResponsedBooking(bookingId, jobId, message);
                 return;
             }
 
