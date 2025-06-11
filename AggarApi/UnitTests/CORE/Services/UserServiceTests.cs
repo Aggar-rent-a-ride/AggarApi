@@ -115,7 +115,8 @@ namespace UnitTests.CORE.Services
                     pageSize, 
                     null,
                     null,
-                    0))
+                    0,
+                    false))
                    .ReturnsAsync(usersFromDb.AsEnumerable());
             _mockMapper.Setup(mapper => mapper.Map<IEnumerable<SummerizedUserWithRateDto>>(It.IsAny<IEnumerable<AppUser>>()))
                        .Returns(mappedUsers);
@@ -143,7 +144,8 @@ namespace UnitTests.CORE.Services
                     pageSize,
                     null,
                     null,
-                    0))
+                    0,
+                    false))
                    .ReturnsAsync(Enumerable.Empty<AppUser>());
 
             // Act

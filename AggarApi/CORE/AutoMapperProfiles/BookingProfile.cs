@@ -22,6 +22,12 @@ namespace CORE.AutoMapperProfiles
 
             CreateMap<GetBookingByRentalIdDto, Booking>()
                 .ReverseMap();
+
+            CreateMap<Booking, BookingSummaryDto>()
+                .ForMember(dest => dest.BookingStatus, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.VehicleModel, opt => opt.MapFrom(src => src.Vehicle.Model))
+                .ForMember(dest => dest.VehicleBrand, opt => opt.MapFrom(src => src.Vehicle.VehicleBrand.Name))
+                .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.Vehicle.VehicleType.Name));
         }
     }
 }

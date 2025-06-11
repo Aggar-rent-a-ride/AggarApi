@@ -201,7 +201,8 @@ namespace UnitTests.CORE.Services
                     It.IsAny<int>(),
                     It.IsAny<string[]>(),
                     It.IsAny<Expression<Func<RenterReview, object>>>(),
-                    It.IsAny<OrderBy>()))
+                    It.IsAny<OrderBy>(),
+                    It.IsAny<bool>()))
                 .ReturnsAsync(new List<RenterReview>());
 
             _mockUnitOfWork.Setup(u => u.Rentals.GetRentalsByUserIdCountAsync( It.IsAny<int>(), It.IsAny<string>()))
@@ -235,7 +236,8 @@ namespace UnitTests.CORE.Services
                     It.IsAny<int>(),
                     It.IsAny<string[]>(),
                     It.IsAny<Expression<Func<RenterReview, object>>>(),
-                    It.IsAny<OrderBy>()))
+                    It.IsAny<OrderBy>(),
+                    It.IsAny<bool>()))
                 .ReturnsAsync(new List<RenterReview>());
 
             _mockUnitOfWork.Setup(u => u.Rentals.GetRentalsByUserIdCountAsync(It.IsAny<int>(), It.IsAny<string>()))

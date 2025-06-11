@@ -513,5 +513,101 @@ namespace CORE.Services
                 }
             }
         }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetUserBookingsAsync(int userId, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            _logger.LogInformation($"Getting bookings for user with ID: {userId}", userId);
+
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
+            if(user == null)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "User is Not Found"
+                };
+            }
+
+            IEnumerable<Booking> bookings = await _unitOfWork.Bookings
+                .FindAsync(b => b.CustomerId == userId || b.Vehicle.RenterId == userId, 
+                pageNo, pageSize, 
+                sortingExpression: b => b.StartDate, sortingDirection: DATA.Constants.Enums.OrderBy.Descending, 
+                includes: [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}"]);
+
+            int count = await _unitOfWork.Bookings
+                .CountAsync(b => b.CustomerId == userId || b.Vehicle.RenterId == userId);
+
+
+            List<BookingSummaryDto> result = new();
+            foreach (var booking in bookings)
+            {
+                result.Add(_mapper.Map<BookingSummaryDto>(booking));
+            }
+
+            return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
+                StatusCode = StatusCodes.OK,
+                Message = "Bookings Loaded Successfuly"
+            };
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetRenterPendingBookingsAsync(int renterId, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            _logger.LogInformation($"Getting pending bookings for renter with ID: {renterId}", renterId);
+
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+            if (renter == null)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "Renter is Not Found"
+                };
+            }
+
+            IEnumerable<Booking> bookings = await _unitOfWork.Bookings
+                .FindAsync(b => b.Vehicle.RenterId == renterId && b.Status == BookingStatus.Pending,
+                pageNo, pageSize,
+                sortingExpression: b => b.StartDate, sortingDirection: DATA.Constants.Enums.OrderBy.Descending,
+                includes: [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}"]);
+
+            int count = await _unitOfWork.Bookings
+                .CountAsync(b => b.Vehicle.RenterId == renterId && b.Status == BookingStatus.Pending);
+
+
+            List<BookingSummaryDto> result = new();
+            foreach (var booking in bookings)
+            {
+                result.Add(_mapper.Map<BookingSummaryDto>(booking));
+            }
+
+            return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
+                StatusCode = StatusCodes.OK,
+                Message = "Bookings Loaded Successfuly"
+            };
+        }
     }
 }
