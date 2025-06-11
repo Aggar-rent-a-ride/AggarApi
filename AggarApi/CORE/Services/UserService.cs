@@ -14,6 +14,7 @@ using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using DATA.Models.Enums;
 using Hangfire;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -35,7 +36,8 @@ namespace CORE.Services
         private readonly IEmailTemplateRendererService _emailTemplateRendererService;
         private readonly IOptions<WarningManagement> _warningManagement;
         private readonly IEmailSendingJob _emailSendingJob;
-        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, IUserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, IEmailSendingJob emailSendingJob)
+        private readonly UserManager<AppUser> _userManager;
+        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, IUserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, IEmailSendingJob emailSendingJob, UserManager<AppUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -44,11 +46,12 @@ namespace CORE.Services
             _emailTemplateRendererService = emailTemplateRendererService;
             _warningManagement = warningManagement;
             _emailSendingJob = emailSendingJob;
+            _userManager = userManager;
         }
         public async Task<bool> CheckAllUsersExist(List<int> userIds)
         {
             var count = await _unitOfWork.AppUsers.CountAsync(u => userIds.Contains(u.Id));
-            
+
             return count == userIds.Count;
         }
         public async Task<bool> CheckAnyAsync(int userId)
@@ -57,7 +60,7 @@ namespace CORE.Services
         }
         public async Task<ResponseDto<object>> DeleteUserAsync(int userId, int authUserId, string[] roles)
         {
-            if(userId != authUserId && roles.Contains(Roles.Admin) == false)
+            if (userId != authUserId && roles.Contains(Roles.Admin) == false)
             {
                 _logger.LogInformation("User {UserId} tried to delete user {TargetUserId} without permission.", authUserId, userId);
                 return new ResponseDto<object>
@@ -78,7 +81,7 @@ namespace CORE.Services
             }
             _unitOfWork.AppUsers.Delete(user);
             var changes = await _unitOfWork.CommitAsync();
-            if(changes == 0)
+            if (changes == 0)
             {
                 _logger.LogInformation("Failed to delete user with ID {UserId}.", userId);
                 return new ResponseDto<object>
@@ -137,7 +140,7 @@ namespace CORE.Services
                     Message = "banDurationInDays is required."
                 };
             }
-            if(banDurationInDays <= 0)
+            if (banDurationInDays <= 0)
             {
                 _logger.LogWarning("banDurationInDays must be positive for banning a user.");
                 return new ResponseDto<object>
@@ -157,7 +160,7 @@ namespace CORE.Services
 
             var changes = await _unitOfWork.CommitAsync();
 
-            if(changes == 0)
+            if (changes == 0)
             {
                 _logger.LogWarning("Failed to ban user with ID {UserId}.", user.Id);
                 return new ResponseDto<object>
@@ -170,7 +173,7 @@ namespace CORE.Services
             _logger.LogInformation("User with ID {UserId} banned until {BannedTo}.", user.Id, bannedTo);
 
             // Schedule unban job
-            if(banDurationInDays <= 3*365)
+            if (banDurationInDays <= 3 * 365)
                 await _userManagementJob.ScheduleUserUnbanAsync(user.Id, bannedTo);
 
             //send email to the user
@@ -185,12 +188,12 @@ namespace CORE.Services
         private async Task<ResponseDto<object>> WarnUserAsync(AppUser user)
         {
             bool isTotalWarningsIncreased = false;
-            if(user.WarningCount == _warningManagement.Value.MaxWarningsCount - 1 && user.TotalWarningsCount == _warningManagement.Value.MaxTotalWarningsCount - 1)
+            if (user.WarningCount == _warningManagement.Value.MaxWarningsCount - 1 && user.TotalWarningsCount == _warningManagement.Value.MaxTotalWarningsCount - 1)
             {
                 _logger.LogInformation("User with ID {UserId} has reached the maximum warning limit and is going to be banned forever", user.Id);
                 return await BanUserAsync(user, 1000000);
             }
-            else if(user.WarningCount == _warningManagement.Value.MaxWarningsCount - 1)
+            else if (user.WarningCount == _warningManagement.Value.MaxWarningsCount - 1)
             {
                 user.WarningCount = 0;
                 user.TotalWarningsCount++;
@@ -200,7 +203,7 @@ namespace CORE.Services
                 user.WarningCount++;
 
             var changes = await _unitOfWork.CommitAsync();
-            if(changes == 0)
+            if (changes == 0)
             {
                 _logger.LogWarning("Failed to warn user with ID {UserId}.", user.Id);
                 return new ResponseDto<object>
@@ -214,7 +217,7 @@ namespace CORE.Services
 
             if (isTotalWarningsIncreased == true)
                 _emailSendingJob.SendEmail(user.Email, EmailSubject.AccountWarned, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Warning, new { Name = System.Web.HttpUtility.HtmlEncode(user.Name), WarningsLeft = System.Web.HttpUtility.HtmlEncode(_warningManagement.Value.MaxTotalWarningsCount - user.TotalWarningsCount) }));
-            
+
             return new ResponseDto<object>
             {
                 StatusCode = StatusCodes.OK,
@@ -272,8 +275,8 @@ namespace CORE.Services
         public async Task<ResponseDto<SummerizedUserDto>> GetUserByIdAsync(int userId)
         {
             var user = await _unitOfWork.AppUsers.GetAsync(userId);
-            
-            if(user == null)
+
+            if (user == null)
             {
                 _logger.LogWarning("User with ID {UserId} not found.", userId);
                 return new ResponseDto<SummerizedUserDto>
@@ -286,6 +289,32 @@ namespace CORE.Services
             {
                 Data = _mapper.Map<SummerizedUserDto>(user),
                 StatusCode = StatusCodes.OK,
+            };
+        }
+
+        public async Task<ResponseDto<UserProfileDto>> GetUserProfileAsync(int userId)
+        {
+            var user = await _unitOfWork.AppUsers.GetAsync(userId);
+
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                return new ResponseDto<UserProfileDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "User not found."
+                };
+            }
+
+            var profiledto = _mapper.Map<UserProfileDto>(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            profiledto.Role = roles.Where(r => r != Roles.User).First();
+
+            return new ResponseDto<UserProfileDto>
+            {
+                Data = profiledto,
+                StatusCode = StatusCodes.OK,
+                Message = "Profile Loaded Successfuly."
             };
         }
     }

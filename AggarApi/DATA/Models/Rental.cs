@@ -11,7 +11,7 @@ namespace DATA.Models
         public int RenterReviewId { get; set; }
         public string hashedQrToken { get; set; } = null!;
         public string? PaymentTransferId { get; set; }
-        public RentalStatus Status { get; set; } = RentalStatus.NotStarted;
+        public RentalStatus Status { get; set; }
         public Booking Booking { get; set; } = null!;
         public CustomerReview? CustomerReview { get; set; }
         public RenterReview? RenterReview { get; set; }

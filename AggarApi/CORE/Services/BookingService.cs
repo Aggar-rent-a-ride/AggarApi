@@ -141,6 +141,8 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
+            await _bookingHandlerJob.ScheduleCancelNotResponsedBookingAsync(newBooking.Id, newBooking.StartDate, "booking has been cancelled because it has no response until start date.");
+
             // notify renter
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
@@ -150,11 +152,6 @@ namespace CORE.Services
                 TargetType = TargetType.Booking
             });
 
-            // handle cancel booking after n days without confirmation
-            DateTime cancelDate = newBooking.StartDate < newBooking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays)
-                ? newBooking.StartDate
-                : newBooking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays);
-            await _bookingHandlerJob.ScheduleCancelNotConfirmedBookingAfterNDaysAsync(newBooking.Id, cancelDate);
 
             var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
@@ -166,7 +163,7 @@ namespace CORE.Services
             return new ResponseDto<BookingDetailsDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = $"Booking added successfully, Your have {_paymentPolicy.AllowedConfirmDays} days to confirm the booking",
+                Message = $"Booking added successfully",
                 Data = addedBookingResult.Data
             };
         }
@@ -180,8 +177,8 @@ namespace CORE.Services
                     Message = "UserId Not Found"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
-            if (booking.CustomerId != userId && booking.Vehicle.RenterId != userId)
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}"]);
+            if (booking == null || (booking.CustomerId != userId && booking.Vehicle.RenterId != userId))
                 return new ResponseDto<BookingDetailsDto>
                 {
                     StatusCode = StatusCodes.BadRequest,
@@ -321,10 +318,16 @@ namespace CORE.Services
 
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
+            // handle cancel booking after n days without confirmation
+            DateTime cancelDate = booking.StartDate < DateTime.UtcNow.AddDays(_paymentPolicy.AllowedConfirmDays)
+                ? booking.StartDate
+                : DateTime.UtcNow.AddDays(_paymentPolicy.AllowedConfirmDays);
+            await _bookingHandlerJob.ScheduleCancelNotConfirmedBookingAfterNDaysAsync(booking.Id, cancelDate, "Your booking has been cancelled because it exceeded the allowed days before confirmation");
+
             // notify customer
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = $"The renter accepted your booking request, Your booking on {booking.StartDate:d} is coming up!",
+                Content = $"The renter accepted your booking request, Your have until {cancelDate} to confirm the booking",
                 ReceiverId = booking.CustomerId,
                 TargetId = booking.Id,
                 TargetType = TargetType.Booking
@@ -509,6 +512,125 @@ namespace CORE.Services
                     _logger.LogError(ex, $"Failed to Cancel payment session for booking {booking.Id}", booking.Id);
                 }
             }
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetUserBookingsAsync(int userId, BookingStatus? status, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            _logger.LogInformation($"Getting bookings for user with ID: {userId}", userId);
+
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
+            if(user == null)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "User is Not Found"
+                };
+            }
+
+            IEnumerable<Booking> bookings = await _unitOfWork.Bookings
+                .FindAsync(b => (b.CustomerId == userId || b.Vehicle.RenterId == userId) && (status == null || b.Status == status), 
+                pageNo, pageSize, 
+                sortingExpression: b => b.StartDate, 
+                includes: [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}"],
+                ignoreFilter: true);
+
+            int count = await _unitOfWork.Bookings
+                .CountAsync(b => b.CustomerId == userId || b.Vehicle.RenterId == userId);
+
+
+            List<BookingSummaryDto> result = new();
+            foreach (var booking in bookings)
+            {
+                result.Add(_mapper.Map<BookingSummaryDto>(booking));
+            }
+
+            return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
+                StatusCode = StatusCodes.OK,
+                Message = "Bookings Loaded Successfuly"
+            };
+        }
+
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetRenterPendingBookingsAsync(int renterId, int pageNo, int pageSize, int maxPageSize = 100)
+        {
+            _logger.LogInformation($"Getting pending bookings for renter with ID: {renterId}", renterId);
+
+            if (PaginationHelpers.ValidatePaging(pageNo, pageSize, maxPageSize) is string paginationError)
+            {
+                _logger.LogWarning("Invalid pagination parameters: {PaginationError}", paginationError);
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = paginationError
+                };
+            }
+
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+            if (renter == null)
+            {
+                return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "Renter is Not Found"
+                };
+            }
+
+            IEnumerable<Booking> bookings = await _unitOfWork.Bookings
+                .FindAsync(b => b.Vehicle.RenterId == renterId && b.Status == BookingStatus.Pending,
+                pageNo, pageSize,
+                sortingExpression: b => b.StartDate,
+                includes: [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}"]);
+
+            int count = await _unitOfWork.Bookings
+                .CountAsync(b => b.Vehicle.RenterId == renterId && b.Status == BookingStatus.Pending);
+
+
+            List<BookingSummaryDto> result = new();
+            foreach (var booking in bookings)
+            {
+                result.Add(_mapper.Map<BookingSummaryDto>(booking));
+            }
+
+            return new ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>
+            {
+                Data = PaginationHelpers.CreatePagedResult(result.AsEnumerable(), pageNo, pageSize, count),
+                StatusCode = StatusCodes.OK,
+                Message = "Bookings Loaded Successfuly"
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<Interval>>> GetBookingsInterval(int renterId)
+        {
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+            if (renter == null)
+            {
+                return new ResponseDto<IEnumerable<Interval>>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "Renter is Not Found"
+                };
+            }
+
+            IEnumerable<Interval> intervals = await _unitOfWork.Bookings.GetBookingsInterval(renterId);
+
+            return new ResponseDto<IEnumerable<Interval>>
+            {
+                Data = intervals,
+                StatusCode = StatusCodes.OK,
+                Message = "Intervals loaded Successfuly"
+            };
         }
     }
 }

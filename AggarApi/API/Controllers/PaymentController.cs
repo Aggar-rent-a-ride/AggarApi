@@ -35,13 +35,33 @@ namespace API.Controllers
 
         [Authorize(Roles = Roles.Renter)]
         [HttpPost("connected-account")]
-        public async Task<IActionResult> CreateConnectedAccount(CreateConnectedAccountDto dto)
+        public async Task<IActionResult> G(CreateConnectedAccountDto dto)
         {
             int renterId = UserHelpers.GetUserId(User);
             var response = await _paymentService.CreateStripeAccountAsync(dto, renterId);
 
             return StatusCode(response.StatusCode, response);
         }
+
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet("balance")]
+        public async Task<IActionResult> GetPlatformBalanceAsync()
+        {
+            var response = await _paymentService.PlatformBalanceAsync();
+
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize(Roles=Roles.Renter)]
+        [HttpGet("renter-payout")]
+        public async Task<IActionResult> GetPayoutDetailsAsync()
+        {
+            int renterId = UserHelpers.GetUserId(User);
+            var response = await _paymentService.GetRenterPayoutDetailsAsync(renterId);
+            return StatusCode(response.StatusCode, response);
+        }
+
+
 
         // https://docs.stripe.com/webhooks
         [HttpPost("webhook")]
@@ -69,7 +89,7 @@ namespace API.Controllers
                         await HandlePaymentFailedAsync(stripeEvent);
                         break;
 
-                    case "charge.refunded":
+                    case "refund.created":
                         await HandleRefundSucceededAsync(stripeEvent);
                         break;
 
@@ -77,7 +97,7 @@ namespace API.Controllers
                         await HandleRefundFailedAsync(stripeEvent);
                         break;
 
-                    case "transfer.paid":
+                    case "transfer.created":
                         await HandleTransferSucceededAsync(stripeEvent);
                         break;
 
@@ -124,6 +144,12 @@ namespace API.Controllers
         private async Task HandleRefundSucceededAsync(Event stripeEvent)
         {
             var refund = stripeEvent.Data.Object as Refund;
+            if(refund == null)
+            {
+                _logger.LogWarning($"Refund is null, can't handle it.");
+                return;
+            }
+
 
             if (refund.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
                 int.TryParse(tentalIdStr, out int rentalId))
@@ -135,7 +161,6 @@ namespace API.Controllers
         private async Task HandleRefundFailedAsync(Event stripeEvent)
         {
             var refund = stripeEvent.Data.Object as Refund;
-
             if (refund.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
                 int.TryParse(tentalIdStr, out int rentalId))
             {

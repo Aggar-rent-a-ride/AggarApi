@@ -70,5 +70,13 @@ namespace API.Controllers
             var result = await _userService.GetUserByIdAsync(userId);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetUserProfileAsync(int userId)
+        {
+            var result = await _userService.GetUserProfileAsync(userId);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

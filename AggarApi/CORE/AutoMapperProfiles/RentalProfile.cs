@@ -5,6 +5,7 @@ using DATA.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,9 @@ namespace CORE.AutoMapperProfiles
         public RentalProfile()
         {
             CreateMap<Rental, GetRentalDto>()
+                .ForMember(dest => dest.RentalStatus, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Booking, opt => opt.MapFrom(src => src.Booking))
+                .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Booking.Vehicle))
                 .ReverseMap();
 
             CreateMap<Rental, GetRentalsByUserIdDto>()

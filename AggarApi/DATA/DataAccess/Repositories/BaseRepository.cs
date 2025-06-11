@@ -37,8 +37,13 @@ namespace DATA.DataAccess.Repositories
 
         public async Task<int> CountAsync() => await _context.Set<T>().CountAsync();
 
-        public async Task<int> CountAsync(Expression<Func<T, bool>> criteria) => 
-            await _context.Set<T>().Where(criteria).CountAsync();
+        public async Task<int> CountAsync(Expression<Func<T, bool>> criteria, bool ignoreFilters = false)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            if(ignoreFilters)
+                query = query.IgnoreQueryFilters();
+            return await query.Where(criteria).CountAsync();
+        }
 
         public void Delete(T entity)
         {
@@ -57,11 +62,16 @@ namespace DATA.DataAccess.Repositories
         }
 
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes, Expression<Func<T, object>> sortingExpression = null, OrderBy sortingDirection = OrderBy.Ascending)
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> criteria, int pageNo, int pageSize, string[] includes, Expression<Func<T, object>> sortingExpression = null, OrderBy sortingDirection = OrderBy.Ascending, bool ignoreFilters = false)
         {
-            IQueryable<T> query = _context.Set<T>().Where(criteria);
-            
-            if(sortingExpression != null)
+
+            IQueryable<T> query = _context.Set<T>();
+            if (ignoreFilters)
+                query = query.IgnoreQueryFilters();
+
+            query = query.Where(criteria);
+
+            if (sortingExpression != null)
             {
                 if (sortingDirection == OrderBy.Ascending)
                     query = query.OrderBy(sortingExpression);

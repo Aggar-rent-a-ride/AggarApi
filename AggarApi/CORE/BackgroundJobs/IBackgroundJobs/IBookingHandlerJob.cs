@@ -9,6 +9,7 @@ namespace CORE.BackgroundJobs.IBackgroundJobs
 {
     public interface IBookingHandlerJob
     {
-        Task ScheduleCancelNotConfirmedBookingAfterNDaysAsync(int bookingId, DateTime cancelDate);
+        Task ScheduleCancelNotConfirmedBookingAfterNDaysAsync(int bookingId, DateTime cancelDate, string message);
+        Task ScheduleCancelNotResponsedBookingAsync(int bookingId, DateTime cancelDate, string message);
     }
 }

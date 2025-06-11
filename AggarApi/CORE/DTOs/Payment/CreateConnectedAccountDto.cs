@@ -9,7 +9,6 @@ namespace CORE.DTOs.Payment
 {
     public class CreateConnectedAccountDto
     {
-        public string LastName { get; set; }
         public string Phone { get; set; }
         public string BankAccountRoutingNumber { get; set; }
         public string BankAccountNumber { get; set; }
