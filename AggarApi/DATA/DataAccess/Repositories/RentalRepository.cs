@@ -122,6 +122,7 @@ namespace DATA.DataAccess.Repositories
                 .Select(r => new Rental
                 {
                     Id = r.Id,
+                    Status = r.Status,
                     Booking = new Booking
                     {
                         StartDate = r.Booking.StartDate,

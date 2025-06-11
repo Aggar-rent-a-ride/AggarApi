@@ -254,13 +254,13 @@ namespace CORE.Services
             byte[] qrCodeImage = _qrCodeService.GenerateQrCode(qrToken);
             string qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
             string hashedQrToken = _hashingService.Hash(qrToken);
-            Console.WriteLine($"qr token: {qrCodeBase64}");
 
 
             Rental rental = new Rental
             {
                 BookingId = booking.Id,
-                hashedQrToken = hashedQrToken
+                hashedQrToken = hashedQrToken,
+                Status = DATA.Models.Enums.RentalStatus.NotStarted
             };
 
             await _unitOfWork.Rentals.AddOrUpdateAsync(rental);
