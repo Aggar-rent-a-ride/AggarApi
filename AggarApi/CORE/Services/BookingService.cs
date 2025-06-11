@@ -141,6 +141,8 @@ namespace CORE.Services
                     Message = "Faild to save booking"
                 };
 
+            await _bookingHandlerJob.ScheduleCancelNotResponsedBookingAsync(newBooking.Id, newBooking.StartDate, "booking has been cancelled because it has no response until start date.");
+
             // notify renter
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
@@ -150,11 +152,6 @@ namespace CORE.Services
                 TargetType = TargetType.Booking
             });
 
-            // handle cancel booking after n days without confirmation
-            DateTime cancelDate = newBooking.StartDate < newBooking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays)
-                ? newBooking.StartDate
-                : newBooking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays);
-            await _bookingHandlerJob.ScheduleCancelNotConfirmedBookingAfterNDaysAsync(newBooking.Id, cancelDate);
 
             var addedBookingResult = await GetBookingDetailsByIdAsync(newBooking.Id, customerId);
             if (addedBookingResult.StatusCode != StatusCodes.OK)
@@ -166,7 +163,7 @@ namespace CORE.Services
             return new ResponseDto<BookingDetailsDto>
             {
                 StatusCode = StatusCodes.Created,
-                Message = $"Booking added successfully, Your have {_paymentPolicy.AllowedConfirmDays} days to confirm the booking",
+                Message = $"Booking added successfully",
                 Data = addedBookingResult.Data
             };
         }
@@ -321,10 +318,16 @@ namespace CORE.Services
 
             await _unitOfWork.Bookings.AddOrUpdateAsync(booking);
 
+            // handle cancel booking after n days without confirmation
+            DateTime cancelDate = booking.StartDate < DateTime.UtcNow.AddDays(_paymentPolicy.AllowedConfirmDays)
+                ? booking.StartDate
+                : booking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays);
+            await _bookingHandlerJob.ScheduleCancelNotConfirmedBookingAfterNDaysAsync(booking.Id, cancelDate, "Your booking has been cancelled because it exceeded the allowed days before confirmation");
+
             // notify customer
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = $"The renter accepted your booking request, Your booking on {booking.StartDate:d} is coming up!",
+                Content = $"The renter accepted your booking request, Your have until {cancelDate} to confirm the booking",
                 ReceiverId = booking.CustomerId,
                 TargetId = booking.Id,
                 TargetType = TargetType.Booking

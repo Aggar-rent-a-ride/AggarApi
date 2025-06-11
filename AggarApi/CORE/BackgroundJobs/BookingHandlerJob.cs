@@ -33,19 +33,31 @@ namespace CORE.BackgroundJobs
             _emailTemplateRendererService = emailTemplateRendererService;
         }
 
-        public async Task ScheduleCancelNotConfirmedBookingAfterNDaysAsync(int bookingId, DateTime cancelDate)
+        public async Task ScheduleCancelNotConfirmedBookingAfterNDaysAsync(int bookingId, DateTime cancelDate, string message)
         {
-            string jobId = $"cancel-booking-{bookingId}";
+            string jobId = $"cancel-not-confirmed-booking-{bookingId}";
 
-            BackgroundJob.Schedule(() => CancelNotConfirmedBookingAfterNDaysAsync(bookingId, jobId), cancelDate);
+            BackgroundJob.Schedule(() => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotConfirmedBookingAfterNDays), cancelDate);
         }
 
-        public void ReScheduleCancelNotConfirmedBookingAfterNDays(int bookingId, string jobId)
+        public void ReScheduleCancelNotConfirmedBookingAfterNDays(int bookingId, string jobId, string message)
         {
-            _recurringJobManager.AddOrUpdate(jobId, () => CancelNotConfirmedBookingAfterNDaysAsync(bookingId, jobId), Cron.Daily);
+            _recurringJobManager.AddOrUpdate(jobId, () => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotConfirmedBookingAfterNDays), Cron.Daily);
         }
 
-        public async Task CancelNotConfirmedBookingAfterNDaysAsync(int bookingId, string jobId)
+        public async Task ScheduleCancelNotResponsedBookingAsync(int bookingId, DateTime cancelDate, string message)
+        {
+            string jobId = $"cancel-not-responsed-booking-{bookingId}";
+
+            BackgroundJob.Schedule(() => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotResponsedBooking), cancelDate);
+        }
+
+        public void ReScheduleCancelNotResponsedBooking(int bookingId, string jobId, string message)
+        {
+            _recurringJobManager.AddOrUpdate(jobId, () => CancelBookingAsync(bookingId, jobId, message, ReScheduleCancelNotResponsedBooking), Cron.Daily);
+        }
+
+        public async Task CancelBookingAsync(int bookingId, string jobId, string message, Action<int, string, string> rescheduledJob)
         {
             Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, includes: [BookingIncludes.Customer, BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.Renter}", ]);
             if(booking == null)
@@ -67,7 +79,7 @@ namespace CORE.BackgroundJobs
             if(changes == 0)
             {
                 _logger.LogWarning($"Failed to cancel Booking {bookingId}, try again tommorow");
-                ReScheduleCancelNotConfirmedBookingAfterNDays(bookingId, jobId);
+                rescheduledJob(bookingId, jobId, message); // avoid duplication
                 return;
             }
 
@@ -76,7 +88,7 @@ namespace CORE.BackgroundJobs
             // notify renter
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "Booking has been cancelled because it exceeded the allowed days before confirmation.",
+                Content = message,
                 ReceiverId = booking.Vehicle.RenterId,
                 TargetId = booking.Id,
                 TargetType = DATA.Models.Enums.TargetType.Booking
@@ -85,13 +97,13 @@ namespace CORE.BackgroundJobs
             // notify customer
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "Your booking has been cancelled because it exceeded the allowed days before confirmation.",
+                Content = message,
                 ReceiverId = booking.CustomerId,
                 TargetId = booking.Id,
                 TargetType = DATA.Models.Enums.TargetType.Booking
             });
 
-            _emailSendingJob.SendEmail(booking.Customer.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode("Your booking has been cancelled because it exceeded the allowed days before confirmation."), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.BookingCanceled) }));
+            _emailSendingJob.SendEmail(booking.Customer.Email, EmailSubject.NotificationReceived, await _emailTemplateRendererService.RenderTemplateAsync(Templates.Notification, new { NotificationContent = System.Web.HttpUtility.HtmlEncode(message), NotificationType = System.Web.HttpUtility.HtmlEncode(NotificationType.BookingCanceled) }));
 
             _recurringJobManager.RemoveIfExists(jobId);
         }
