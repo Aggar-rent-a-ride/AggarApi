@@ -26,5 +26,6 @@ namespace CORE.Services.IServices
         public Task HandleBookingPaymentFailedAsync(int bookingId, string paymentIntentId);
         Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetRenterPendingBookingsAsync(int renterId, int pageNo, int pageSize, int maxPageSize = 100);
         Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetUserBookingsAsync(int userId, BookingStatus status, int pageNo, int pageSize, int maxPageSize = 100);
+        Task<ResponseDto<IEnumerable<Interval>>> GetBookingsInterval(int renterId);
     }
 }

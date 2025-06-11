@@ -97,5 +97,14 @@ namespace API.Controllers
             var result = await _bookingService.GetUserBookingsAsync(userId, status, pageNo, pageSize);
             return StatusCode(result.StatusCode, result);
         }
+
+        [Authorize(Roles = Roles.Renter)]
+        [HttpGet("intervals")]
+        public async Task<IActionResult> GetRenterBookingsIntervalAsync()
+        {
+            int renterId = UserHelpers.GetUserId(User);
+            var result = await _bookingService.GetBookingsInterval(renterId);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

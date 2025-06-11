@@ -11,5 +11,6 @@ namespace DATA.DataAccess.Repositories.IRepositories
     {
         Task<Booking?> GetBookingByRentalIdAsync(int rentalId);
         Task<Booking?> GetBookingByIntentIdAsync(string intentId);
+        Task<IEnumerable<Interval>> GetBookingsInterval(int rentalId);
     }
 }

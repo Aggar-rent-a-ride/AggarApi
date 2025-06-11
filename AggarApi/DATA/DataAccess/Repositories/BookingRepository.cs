@@ -40,5 +40,21 @@ namespace DATA.DataAccess.Repositories
 
             return booking;
         }
+
+        public async Task<IEnumerable<Interval>> GetBookingsInterval(int rentalId)
+        {
+            var intervals = await _context.bookings
+                .Include(b => b.Vehicle)
+                .Where(b => b.Vehicle.RenterId == rentalId && b.Status != Models.Enums.BookingStatus.Canceled && b.Status != Models.Enums.BookingStatus.Rejected)
+                .Select(b => new Interval
+                {
+                    StartDate = b.StartDate,
+                    EndDate = b.EndDate,
+                })
+                .OrderBy(b => b.StartDate)
+                .ToListAsync();
+
+            return intervals;
+        }
     }
 }

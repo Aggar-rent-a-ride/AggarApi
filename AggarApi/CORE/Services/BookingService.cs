@@ -610,5 +610,27 @@ namespace CORE.Services
                 Message = "Bookings Loaded Successfuly"
             };
         }
+
+        public async Task<ResponseDto<IEnumerable<Interval>>> GetBookingsInterval(int renterId)
+        {
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterId);
+            if (renter == null)
+            {
+                return new ResponseDto<IEnumerable<Interval>>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "Renter is Not Found"
+                };
+            }
+
+            IEnumerable<Interval> intervals = await _unitOfWork.Bookings.GetBookingsInterval(renterId);
+
+            return new ResponseDto<IEnumerable<Interval>>
+            {
+                Data = intervals,
+                StatusCode = StatusCodes.OK,
+                Message = "Intervals loaded Successfuly"
+            };
+        }
     }
 }
