@@ -40,7 +40,7 @@ namespace UnitTests.CORE.Services
             _mockEmailService = new Mock<IEmailService>();
             _mockEmailTemplateRendererService = new Mock<IEmailTemplateRendererService>();
             _mockWarningManagement = new Mock<IOptions<WarningManagement>>();
-            _userService = new UserService(_mockUnitOfWork.Object, _mockLogger.Object, _mockMapper.Object, null, _mockEmailService.Object, _mockEmailTemplateRendererService.Object, _mockWarningManagement.Object, null );
+            _userService = new UserService(_mockUnitOfWork.Object, _mockLogger.Object, _mockMapper.Object, null, _mockEmailService.Object, _mockEmailTemplateRendererService.Object, _mockWarningManagement.Object, null, null );
         }
         [Test]
         public async Task FindUsersAsync_InvalidPagination_ReturnsBadRequest()

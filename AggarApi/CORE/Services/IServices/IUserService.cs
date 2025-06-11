@@ -20,5 +20,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<PagedResultDto<IEnumerable<SummerizedUserDto>>>> GetTotalUsersAsync(string? role, int pageNo, int pageSize, DateRangePreset? dateFilter, int maxPageSize = 100);
         Task<ResponseDto<int>> GetTotalUsersCountAsync(string? role);
         Task<ResponseDto<SummerizedUserDto>> GetUserByIdAsync(int userId);
+        Task<ResponseDto<UserProfileDto>> GetUserProfileAsync(int userId);
     }
 }

@@ -85,7 +85,7 @@ namespace CORE.Services
                     Individual = new AccountIndividualOptions
                     {
                         FirstName = renter.Name,
-                        LastName = dto.LastName,
+                        LastName = "Renter",
                         Dob = new DobOptions
                         {
                             Day = renter.DateOfBirth.Day,
