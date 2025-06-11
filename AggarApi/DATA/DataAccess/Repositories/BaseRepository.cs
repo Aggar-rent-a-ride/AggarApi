@@ -69,6 +69,8 @@ namespace DATA.DataAccess.Repositories
             if (ignoreFilters)
                 query = query.IgnoreQueryFilters();
 
+            query = query.Where(criteria);
+
             if (sortingExpression != null)
             {
                 if (sortingDirection == OrderBy.Ascending)

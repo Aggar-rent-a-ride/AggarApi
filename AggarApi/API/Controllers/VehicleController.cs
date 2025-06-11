@@ -129,7 +129,7 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = Roles.Customer)]
-        [HttpPut("get-favourites")]
+        [HttpGet("get-favourites")]
         public async Task<IActionResult> GetFavoutieVehiclesAsync(int pageNo, int pageSize)
         {
             int userId = UserHelpers.GetUserId(User);
@@ -138,7 +138,7 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = Roles.Renter)]
-        [HttpPut("renter")]
+        [HttpGet("renter")]
         public async Task<IActionResult> GetRenterVehicles(int pageNo, int pageSize)
         {
             int userId = UserHelpers.GetUserId(User);

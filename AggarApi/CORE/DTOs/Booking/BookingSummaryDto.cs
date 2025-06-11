@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CORE.DTOs.Booking
@@ -16,6 +17,7 @@ namespace CORE.DTOs.Booking
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal FinalPrice { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public BookingStatus BookingStatus { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CORE.Constants;
 using CORE.DTOs.Booking;
 using CORE.Helpers;
+using CORE.Services;
 using CORE.Services.IServices;
 using DATA.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -77,6 +78,24 @@ namespace API.Controllers
             int customerId = UserHelpers.GetUserId(User);
             var response = await _bookingService.ConfirmBookingAsync(customerId, id);
             return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize(Roles = Roles.Renter)]
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingBookingsAsync(int pageNo, int pageSize)
+        {
+            int renterId = UserHelpers.GetUserId(User);
+            var result = await _bookingService.GetRenterPendingBookingsAsync(renterId, pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [Authorize(Roles = Roles.User)]
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUserBookingsAsync(BookingStatus status, int pageNo, int pageSize)
+        {
+            int userId = UserHelpers.GetUserId(User);
+            var result = await _bookingService.GetUserBookingsAsync(userId, status, pageNo, pageSize);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

@@ -26,6 +26,18 @@ namespace API.Controllers
             var values = Enum.GetNames(typeof(VehicleTransmission));
             return Ok(values);
         }
+        [HttpGet("booking-status")]
+        public IActionResult GetBookingStatus()
+        {
+            var values = Enum.GetNames(typeof(BookingStatus));
+            return Ok(values);
+        }
+        [HttpGet("rental-status")]
+        public IActionResult GetRentalStatus()
+        {
+            var values = Enum.GetNames(typeof(RentalStatus));
+            return Ok(values);
+        }
 
     }
 }
