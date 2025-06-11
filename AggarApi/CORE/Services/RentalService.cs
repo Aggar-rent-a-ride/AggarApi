@@ -60,7 +60,7 @@ namespace CORE.Services
         {
             _logger.LogInformation("Getting rental with ID: {RentalId}", rentalId);
 
-            var rental = await _unitOfWork.Rentals.GetAsync(rentalId);
+            var rental = await _unitOfWork.Rentals.FindAsync(b => b.Id == rentalId, includes: [RentalIncludes.Booking, $"{RentalIncludes.Booking}.{BookingIncludes.Vehicle}"]);
             if (rental == null)
             {
                 _logger.LogWarning("Rental with ID: {RentalId} not found", rentalId);
@@ -475,7 +475,7 @@ namespace CORE.Services
                 };
             }
 
-            if (rental.Status != DATA.Models.Enums.RentalStatus.NotStarted)
+            if (rental.Status != DATA.Models.Enums.RentalStatus.NotStarted || rental.Booking.StartDate <= DateTime.UtcNow)
             {
                 return new ResponseDto<object>
                 {
@@ -488,7 +488,7 @@ namespace CORE.Services
 
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "Customer refund the rental for vehicle {rental.Booking.Vehicle.Model}, you will collect a part of the payment if there is a penality",
+                Content = $"Customer refund the rental for vehicle {rental.Booking.Vehicle.Model}, you will collect a part of the payment if there is a penality",
                 ReceiverId = rental.Booking.Vehicle.RenterId,
                 TargetId = rental.Id,
                 TargetType = DATA.Models.Enums.TargetType.Rental
@@ -541,7 +541,7 @@ namespace CORE.Services
 
             await _notificationJob.SendNotificationAsync(new DTOs.Notification.CreateNotificationDto
             {
-                Content = "Fefund completed successfuly",
+                Content = "Refund completed successfuly",
                 ReceiverId = rental.Booking.CustomerId,
                 TargetId = rental.Id,
                 TargetType = DATA.Models.Enums.TargetType.Rental

@@ -17,6 +17,8 @@ namespace CORE.AutoMapperProfiles
         {
             CreateMap<Rental, GetRentalDto>()
                 .ForMember(dest => dest.RentalStatus, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Booking, opt => opt.MapFrom(src => src.Booking))
+                .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Booking.Vehicle))
                 .ReverseMap();
 
             CreateMap<Rental, GetRentalsByUserIdDto>()

@@ -43,8 +43,8 @@ namespace API.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        //[Authorize(Roles = Roles.Admin)]
-        [HttpPost("balance")]
+        [Authorize(Roles = Roles.Admin)]
+        [HttpGet("balance")]
         public async Task<IActionResult> GetPlatformBalanceAsync()
         {
             var response = await _paymentService.PlatformBalanceAsync();
@@ -89,7 +89,7 @@ namespace API.Controllers
                         await HandlePaymentFailedAsync(stripeEvent);
                         break;
 
-                    case "charge.refunded":
+                    case "refund.created":
                         await HandleRefundSucceededAsync(stripeEvent);
                         break;
 
@@ -144,6 +144,12 @@ namespace API.Controllers
         private async Task HandleRefundSucceededAsync(Event stripeEvent)
         {
             var refund = stripeEvent.Data.Object as Refund;
+            if(refund == null)
+            {
+                _logger.LogWarning($"Refund is null, can't handle it.");
+                return;
+            }
+
 
             if (refund.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
                 int.TryParse(tentalIdStr, out int rentalId))
@@ -155,7 +161,6 @@ namespace API.Controllers
         private async Task HandleRefundFailedAsync(Event stripeEvent)
         {
             var refund = stripeEvent.Data.Object as Refund;
-
             if (refund.Metadata.TryGetValue("RentalId", out string tentalIdStr) &&
                 int.TryParse(tentalIdStr, out int rentalId))
             {

@@ -29,6 +29,15 @@ namespace API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpGet("refund")]
+        [Authorize(Roles = Roles.Customer)]
+        public async Task<IActionResult> RefundRentalAsync(int id)
+        {
+            int customerId = UserHelpers.GetUserId(User);
+            var result = await _rentalService.RefundRentalAsync(customerId, id);
+            return StatusCode(result.StatusCode, result);
+        }
+
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetRentalByIdAsync([FromQuery] int id)

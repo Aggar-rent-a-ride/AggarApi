@@ -321,7 +321,7 @@ namespace CORE.Services
             // handle cancel booking after n days without confirmation
             DateTime cancelDate = booking.StartDate < DateTime.UtcNow.AddDays(_paymentPolicy.AllowedConfirmDays)
                 ? booking.StartDate
-                : booking.StartDate.AddDays(_paymentPolicy.AllowedConfirmDays);
+                : DateTime.UtcNow.AddDays(_paymentPolicy.AllowedConfirmDays);
             await _bookingHandlerJob.ScheduleCancelNotConfirmedBookingAfterNDaysAsync(booking.Id, cancelDate, "Your booking has been cancelled because it exceeded the allowed days before confirmation");
 
             // notify customer
