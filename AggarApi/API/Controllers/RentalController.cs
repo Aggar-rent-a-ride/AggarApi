@@ -31,10 +31,9 @@ namespace API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetRentalByIdAsync([FromQuery] int pageNo = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetRentalByIdAsync([FromQuery] int id)
         {
-            var userId = UserHelpers.GetUserId(User);
-            var result = await _rentalService.GetUserRentalHistoryAsync(userId, pageNo, pageSize);
+            var result = await _rentalService.GetRentalByIdAsync(id);
 
             return StatusCode(result.StatusCode, result);
         }

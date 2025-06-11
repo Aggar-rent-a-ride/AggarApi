@@ -177,8 +177,8 @@ namespace CORE.Services
                     Message = "UserId Not Found"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle]);
-            if (booking.CustomerId != userId && booking.Vehicle.RenterId != userId)
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}"]);
+            if (booking == null || (booking.CustomerId != userId && booking.Vehicle.RenterId != userId))
                 return new ResponseDto<BookingDetailsDto>
                 {
                     StatusCode = StatusCodes.BadRequest,

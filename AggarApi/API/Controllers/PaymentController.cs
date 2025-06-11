@@ -35,13 +35,33 @@ namespace API.Controllers
 
         [Authorize(Roles = Roles.Renter)]
         [HttpPost("connected-account")]
-        public async Task<IActionResult> CreateConnectedAccount(CreateConnectedAccountDto dto)
+        public async Task<IActionResult> G(CreateConnectedAccountDto dto)
         {
             int renterId = UserHelpers.GetUserId(User);
             var response = await _paymentService.CreateStripeAccountAsync(dto, renterId);
 
             return StatusCode(response.StatusCode, response);
         }
+
+        //[Authorize(Roles = Roles.Admin)]
+        [HttpPost("balance")]
+        public async Task<IActionResult> GetPlatformBalanceAsync()
+        {
+            var response = await _paymentService.PlatformBalanceAsync();
+
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize(Roles=Roles.Renter)]
+        [HttpGet("renter-payout")]
+        public async Task<IActionResult> GetPayoutDetailsAsync()
+        {
+            int renterId = UserHelpers.GetUserId(User);
+            var response = await _paymentService.GetRenterPayoutDetailsAsync(renterId);
+            return StatusCode(response.StatusCode, response);
+        }
+
+
 
         // https://docs.stripe.com/webhooks
         [HttpPost("webhook")]

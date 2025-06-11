@@ -1,23 +1,12 @@
 ﻿using CORE.Constants;
 using CORE.DTOs;
-using CORE.DTOs.Booking;
 using CORE.DTOs.Payment;
-using CORE.DTOs.Rental;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
-using DATA.Models.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Stripe;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CORE.Services
 {
@@ -211,6 +200,102 @@ namespace CORE.Services
             }
         }
 
+
+        public async Task<ResponseDto<ConnectedPayoutDetailsDto>> GetRenterPayoutDetailsAsync(int renterID)
+        {
+            Renter? renter = await _unitOfWork.Renters.GetAsync(renterID);
+            if (renter == null)
+            {
+                return new ResponseDto<ConnectedPayoutDetailsDto>
+                {
+                    StatusCode = StatusCodes.Unauthorized,
+                    Message = "Renter is not found"
+                };
+            }
+
+            if (renter.StripeAccount.StripeAccountId == null)
+            {
+                return new ResponseDto<ConnectedPayoutDetailsDto>
+                {
+                    StatusCode = StatusCodes.Conflict,
+                    Message = "You don't have any payment account"
+                };
+            }
+
+            try
+            {
+                var requestOptions = new RequestOptions
+                {
+                    StripeAccount = renter.StripeAccount.StripeAccountId
+                };
+
+                var balanceService = new BalanceService();
+                var balance = await balanceService.GetAsync(requestOptions);
+
+                var accountService = new AccountService();
+                var account = await accountService.GetAsync(renter.StripeAccount.StripeAccountId);
+
+                var connectedDto = new ConnectedPayoutDetailsDto();
+                var bankAccount = account.ExternalAccounts?.Data?.FirstOrDefault();
+
+                if (bankAccount is BankAccount bank)
+                {
+                    connectedDto.Last4 = bank.Last4;
+                    connectedDto.RoutingNumber = bank.RoutingNumber;
+                }
+
+                var currency = "usd";
+                decimal availableAmount = 0;
+                decimal pendingAmount = 0;
+
+                if (balance.Available?.Any() == true)
+                {
+                    var availableBalance = balance.Available.FirstOrDefault();
+                    if (availableBalance != null)
+                    {
+                        availableAmount = availableBalance.Amount / 100m;
+                        currency = availableBalance.Currency;
+                    }
+                }
+
+                if (balance.Pending?.Any() == true)
+                {
+                    var pendingBalance = balance.Pending.FirstOrDefault(p => p.Currency == currency);
+                    if (pendingBalance != null)
+                    {
+                        pendingAmount = pendingBalance.Amount / 100m;
+                    }
+                }
+
+                connectedDto.CurrentAmount = availableAmount;
+                connectedDto.UpcomingAmount = pendingAmount; 
+                connectedDto.Currency = currency;
+
+                return new ResponseDto<ConnectedPayoutDetailsDto>
+                {
+                    Data = connectedDto,
+                    Message = "Connected Payout Details Loaded Successfully",
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (StripeException ex)
+            {
+                return new ResponseDto<ConnectedPayoutDetailsDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = $"Error Occured while retrieving the payment detials"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto<ConnectedPayoutDetailsDto>
+                {
+                    StatusCode = StatusCodes.InternalServerError,
+                    Message = $"Internal Error occured while retrieving connected account"
+                };
+            }
+        }
+
         // https://docs.stripe.com/payments/payment-intents
         public async Task<PaymentIntent?> CreatePaymentIntent(Booking booking)
         {
@@ -252,6 +337,33 @@ namespace CORE.Services
             {
                 _logger.LogError(ex, $"Failed to create payment intent for booking {booking.Id}", booking.Id);
                 return null;
+            }
+        }
+
+        public async Task<ResponseDto<PlatformBalanceDto>>PlatformBalanceAsync()
+        {
+            try
+            {
+                BalanceService balanceService = new BalanceService();
+                var balance = await balanceService.GetAsync();
+
+                PlatformBalanceDto platformBalanceDto = new();
+
+                platformBalanceDto.AvailableBalanc = balance.Available?.FirstOrDefault()?.Amount / 100m ?? 0;
+                platformBalanceDto.PendingBalance = balance.Pending?.FirstOrDefault()?.Amount / 100m ?? 0;
+                platformBalanceDto.ConnectReserved = balance.ConnectReserved?.FirstOrDefault()?.Amount / 100m ?? 0;
+                platformBalanceDto.Currency = balance.Available?.FirstOrDefault()?.Currency ?? "usd";
+
+                return new ResponseDto<PlatformBalanceDto>
+                {
+                    Data = platformBalanceDto,
+                    Message = "Platform Balance Loaded Successfuly",
+                    StatusCode = StatusCodes.OK
+                };
+            }
+            catch (StripeException ex)
+            {
+                throw new Exception($"Error retrieving platform balance: {ex.Message}", ex);
             }
         }
 
