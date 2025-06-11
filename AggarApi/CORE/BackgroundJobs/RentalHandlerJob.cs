@@ -7,6 +7,7 @@ using DATA.DataAccess.Repositories.UnitOfWork;
 using DATA.Models;
 using Hangfire;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace CORE.BackgroundJobs
         private readonly IPaymentService _paymentService;
         private readonly PaymentPolicy _paymentPolicy;
 
-        public RentalHandlerJob(IUnitOfWork unitOfWork, IRecurringJobManager recurringJobManager, ILogger<RentalHandlerJob> logger, INotificationJob notificationJob, IEmailSendingJob emailSendingJob, IEmailTemplateRendererService emailTemplateRendererService, IPaymentService paymentService, PaymentPolicy paymentPolicy)
+        public RentalHandlerJob(IUnitOfWork unitOfWork, IRecurringJobManager recurringJobManager, ILogger<RentalHandlerJob> logger, INotificationJob notificationJob, IEmailSendingJob emailSendingJob, IEmailTemplateRendererService emailTemplateRendererService, IPaymentService paymentService, IOptions<PaymentPolicy> paymentPolicy)
         {
             _unitOfWork = unitOfWork;
             _recurringJobManager = recurringJobManager;
@@ -35,7 +36,7 @@ namespace CORE.BackgroundJobs
             _emailSendingJob = emailSendingJob;
             _emailTemplateRendererService = emailTemplateRendererService;
             _paymentService = paymentService;
-            _paymentPolicy = paymentPolicy;
+            _paymentPolicy = paymentPolicy.Value;
         }
 
         public async Task ScheduleCancelNotConfirmedRentalAfterStartDateAsync(int rentalId, DateTime cancelDate)
