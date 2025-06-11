@@ -90,8 +90,8 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = Roles.User)]
-        [HttpGet("user")]
-        public async Task<IActionResult> GetUserBookingsAsync(BookingStatus status, int pageNo, int pageSize)
+        [HttpGet("history")]
+        public async Task<IActionResult> GetUserBookingsAsync(BookingStatus? status, int pageNo, int pageSize)
         {
             int userId = UserHelpers.GetUserId(User);
             var result = await _bookingService.GetUserBookingsAsync(userId, status, pageNo, pageSize);

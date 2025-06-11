@@ -29,6 +29,16 @@ namespace API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetRentalByIdAsync([FromQuery] int pageNo = 1, [FromQuery] int pageSize = 10)
+        {
+            var userId = UserHelpers.GetUserId(User);
+            var result = await _rentalService.GetUserRentalHistoryAsync(userId, pageNo, pageSize);
+
+            return StatusCode(result.StatusCode, result);
+        }
+
         [Authorize(Roles = Roles.Customer)]
         [HttpPost("confirm")]
         public async Task<IActionResult> ConfirmRentalAsync([FromQuery] int rentalId, [FromBody] string qrCodeToken)

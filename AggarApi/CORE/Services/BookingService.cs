@@ -514,7 +514,7 @@ namespace CORE.Services
             }
         }
 
-        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetUserBookingsAsync(int userId, BookingStatus status, int pageNo, int pageSize, int maxPageSize = 100)
+        public async Task<ResponseDto<PagedResultDto<IEnumerable<BookingSummaryDto>>>> GetUserBookingsAsync(int userId, BookingStatus? status, int pageNo, int pageSize, int maxPageSize = 100)
         {
             _logger.LogInformation($"Getting bookings for user with ID: {userId}", userId);
 
@@ -539,7 +539,7 @@ namespace CORE.Services
             }
 
             IEnumerable<Booking> bookings = await _unitOfWork.Bookings
-                .FindAsync(b => (b.CustomerId == userId || b.Vehicle.RenterId == userId) && b.Status == status , 
+                .FindAsync(b => (b.CustomerId == userId || b.Vehicle.RenterId == userId) && (status == null || b.Status == status), 
                 pageNo, pageSize, 
                 sortingExpression: b => b.StartDate, 
                 includes: [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}"],
