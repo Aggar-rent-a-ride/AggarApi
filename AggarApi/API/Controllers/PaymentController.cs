@@ -35,7 +35,7 @@ namespace API.Controllers
 
         [Authorize(Roles = Roles.Renter)]
         [HttpPost("connected-account")]
-        public async Task<IActionResult> G(CreateConnectedAccountDto dto)
+        public async Task<IActionResult> CreateConnectedAccount([FromForm] CreateConnectedAccountDto dto)
         {
             int renterId = UserHelpers.GetUserId(User);
             var response = await _paymentService.CreateStripeAccountAsync(dto, renterId);

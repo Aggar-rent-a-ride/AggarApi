@@ -45,7 +45,7 @@ namespace DATA.DataAccess.Repositories
         {
             var intervals = await _context.bookings
                 .Include(b => b.Vehicle)
-                .Where(b => b.Vehicle.RenterId == rentalId && b.Status != Models.Enums.BookingStatus.Canceled && b.Status != Models.Enums.BookingStatus.Rejected)
+                .Where(b => b.Vehicle.RenterId == rentalId && (b.Status == Models.Enums.BookingStatus.Confirmed || b.Status == Models.Enums.BookingStatus.Accepted))
                 .Select(b => new Interval
                 {
                     StartDate = b.StartDate,
