@@ -1,4 +1,5 @@
 ﻿using CORE.Constants;
+using CORE.DTOs.Rental;
 using CORE.Helpers;
 using CORE.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -49,10 +50,10 @@ namespace API.Controllers
 
         [Authorize(Roles = Roles.Customer)]
         [HttpPost("confirm")]
-        public async Task<IActionResult> ConfirmRentalAsync([FromQuery] int rentalId, [FromBody] string qrCodeToken)
+        public async Task<IActionResult> ConfirmRentalAsync([FromQuery] int rentalId, [FromBody] ConfirmRentalDto dto)
         {
             int customerId = UserHelpers.GetUserId(User);
-            var result = await _rentalService.ConfirmRentalAsync(customerId, rentalId, qrCodeToken);
+            var result = await _rentalService.ConfirmRentalAsync(customerId, rentalId, dto.ScannedQrCode);
             return StatusCode(result.StatusCode, result);
         }
     }
