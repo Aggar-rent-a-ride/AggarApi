@@ -341,7 +341,7 @@ namespace CORE.Services
             if(dto.Image != null)
             {
                 _logger.LogInformation($"Update image profile for user {userId}", userId);
-                await _fileService.UploadFileAsync(_paths.Profiles, user.ImagePath, dto.Image, AllowedExtensions.ImageExtensions);
+                user.ImagePath = await _fileService.UploadFileAsync(_paths.Profiles, user.ImagePath, dto.Image, AllowedExtensions.ImageExtensions);
             }
 
             await _unitOfWork.AppUsers.AddOrUpdateAsync(user);
