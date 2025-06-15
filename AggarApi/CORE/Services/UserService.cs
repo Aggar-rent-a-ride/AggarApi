@@ -5,6 +5,7 @@ using CORE.Constants;
 using CORE.DTOs;
 using CORE.DTOs.AppUser;
 using CORE.DTOs.Auth;
+using CORE.DTOs.Paths;
 using CORE.DTOs.Review;
 using CORE.Helpers;
 using CORE.Services.IServices;
@@ -37,7 +38,9 @@ namespace CORE.Services
         private readonly IOptions<WarningManagement> _warningManagement;
         private readonly IEmailSendingJob _emailSendingJob;
         private readonly UserManager<AppUser> _userManager;
-        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, IUserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, IEmailSendingJob emailSendingJob, UserManager<AppUser> userManager)
+        private readonly IFileService _fileService;
+        private readonly Paths _paths;
+        public UserService(IUnitOfWork unitOfWork, ILogger<UserService> logger, IMapper mapper, IUserManagementJob userManagementJob, IEmailService emailService, IEmailTemplateRendererService emailTemplateRendererService, IOptions<WarningManagement> warningManagement, IEmailSendingJob emailSendingJob, UserManager<AppUser> userManager, IFileService fileService, IOptions<Paths> paths)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -47,6 +50,8 @@ namespace CORE.Services
             _warningManagement = warningManagement;
             _emailSendingJob = emailSendingJob;
             _userManager = userManager;
+            _fileService = fileService;
+            _paths = paths.Value;
         }
         public async Task<bool> CheckAllUsersExist(List<int> userIds)
         {
@@ -294,7 +299,7 @@ namespace CORE.Services
 
         public async Task<ResponseDto<UserProfileDto>> GetUserProfileAsync(int userId)
         {
-            var user = await _unitOfWork.AppUsers.GetAsync(userId);
+            AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
 
             if (user == null)
             {
@@ -315,6 +320,50 @@ namespace CORE.Services
                 Data = profiledto,
                 StatusCode = StatusCodes.OK,
                 Message = "Profile Loaded Successfuly."
+            };
+        }
+
+        public async Task<ResponseDto<UserProfileDto>> UpdateUserProfileAsync(int userId, UpdateProfileDto dto)
+        {
+            AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
+
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID {UserId} not found.", userId);
+                return new ResponseDto<UserProfileDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "User not found."
+                };
+            }
+
+            _mapper.Map(dto, user);
+            if(dto.Image != null)
+            {
+                _logger.LogInformation($"Update image profile for user {userId}", userId);
+                await _fileService.UploadFileAsync(_paths.Profiles, user.ImagePath, dto.Image, AllowedExtensions.ImageExtensions);
+            }
+
+            await _unitOfWork.AppUsers.AddOrUpdateAsync(user);
+            int changes = await _unitOfWork.CommitAsync();
+
+            if(changes == 0)
+            {
+                _logger.LogWarning($"Failed to update profile for user {userId}", userId);
+                return new ResponseDto<UserProfileDto>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "Failed to update user profile"
+                };
+            }
+
+            var result = await GetUserProfileAsync(userId);
+
+            return new ResponseDto<UserProfileDto>
+            {
+                Data = result.Data,
+                StatusCode = StatusCodes.OK,
+                Message = "Profile Updated Successfuly."
             };
         }
     }

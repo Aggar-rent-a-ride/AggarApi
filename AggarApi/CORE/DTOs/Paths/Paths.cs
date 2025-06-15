@@ -12,5 +12,6 @@ namespace CORE.DTOs.Paths
         public string MessageFiles { get; set; }
         public string VehicleTypes { get; set; }
         public string VehicleBrands { get; set; }
+        public string Profiles { get; set; }
     }
 }

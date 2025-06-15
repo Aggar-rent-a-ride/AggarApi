@@ -78,5 +78,14 @@ namespace API.Controllers
             var result = await _userService.GetUserProfileAsync(userId);
             return StatusCode(result.StatusCode, result);
         }
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserProfileAsync([FromForm] UpdateProfileDto dto)
+        {
+            int userId = UserHelpers.GetUserId(User);
+            var result = await _userService.UpdateUserProfileAsync(userId, dto);
+            return StatusCode(result.StatusCode, result);
+        }
+
     }
 }
