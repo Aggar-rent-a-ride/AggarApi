@@ -19,7 +19,7 @@ namespace CORE.Services
 
         public HashingService(IOptions<SecretKeys> options)
         {
-            secretKey = "MSaid,Naru,Dos,Esraa=AggarTeam.";
+            secretKey = options.Value.SecretKey;
         }
 
         public string Hash(string token)

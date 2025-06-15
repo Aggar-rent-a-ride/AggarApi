@@ -23,7 +23,7 @@ namespace CORE.Services
 
         public QrCodeService(IOptions<SecretKeys> options)
         {
-            qrSecretKey = "PleaseDon'tUnLockOurQrSecrectKey,AndGiveUsAnIntern(:";
+            qrSecretKey = options.Value.QrSecretKey;
 
         }
 
