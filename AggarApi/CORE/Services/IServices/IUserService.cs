@@ -21,5 +21,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<int>> GetTotalUsersCountAsync(string? role);
         Task<ResponseDto<SummerizedUserDto>> GetUserByIdAsync(int userId);
         Task<ResponseDto<UserProfileDto>> GetUserProfileAsync(int userId);
+        Task<ResponseDto<UserProfileDto>> UpdateUserProfileAsync(int userId, UpdateProfileDto dto);
     }
 }

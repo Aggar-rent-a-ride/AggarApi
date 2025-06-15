@@ -31,6 +31,7 @@ namespace CORE.AutoMapperProfiles
             CreateMap<AppUser, SummerizedUserWithRateDto>();
 
             CreateMap<AppUser, UserProfileDto>();
+            CreateMap<UpdateProfileDto, AppUser>();
         }
     }
 }

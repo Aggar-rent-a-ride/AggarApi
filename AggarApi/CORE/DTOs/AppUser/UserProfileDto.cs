@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DATA.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,9 @@ namespace CORE.DTOs.AppUser
         public string Address { get; set; }
         public string ImagePath { get; set; }
         public string Role { get; set; }
+        public Location Location { get; set; }
+        public double? Rate { get; set; }
+        public int Age { get; set; }
+        public string? Bio { get; set;}
     }
 }
