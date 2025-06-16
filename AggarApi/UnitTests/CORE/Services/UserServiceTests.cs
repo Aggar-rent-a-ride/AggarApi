@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Azure.Core;
 using CORE.Constants;
 using CORE.DTOs.AppUser;
 using CORE.DTOs.Auth;
+using CORE.DTOs.Paths;
 using CORE.Services;
 using CORE.Services.IServices;
 using DATA.DataAccess.Repositories.UnitOfWork;
@@ -17,6 +12,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace UnitTests.CORE.Services
 {
@@ -30,6 +31,7 @@ namespace UnitTests.CORE.Services
         private Mock<IEmailTemplateRendererService> _mockEmailTemplateRendererService;
         private Mock<IOptions<WarningManagement>> _mockWarningManagement; 
         private UserService _userService;
+        private Mock<IOptions<Paths>> _mockPaths;
 
         [SetUp]
         public void SetUp()
@@ -40,7 +42,8 @@ namespace UnitTests.CORE.Services
             _mockEmailService = new Mock<IEmailService>();
             _mockEmailTemplateRendererService = new Mock<IEmailTemplateRendererService>();
             _mockWarningManagement = new Mock<IOptions<WarningManagement>>();
-            _userService = new UserService(_mockUnitOfWork.Object, _mockLogger.Object, _mockMapper.Object, null, _mockEmailService.Object, _mockEmailTemplateRendererService.Object, _mockWarningManagement.Object, null, null , null, null);
+            _mockPaths = new Mock<IOptions<Paths>>();
+            _userService = new UserService(_mockUnitOfWork.Object, _mockLogger.Object, _mockMapper.Object, null, _mockEmailService.Object, _mockEmailTemplateRendererService.Object, _mockWarningManagement.Object, null, null , null, _mockPaths.Object);
         }
         [Test]
         public async Task FindUsersAsync_InvalidPagination_ReturnsBadRequest()
