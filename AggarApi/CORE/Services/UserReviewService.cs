@@ -90,7 +90,7 @@ namespace CORE.Services
                 };
             }
 
-            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, pageNo, pageSize, maxPageSize);
+            var userRentalsResponse = await _rentalService.GetRentalsByUserIdAsync(userId, 1, maxPageSize, maxPageSize);
             if (userRentalsResponse.StatusCode != StatusCodes.OK)
             {
                 _logger.LogWarning("Failed to retrieve rentals for user {UserId}: {ErrorMessage}",
@@ -113,23 +113,31 @@ namespace CORE.Services
                 };
             }
 
+            rentals = rentals.OrderBy(r => r.Id);
+
+
             var result = new List<SummarizedReviewDto>();
             var count = 0;
             if (rentals.First().Booking.CustomerId == userId)
             {
+
                 //get renter reviews on that customer
-                var renterReviewsIds = rentals.Select(r => r.RenterReviewId).ToHashSet();
+                var renterReviewsIds = rentals.Where(r=>r.RenterReviewId != 0).Select(r => r.RenterReviewId);
+                renterReviewsIds = renterReviewsIds.OrderDescending().Skip((pageNo - 1) * pageSize).Take(pageSize);
+
                 var includes = new List<string> { RenterReviewIncludes.Renter };
-                var reviews = await _unitOfWork.RenterReviews.FindAsync(r => renterReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
+                var reviews = await _unitOfWork.RenterReviews.FindAsync(r => renterReviewsIds.Contains(r.Id), 1, maxPageSize, includes.ToArray());
                 result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
                 count = await _unitOfWork.Rentals.GetRentalsByUserIdCountAsync(userId, Roles.Customer);
             }
             else
             {
                 //get customer reviews on that renter
-                var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
+                var customerReviewsIds = rentals.Where(r => r.CustomerReviewId != 0).Select(r => r.CustomerReviewId);
+                customerReviewsIds = customerReviewsIds.OrderByDescending(r => r).Skip((pageNo - 1) * pageSize).Take(pageSize);
+
                 var includes = new List<string> { CustomerReviewIncludes.Customer };
-                var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
+                var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), 1, maxPageSize, includes.ToArray());
                 result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
                 count = await _unitOfWork.Rentals.GetRentalsByUserIdCountAsync(userId, Roles.Renter);
             }
