@@ -22,5 +22,6 @@ namespace CORE.Services.IServices
         Task<ResponseDto<SummerizedUserDto>> GetUserByIdAsync(int userId);
         Task<ResponseDto<UserProfileDto>> GetUserProfileAsync(int userId);
         Task<ResponseDto<UserProfileDto>> UpdateUserProfileAsync(int userId, UpdateProfileDto dto);
+        Task<ResponseDto<object>> RemoveProfileImageAsync(int userId);
     }
 }

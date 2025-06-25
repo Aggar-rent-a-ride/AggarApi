@@ -87,5 +87,14 @@ namespace API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        [HttpDelete("profile-image")]
+        [Authorize]
+        public async Task<IActionResult> RemoveProfileImageAsync()
+        {
+            int userId = UserHelpers.GetUserId(User);
+            var result = await _userService.RemoveProfileImageAsync(userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
     }
 }

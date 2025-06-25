@@ -366,5 +366,65 @@ namespace CORE.Services
                 Message = "Profile Updated Successfuly."
             };
         }
+
+        public async Task<ResponseDto<object>> RemoveProfileImageAsync(int userId)
+        {
+            AppUser? user = await _unitOfWork.AppUsers.GetAsync(userId);
+
+            if (user == null)
+            {
+                _logger.LogWarning($"User with ID {userId} not found.", userId);
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "User not found."
+                };
+            }
+
+            if (user.ImagePath == null)
+            {
+                return new ResponseDto<object>
+                {
+                    StatusCode = StatusCodes.BadRequest,
+                    Message = "There is no profile image to remove."
+                };
+            }
+
+            bool result = _fileService.DeleteFile(user.ImagePath);
+
+            if (!result)
+            {
+                _logger.LogError($"Failed to remove profile image for user {user.Id}", user.Id);
+                return new ResponseDto<object>
+                {
+                    Message = "Failed To Remove Profile Image.",
+                    StatusCode = StatusCodes.InternalServerError
+                };
+            }
+
+            user.ImagePath = null;
+
+            await _unitOfWork.AppUsers.AddOrUpdateAsync(user);
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+            {
+                _logger.LogError($"Failed to update user {user.Id}", user.Id);
+                return new ResponseDto<object>
+                {
+                    Message = "Profile image removed successfuly but failed to update user.",
+                    StatusCode = StatusCodes.InternalServerError
+                };
+            }
+
+            _logger.LogInformation($"Removed profile image for user {user.Id}", user.Id);
+
+            return new ResponseDto<object>
+            {
+                Message = "Profile Image Removed Successfuly.",
+                StatusCode = StatusCodes.OK,
+            };
+
+        }
     }
 }
