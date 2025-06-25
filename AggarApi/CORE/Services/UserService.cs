@@ -402,9 +402,23 @@ namespace CORE.Services
                 };
             }
 
+            user.ImagePath = null;
+
+            await _unitOfWork.AppUsers.AddOrUpdateAsync(user);
+            int changes = await _unitOfWork.CommitAsync();
+
+            if (changes == 0)
+            {
+                _logger.LogError($"Failed to update user {user.Id}", user.Id);
+                return new ResponseDto<object>
+                {
+                    Message = "Profile image removed successfuly but failed to update user.",
+                    StatusCode = StatusCodes.InternalServerError
+                };
+            }
+
             _logger.LogInformation($"Removed profile image for user {user.Id}", user.Id);
 
-            user.ImagePath = null;
             return new ResponseDto<object>
             {
                 Message = "Profile Image Removed Successfuly.",
