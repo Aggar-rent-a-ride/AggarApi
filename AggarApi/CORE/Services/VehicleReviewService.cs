@@ -43,7 +43,7 @@ namespace CORE.Services
                 };
             }
 
-            var vehicleRentalsResponse = await _rentalService.GetRentalsByVehicleIdAsync(vehicleId, pageNo, pageSize, maxPageSize);
+            var vehicleRentalsResponse = await _rentalService.GetRentalsByVehicleIdAsync(vehicleId, 1, maxPageSize, maxPageSize);
             if (vehicleRentalsResponse.StatusCode != StatusCodes.OK)
             {
                 _logger.LogWarning("Failed to retrieve rentals for vehicle {VehicleId}: {ErrorMessage}",
@@ -68,9 +68,14 @@ namespace CORE.Services
                 };
             }
 
-            var customerReviewsIds = rentals.Select(r => r.CustomerReviewId).ToHashSet();
+            rentals = rentals.OrderBy(r => r.Id);
+
+
+            var customerReviewsIds = rentals.Where(r => r.CustomerReviewId != 0).Select(r => r.CustomerReviewId);
+            customerReviewsIds = customerReviewsIds.OrderByDescending(r => r).Skip((pageNo - 1) * pageSize).Take(pageSize);
+
             var includes = new List<string> { CustomerReviewIncludes.Customer };
-            var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), pageNo, pageSize, includes.ToArray());
+            var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), 1, maxPageSize, includes.ToArray());
             var count = await _unitOfWork.Vehicles.GetVehicleReviewsCountAsync(vehicleId);
             var result = _mapper.Map<IEnumerable<SummarizedReviewDto>>(reviews).ToList();
 
