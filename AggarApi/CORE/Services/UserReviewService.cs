@@ -134,7 +134,7 @@ namespace CORE.Services
             {
                 //get customer reviews on that renter
                 var customerReviewsIds = rentals.Where(r => r.CustomerReviewId != 0).Select(r => r.CustomerReviewId);
-                customerReviewsIds = customerReviewsIds.OrderByDescending(r => r).Skip((pageNo - 1) * pageSize).Take(pageSize);
+                customerReviewsIds = customerReviewsIds.OrderDescending().Skip((pageNo - 1) * pageSize).Take(pageSize);
 
                 var includes = new List<string> { CustomerReviewIncludes.Customer };
                 var reviews = await _unitOfWork.CustomerReviews.FindAsync(r => customerReviewsIds.Contains(r.Id), 1, maxPageSize, includes.ToArray());
