@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DATA.DataAccess.Migrations
+namespace DATA.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250220151451_CreatedIndexOnSentAtInMessagesTable")]
-    partial class CreatedIndexOnSentAtInMessagesTable
+    [Migration("20250701110809_Seeding Roles")]
+    partial class SeedingRoles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,58 +27,6 @@ namespace DATA.DataAccess.Migrations
 
             modelBuilder.HasSequence("ReviewSequence");
 
-            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
-                {
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomerId", "VehicleId");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("CustomersFavoriteVehicles");
-                });
-
-            modelBuilder.Entity("DATA.Models.AdminAction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AdminId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DueTo")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TargetUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("TargetUserId");
-
-                    b.ToTable("AdminActions", (string)null);
-                });
-
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
                     b.Property<int>("Id")
@@ -90,11 +38,14 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ActivateIn")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("AggreedTheTerms")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("BannedTo")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Bio")
                         .HasColumnType("nvarchar(max)");
@@ -163,6 +114,9 @@ namespace DATA.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TotalWarningsCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -212,6 +166,9 @@ namespace DATA.DataAccess.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -243,7 +200,8 @@ namespace DATA.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<double>("Behavior")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
@@ -254,17 +212,16 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.Property<double>("Punctuality")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<int>("RentalId")
                         .HasColumnType("int");
 
                     b.Property<double>("Truthfulness")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.HasKey("Id");
 
@@ -274,6 +231,21 @@ namespace DATA.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("CustomerReviews", (string)null);
+                });
+
+            modelBuilder.Entity("DATA.Models.CustomersFavoriteVehicles", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomerId", "VehicleId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.ToTable("CustomersFavoriteVehicles");
                 });
 
             modelBuilder.Entity("DATA.Models.FileCache", b =>
@@ -304,6 +276,9 @@ namespace DATA.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsSeen")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MessageType")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -311,9 +286,6 @@ namespace DATA.DataAccess.Migrations
 
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Seen")
-                        .HasColumnType("bit");
 
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
@@ -350,28 +322,47 @@ namespace DATA.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsSeen")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Seen")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("Target")
+                    b.Property<int?>("TargetBookingId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TargetId")
+                    b.Property<int?>("TargetCustomerReviewId")
                         .HasColumnType("int");
+
+                    b.Property<int?>("TargetMessageId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetRentalId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetRenterReviewId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
 
-                    b.HasIndex("TargetId")
-                        .IsUnique()
-                        .HasFilter("[TargetId] IS NOT NULL");
+                    b.HasIndex("TargetBookingId");
+
+                    b.HasIndex("TargetCustomerReviewId");
+
+                    b.HasIndex("TargetMessageId");
+
+                    b.HasIndex("TargetRentalId");
+
+                    b.HasIndex("TargetRenterReviewId");
 
                     b.ToTable("Notifications", (string)null);
                 });
@@ -432,8 +423,19 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("CustomerReviewId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PaymentTransferId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RenterReviewId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("hashedQrToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -452,10 +454,12 @@ namespace DATA.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<double>("Behavior")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<double>("Care")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
@@ -464,7 +468,8 @@ namespace DATA.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<double>("Punctuality")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<int>("RentalId")
                         .HasColumnType("int");
@@ -499,28 +504,42 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("ReporterId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReviewId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TargeType")
+                    b.Property<int?>("TargetAppUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetCustomerReviewId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetMessageId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TargetRenterReviewId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TargetId")
+                    b.Property<int?>("TargetVehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ReporterId");
 
-                    b.HasIndex("ReviewId");
+                    b.HasIndex("TargetAppUserId");
 
-                    b.HasIndex("TargetId")
-                        .IsUnique()
-                        .HasFilter("[TargetId] IS NOT NULL");
+                    b.HasIndex("TargetCustomerReviewId");
+
+                    b.HasIndex("TargetMessageId");
+
+                    b.HasIndex("TargetRenterReviewId");
+
+                    b.HasIndex("TargetVehicleId");
 
                     b.ToTable("Reports", (string)null);
                 });
@@ -535,7 +554,8 @@ namespace DATA.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
                     b.Property<double>("Behavior")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
@@ -543,18 +563,14 @@ namespace DATA.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("NotificationId")
-                        .HasColumnType("int");
-
                     b.Property<double>("Punctuality")
-                        .HasColumnType("float");
+                        .HasPrecision(2, 1)
+                        .HasColumnType("float(2)");
 
                     b.Property<int>("RentalId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NotificationId");
 
                     b.HasIndex("RentalId");
 
@@ -573,6 +589,9 @@ namespace DATA.DataAccess.Migrations
 
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -621,13 +640,10 @@ namespace DATA.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("VehicleBrandId")
+                    b.Property<int>("VehicleBrandId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("VehicleTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WarningCount")
+                    b.Property<int>("VehicleTypeId")
                         .HasColumnType("int");
 
                     b.Property<int>("Year")
@@ -655,6 +671,12 @@ namespace DATA.DataAccess.Migrations
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateDeleted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LogoPath")
                         .HasColumnType("nvarchar(max)");
@@ -690,6 +712,28 @@ namespace DATA.DataAccess.Migrations
                     b.ToTable("VehicleImages");
                 });
 
+            modelBuilder.Entity("DATA.Models.VehiclePopularity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PopularityPoints")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VehicleId")
+                        .IsUnique();
+
+                    b.ToTable("VehiclePopularity");
+                });
+
             modelBuilder.Entity("DATA.Models.VehicleType", b =>
                 {
                     b.Property<int>("Id")
@@ -697,6 +741,12 @@ namespace DATA.DataAccess.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DateDeleted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -886,67 +936,8 @@ namespace DATA.DataAccess.Migrations
                     b.HasDiscriminator().HasValue("File");
                 });
 
-            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
-                {
-                    b.HasOne("DATA.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DATA.Models.Vehicle", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DATA.Models.AdminAction", b =>
-                {
-                    b.HasOne("DATA.Models.Admin", "Admin")
-                        .WithMany("Actions")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DATA.Models.AppUser", "TargetUser")
-                        .WithMany("TargetedAdminActions")
-                        .HasForeignKey("TargetUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("TargetUser");
-                });
-
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
-                    b.OwnsOne("DATA.Models.Address", "Address", b1 =>
-                        {
-                            b1.Property<int>("AppUserId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("City")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("Country")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("State")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("Street")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("AppUserId");
-
-                            b1.ToTable("AppUsers");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AppUserId");
-                        });
-
                     b.OwnsOne("DATA.Models.Location", "Location", b1 =>
                         {
                             b1.Property<int>("AppUserId")
@@ -1001,10 +992,7 @@ namespace DATA.DataAccess.Migrations
                                 .HasForeignKey("AppUserId");
                         });
 
-                    b.Navigation("Address");
-
-                    b.Navigation("Location")
-                        .IsRequired();
+                    b.Navigation("Location");
 
                     b.Navigation("RefreshTokens");
                 });
@@ -1047,6 +1035,21 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Rental");
                 });
 
+            modelBuilder.Entity("DATA.Models.CustomersFavoriteVehicles", b =>
+                {
+                    b.HasOne("DATA.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DATA.Models.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DATA.Models.Message", b =>
                 {
                     b.HasOne("DATA.Models.AppUser", "Receiver")
@@ -1074,35 +1077,40 @@ namespace DATA.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DATA.Models.AdminAction", "TargetAdminAction")
-                        .WithOne("Notification")
-                        .HasForeignKey("DATA.Models.Notification", "TargetId");
-
                     b.HasOne("DATA.Models.Booking", "TargetBooking")
-                        .WithOne("Notification")
-                        .HasForeignKey("DATA.Models.Notification", "TargetId");
+                        .WithMany("Notifications")
+                        .HasForeignKey("TargetBookingId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.CustomerReview", "TargetCustomerReview")
-                        .WithOne("Notification")
-                        .HasForeignKey("DATA.Models.Notification", "TargetId");
+                        .WithMany("Notifications")
+                        .HasForeignKey("TargetCustomerReviewId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.Message", "TargetMessage")
-                        .WithOne("Notification")
-                        .HasForeignKey("DATA.Models.Notification", "TargetId");
+                        .WithMany("Notifications")
+                        .HasForeignKey("TargetMessageId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DATA.Models.Rental", "TargetRental")
+                        .WithMany("Notifications")
+                        .HasForeignKey("TargetRentalId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.RenterReview", "TargetRenterReview")
-                        .WithOne("Notification")
-                        .HasForeignKey("DATA.Models.Notification", "TargetId");
+                        .WithMany("Notifications")
+                        .HasForeignKey("TargetRenterReviewId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Reciver");
-
-                    b.Navigation("TargetAdminAction");
 
                     b.Navigation("TargetBooking");
 
                     b.Navigation("TargetCustomerReview");
 
                     b.Navigation("TargetMessage");
+
+                    b.Navigation("TargetRental");
 
                     b.Navigation("TargetRenterReview");
                 });
@@ -1165,33 +1173,34 @@ namespace DATA.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DATA.Models.Review", null)
-                        .WithMany("Reports")
-                        .HasForeignKey("ReviewId");
-
-                    b.HasOne("DATA.Models.AppUser", "TargetUser")
-                        .WithMany("TargetedReports")
-                        .HasForeignKey("TargetId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                    b.HasOne("DATA.Models.AppUser", "TargetAppUser")
+                        .WithMany("TargetReports")
+                        .HasForeignKey("TargetAppUserId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.CustomerReview", "TargetCustomerReview")
                         .WithMany("Reports")
-                        .HasForeignKey("TargetId");
+                        .HasForeignKey("TargetCustomerReviewId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.Message", "TargetMessage")
-                        .WithOne("Report")
-                        .HasForeignKey("DATA.Models.Report", "TargetId");
+                        .WithMany("Reports")
+                        .HasForeignKey("TargetMessageId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.RenterReview", "TargetRenterReview")
                         .WithMany("Reports")
-                        .HasForeignKey("TargetId");
+                        .HasForeignKey("TargetRenterReviewId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DATA.Models.Vehicle", "TargetVehicle")
                         .WithMany("Reports")
-                        .HasForeignKey("TargetId");
+                        .HasForeignKey("TargetVehicleId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Reporter");
+
+                    b.Navigation("TargetAppUser");
 
                     b.Navigation("TargetCustomerReview");
 
@@ -1199,24 +1208,16 @@ namespace DATA.DataAccess.Migrations
 
                     b.Navigation("TargetRenterReview");
 
-                    b.Navigation("TargetUser");
-
                     b.Navigation("TargetVehicle");
                 });
 
             modelBuilder.Entity("DATA.Models.Review", b =>
                 {
-                    b.HasOne("DATA.Models.Notification", "Notification")
-                        .WithMany()
-                        .HasForeignKey("NotificationId");
-
                     b.HasOne("DATA.Models.Rental", "Rental")
                         .WithMany()
                         .HasForeignKey("RentalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Notification");
 
                     b.Navigation("Rental");
                 });
@@ -1231,11 +1232,15 @@ namespace DATA.DataAccess.Migrations
 
                     b.HasOne("DATA.Models.VehicleBrand", "VehicleBrand")
                         .WithMany("Vehicles")
-                        .HasForeignKey("VehicleBrandId");
+                        .HasForeignKey("VehicleBrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("DATA.Models.VehicleType", "VehicleType")
                         .WithMany("Vehicles")
-                        .HasForeignKey("VehicleTypeId");
+                        .HasForeignKey("VehicleTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.OwnsMany("DATA.Models.Discount", "Discounts", b1 =>
                         {
@@ -1264,31 +1269,6 @@ namespace DATA.DataAccess.Migrations
                             b1.Navigation("Vehicle");
                         });
 
-                    b.OwnsOne("DATA.Models.Address", "Address", b1 =>
-                        {
-                            b1.Property<int>("VehicleId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("City")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("Country")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("State")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("Street")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("VehicleId");
-
-                            b1.ToTable("Vehicles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("VehicleId");
-                        });
-
                     b.OwnsOne("DATA.Models.Location", "Location", b1 =>
                         {
                             b1.Property<int>("VehicleId")
@@ -1308,12 +1288,9 @@ namespace DATA.DataAccess.Migrations
                                 .HasForeignKey("VehicleId");
                         });
 
-                    b.Navigation("Address");
-
                     b.Navigation("Discounts");
 
-                    b.Navigation("Location")
-                        .IsRequired();
+                    b.Navigation("Location");
 
                     b.Navigation("Renter");
 
@@ -1327,6 +1304,17 @@ namespace DATA.DataAccess.Migrations
                     b.HasOne("DATA.Models.Vehicle", "Vehicle")
                         .WithMany("VehicleImages")
                         .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("DATA.Models.VehiclePopularity", b =>
+                {
+                    b.HasOne("DATA.Models.Vehicle", "Vehicle")
+                        .WithOne("VehiclePopularity")
+                        .HasForeignKey("DATA.Models.VehiclePopularity", "VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1409,11 +1397,31 @@ namespace DATA.DataAccess.Migrations
                         .HasForeignKey("DATA.Models.Renter", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
 
-            modelBuilder.Entity("DATA.Models.AdminAction", b =>
-                {
-                    b.Navigation("Notification");
+                    b.OwnsOne("DATA.Models.StripeAccount", "StripeAccount", b1 =>
+                        {
+                            b1.Property<int>("RenterId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("BankAccountId")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTime?>("CreatedAt")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<string>("StripeAccountId")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("RenterId");
+
+                            b1.ToTable("Renters");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RenterId");
+                        });
+
+                    b.Navigation("StripeAccount")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DATA.Models.AppUser", b =>
@@ -1426,48 +1434,43 @@ namespace DATA.DataAccess.Migrations
 
                     b.Navigation("Reports");
 
-                    b.Navigation("TargetedAdminActions");
-
-                    b.Navigation("TargetedReports");
+                    b.Navigation("TargetReports");
                 });
 
             modelBuilder.Entity("DATA.Models.Booking", b =>
                 {
-                    b.Navigation("Notification");
+                    b.Navigation("Notifications");
 
                     b.Navigation("Rental");
                 });
 
             modelBuilder.Entity("DATA.Models.CustomerReview", b =>
                 {
-                    b.Navigation("Notification");
+                    b.Navigation("Notifications");
 
                     b.Navigation("Reports");
                 });
 
             modelBuilder.Entity("DATA.Models.Message", b =>
                 {
-                    b.Navigation("Notification");
+                    b.Navigation("Notifications");
 
-                    b.Navigation("Report");
+                    b.Navigation("Reports");
                 });
 
             modelBuilder.Entity("DATA.Models.Rental", b =>
                 {
                     b.Navigation("CustomerReview");
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("RenterReview");
                 });
 
             modelBuilder.Entity("DATA.Models.RenterReview", b =>
                 {
-                    b.Navigation("Notification");
+                    b.Navigation("Notifications");
 
-                    b.Navigation("Reports");
-                });
-
-            modelBuilder.Entity("DATA.Models.Review", b =>
-                {
                     b.Navigation("Reports");
                 });
 
@@ -1478,6 +1481,9 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Reports");
 
                     b.Navigation("VehicleImages");
+
+                    b.Navigation("VehiclePopularity")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DATA.Models.VehicleBrand", b =>
@@ -1488,11 +1494,6 @@ namespace DATA.DataAccess.Migrations
             modelBuilder.Entity("DATA.Models.VehicleType", b =>
                 {
                     b.Navigation("Vehicles");
-                });
-
-            modelBuilder.Entity("DATA.Models.Admin", b =>
-                {
-                    b.Navigation("Actions");
                 });
 
             modelBuilder.Entity("DATA.Models.Customer", b =>

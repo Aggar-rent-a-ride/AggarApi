@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using NetTopologySuite.Geometries;
 
 #nullable disable
 
-namespace DATA.DataAccess.Migrations
+namespace DATA.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -25,17 +24,16 @@ namespace DATA.DataAccess.Migrations
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AggreedTheTerms = table.Column<bool>(type: "bit", nullable: false),
-                    Rate = table.Column<double>(type: "float", nullable: false),
+                    Rate = table.Column<double>(type: "float", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     WarningCount = table.Column<int>(type: "int", nullable: false),
-                    ActivateIn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TotalWarningsCount = table.Column<int>(type: "int", nullable: false),
+                    BannedTo = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address_Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address_Governorate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address_City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address_Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Location = table.Column<Point>(type: "geography", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Location_Longitude = table.Column<double>(type: "float", nullable: true),
+                    Location_Latitude = table.Column<double>(type: "float", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DateDeleted = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
@@ -74,6 +72,20 @@ namespace DATA.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FileCache",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Path = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiresOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FileCache", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "VehicleBrands",
                 columns: table => new
                 {
@@ -81,7 +93,9 @@ namespace DATA.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Country = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LogoPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    LogoPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DateDeleted = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -95,7 +109,9 @@ namespace DATA.DataAccess.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SlogenPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    SlogenPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DateDeleted = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -205,10 +221,11 @@ namespace DATA.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SenderId = table.Column<int>(type: "int", nullable: false),
                     ReceiverId = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AttachmentPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Seen = table.Column<bool>(type: "bit", nullable: false)
+                    IsSeen = table.Column<bool>(type: "bit", nullable: false),
+                    MessageType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -227,10 +244,36 @@ namespace DATA.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefreshToken",
+                columns: table => new
+                {
+                    AppUserId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Token = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ExpiresOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RevokedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshToken", x => new { x.AppUserId, x.Id });
+                    table.ForeignKey(
+                        name: "FK_RefreshToken_AppUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AppUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Renters",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    StripeAccount_StripeAccountId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StripeAccount_BankAccountId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StripeAccount_CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -289,35 +332,6 @@ namespace DATA.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdminActions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AdminId = table.Column<int>(type: "int", nullable: false),
-                    TargetUserId = table.Column<int>(type: "int", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DueTo = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AdminActions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AdminActions_Admins_AdminId",
-                        column: x => x.AdminId,
-                        principalTable: "Admins",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AdminActions_AppUsers_TargetUserId",
-                        column: x => x.TargetUserId,
-                        principalTable: "AppUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RecommendedBrands",
                 columns: table => new
                 {
@@ -366,22 +380,22 @@ namespace DATA.DataAccess.Migrations
                     RenterId = table.Column<int>(type: "int", nullable: false),
                     AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NumOfPassengers = table.Column<int>(type: "int", nullable: false),
-                    Rate = table.Column<double>(type: "float", nullable: false),
+                    Rate = table.Column<double>(type: "float", nullable: true),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MainImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhysicalStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PricePerHour = table.Column<double>(type: "float", nullable: false),
-                    PricePerDay = table.Column<double>(type: "float", nullable: false),
-                    PricePerMonth = table.Column<double>(type: "float", nullable: false),
+                    Transmission = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PricePerDay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Requirements = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExtraDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Location = table.Column<Point>(type: "geography", nullable: false),
-                    WarningCount = table.Column<int>(type: "int", nullable: false),
-                    VehicleTypeId = table.Column<int>(type: "int", nullable: true),
-                    VehicleBrandId = table.Column<int>(type: "int", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Location_Longitude = table.Column<double>(type: "float", nullable: true),
+                    Location_Latitude = table.Column<double>(type: "float", nullable: true),
+                    VehicleTypeId = table.Column<int>(type: "int", nullable: false),
+                    VehicleBrandId = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DateDeleted = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -398,12 +412,14 @@ namespace DATA.DataAccess.Migrations
                         name: "FK_Vehicles_VehicleBrands_VehicleBrandId",
                         column: x => x.VehicleBrandId,
                         principalTable: "VehicleBrands",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Vehicles_VehicleTypes_VehicleTypeId",
                         column: x => x.VehicleTypeId,
                         principalTable: "VehicleTypes",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -416,8 +432,10 @@ namespace DATA.DataAccess.Migrations
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -459,19 +477,60 @@ namespace DATA.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "VehicleImage",
+                name: "Discount",
                 columns: table => new
                 {
                     VehicleId = table.Column<int>(type: "int", nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    DaysRequired = table.Column<int>(type: "int", nullable: false),
+                    DiscountPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VehicleImage", x => new { x.VehicleId, x.Id });
+                    table.PrimaryKey("PK_Discount", x => new { x.VehicleId, x.Id });
                     table.ForeignKey(
-                        name: "FK_VehicleImage_Vehicles_VehicleId",
+                        name: "FK_Discount_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
+                        principalTable: "Vehicles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VehicleImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VehicleId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VehicleImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VehicleImages_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
+                        principalTable: "Vehicles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VehiclePopularity",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VehicleId = table.Column<int>(type: "int", nullable: false),
+                    PopularityPoints = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VehiclePopularity", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VehiclePopularity_Vehicles_VehicleId",
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
                         principalColumn: "Id",
@@ -486,7 +545,10 @@ namespace DATA.DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BookingId = table.Column<int>(type: "int", nullable: false),
                     CustomerReviewId = table.Column<int>(type: "int", nullable: false),
-                    RenterReviewId = table.Column<int>(type: "int", nullable: false)
+                    RenterReviewId = table.Column<int>(type: "int", nullable: false),
+                    hashedQrToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentTransferId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -504,13 +566,12 @@ namespace DATA.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Truthfulness = table.Column<double>(type: "float", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
+                    Truthfulness = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     RentalId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Behavior = table.Column<double>(type: "float", nullable: false),
-                    Punctuality = table.Column<double>(type: "float", nullable: false),
+                    Behavior = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
+                    Punctuality = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -536,12 +597,12 @@ namespace DATA.DataAccess.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Care = table.Column<double>(type: "float", nullable: false),
+                    Care = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
                     RenterId = table.Column<int>(type: "int", nullable: false),
                     RentalId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Behavior = table.Column<double>(type: "float", nullable: false),
-                    Punctuality = table.Column<double>(type: "float", nullable: false),
+                    Behavior = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
+                    Punctuality = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -562,74 +623,19 @@ namespace DATA.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Notifications",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReceiverId = table.Column<int>(type: "int", nullable: false),
-                    TargetId = table.Column<int>(type: "int", nullable: true),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Seen = table.Column<bool>(type: "bit", nullable: false),
-                    Target = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Notifications", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Notifications_AdminActions_TargetId",
-                        column: x => x.TargetId,
-                        principalTable: "AdminActions",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Notifications_AppUsers_ReceiverId",
-                        column: x => x.ReceiverId,
-                        principalTable: "AppUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Notifications_Bookings_TargetId",
-                        column: x => x.TargetId,
-                        principalTable: "Bookings",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Notifications_CustomerReviews_TargetId",
-                        column: x => x.TargetId,
-                        principalTable: "CustomerReviews",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Notifications_Messages_TargetId",
-                        column: x => x.TargetId,
-                        principalTable: "Messages",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Notifications_RenterReviews_TargetId",
-                        column: x => x.TargetId,
-                        principalTable: "RenterReviews",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Review",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false, defaultValueSql: "NEXT VALUE FOR [ReviewSequence]"),
                     RentalId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Behavior = table.Column<double>(type: "float", nullable: false),
-                    Punctuality = table.Column<double>(type: "float", nullable: false),
-                    Comments = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NotificationId = table.Column<int>(type: "int", nullable: true)
+                    Behavior = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
+                    Punctuality = table.Column<double>(type: "float(2)", precision: 2, scale: 1, nullable: false),
+                    Comments = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Review", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Review_Notifications_NotificationId",
-                        column: x => x.NotificationId,
-                        principalTable: "Notifications",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Review_Rentals_RentalId",
                         column: x => x.RentalId,
@@ -639,17 +645,74 @@ namespace DATA.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReceiverId = table.Column<int>(type: "int", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsSeen = table.Column<bool>(type: "bit", nullable: false),
+                    TargetType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TargetBookingId = table.Column<int>(type: "int", nullable: true),
+                    TargetRentalId = table.Column<int>(type: "int", nullable: true),
+                    TargetCustomerReviewId = table.Column<int>(type: "int", nullable: true),
+                    TargetRenterReviewId = table.Column<int>(type: "int", nullable: true),
+                    TargetMessageId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_AppUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AppUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Bookings_TargetBookingId",
+                        column: x => x.TargetBookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Notifications_CustomerReviews_TargetCustomerReviewId",
+                        column: x => x.TargetCustomerReviewId,
+                        principalTable: "CustomerReviews",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Notifications_Messages_TargetMessageId",
+                        column: x => x.TargetMessageId,
+                        principalTable: "Messages",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Notifications_Rentals_TargetRentalId",
+                        column: x => x.TargetRentalId,
+                        principalTable: "Rentals",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Notifications_RenterReviews_TargetRenterReviewId",
+                        column: x => x.TargetRenterReviewId,
+                        principalTable: "RenterReviews",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Reports",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReporterId = table.Column<int>(type: "int", nullable: false),
-                    TargetId = table.Column<int>(type: "int", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TargeType = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    TargetType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TargetAppUserId = table.Column<int>(type: "int", nullable: true),
+                    TargetVehicleId = table.Column<int>(type: "int", nullable: true),
+                    TargetCustomerReviewId = table.Column<int>(type: "int", nullable: true),
+                    TargetRenterReviewId = table.Column<int>(type: "int", nullable: true),
+                    TargetMessageId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -661,41 +724,31 @@ namespace DATA.DataAccess.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Reports_AppUsers_TargetId",
-                        column: x => x.TargetId,
+                        name: "FK_Reports_AppUsers_TargetAppUserId",
+                        column: x => x.TargetAppUserId,
                         principalTable: "AppUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Reports_CustomerReviews_TargetId",
-                        column: x => x.TargetId,
+                        name: "FK_Reports_CustomerReviews_TargetCustomerReviewId",
+                        column: x => x.TargetCustomerReviewId,
                         principalTable: "CustomerReviews",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Reports_Messages_TargetId",
-                        column: x => x.TargetId,
+                        name: "FK_Reports_Messages_TargetMessageId",
+                        column: x => x.TargetMessageId,
                         principalTable: "Messages",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Reports_RenterReviews_TargetId",
-                        column: x => x.TargetId,
+                        name: "FK_Reports_RenterReviews_TargetRenterReviewId",
+                        column: x => x.TargetRenterReviewId,
                         principalTable: "RenterReviews",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Reports_Vehicles_TargetId",
-                        column: x => x.TargetId,
+                        name: "FK_Reports_Vehicles_TargetVehicleId",
+                        column: x => x.TargetVehicleId,
                         principalTable: "Vehicles",
                         principalColumn: "Id");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AdminActions_AdminId",
-                table: "AdminActions",
-                column: "AdminId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AdminActions_TargetUserId",
-                table: "AdminActions",
-                column: "TargetUserId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -775,6 +828,11 @@ namespace DATA.DataAccess.Migrations
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messages_MessageType",
+                table: "Messages",
+                column: "MessageType");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Messages_ReceiverId",
                 table: "Messages",
                 column: "ReceiverId");
@@ -785,16 +843,39 @@ namespace DATA.DataAccess.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messages_SentAt",
+                table: "Messages",
+                column: "SentAt");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Notifications_ReceiverId",
                 table: "Notifications",
                 column: "ReceiverId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Notifications_TargetId",
+                name: "IX_Notifications_TargetBookingId",
                 table: "Notifications",
-                column: "TargetId",
-                unique: true,
-                filter: "[TargetId] IS NOT NULL");
+                column: "TargetBookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_TargetCustomerReviewId",
+                table: "Notifications",
+                column: "TargetCustomerReviewId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_TargetMessageId",
+                table: "Notifications",
+                column: "TargetMessageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_TargetRentalId",
+                table: "Notifications",
+                column: "TargetRentalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_TargetRenterReviewId",
+                table: "Notifications",
+                column: "TargetRenterReviewId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RecommendedBrands_CustomerId",
@@ -805,6 +886,12 @@ namespace DATA.DataAccess.Migrations
                 name: "IX_RecommendedTypes_CustomerId",
                 table: "RecommendedTypes",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_Token",
+                table: "RefreshToken",
+                column: "Token",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rentals_BookingId",
@@ -829,26 +916,45 @@ namespace DATA.DataAccess.Migrations
                 column: "ReporterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reports_ReviewId",
+                name: "IX_Reports_TargetAppUserId",
                 table: "Reports",
-                column: "ReviewId");
+                column: "TargetAppUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reports_TargetId",
+                name: "IX_Reports_TargetCustomerReviewId",
                 table: "Reports",
-                column: "TargetId",
-                unique: true,
-                filter: "[TargetId] IS NOT NULL");
+                column: "TargetCustomerReviewId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Review_NotificationId",
-                table: "Review",
-                column: "NotificationId");
+                name: "IX_Reports_TargetMessageId",
+                table: "Reports",
+                column: "TargetMessageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_TargetRenterReviewId",
+                table: "Reports",
+                column: "TargetRenterReviewId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_TargetVehicleId",
+                table: "Reports",
+                column: "TargetVehicleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Review_RentalId",
                 table: "Review",
                 column: "RentalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VehicleImages_VehicleId",
+                table: "VehicleImages",
+                column: "VehicleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VehiclePopularity_VehicleId",
+                table: "VehiclePopularity",
+                column: "VehicleId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_RenterId",
@@ -870,6 +976,9 @@ namespace DATA.DataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Admins");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -888,28 +997,37 @@ namespace DATA.DataAccess.Migrations
                 name: "CustomersFavoriteVehicles");
 
             migrationBuilder.DropTable(
+                name: "Discount");
+
+            migrationBuilder.DropTable(
+                name: "FileCache");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "RecommendedBrands");
 
             migrationBuilder.DropTable(
                 name: "RecommendedTypes");
 
             migrationBuilder.DropTable(
+                name: "RefreshToken");
+
+            migrationBuilder.DropTable(
                 name: "Reports");
-
-            migrationBuilder.DropTable(
-                name: "VehicleImage");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Review");
 
             migrationBuilder.DropTable(
-                name: "Notifications");
+                name: "VehicleImages");
 
             migrationBuilder.DropTable(
-                name: "AdminActions");
+                name: "VehiclePopularity");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "CustomerReviews");
@@ -919,9 +1037,6 @@ namespace DATA.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "RenterReviews");
-
-            migrationBuilder.DropTable(
-                name: "Admins");
 
             migrationBuilder.DropTable(
                 name: "Rentals");

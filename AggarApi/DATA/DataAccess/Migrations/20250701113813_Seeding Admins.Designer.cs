@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DATA.DataAccess.Migrations
+namespace DATA.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250514000226_Update Notification Relations To Many-To-Many")]
-    partial class UpdateNotificationRelationsToManyToMany
+    [Migration("20250701113813_Seeding Admins")]
+    partial class SeedingAdmins
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,21 +26,6 @@ namespace DATA.DataAccess.Migrations
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.HasSequence("ReviewSequence");
-
-            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
-                {
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomerId", "VehicleId");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("CustomersFavoriteVehicles");
-                });
 
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
@@ -181,6 +166,9 @@ namespace DATA.DataAccess.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -243,6 +231,21 @@ namespace DATA.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("CustomerReviews", (string)null);
+                });
+
+            modelBuilder.Entity("DATA.Models.CustomersFavoriteVehicles", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CustomerId", "VehicleId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.ToTable("CustomersFavoriteVehicles");
                 });
 
             modelBuilder.Entity("DATA.Models.FileCache", b =>
@@ -420,8 +423,19 @@ namespace DATA.DataAccess.Migrations
                     b.Property<int>("CustomerReviewId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PaymentTransferId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RenterReviewId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("hashedQrToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -922,21 +936,6 @@ namespace DATA.DataAccess.Migrations
                     b.HasDiscriminator().HasValue("File");
                 });
 
-            modelBuilder.Entity("CustomersFavoriteVehicles", b =>
-                {
-                    b.HasOne("DATA.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DATA.Models.Vehicle", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DATA.Models.AppUser", b =>
                 {
                     b.OwnsOne("DATA.Models.Location", "Location", b1 =>
@@ -993,8 +992,7 @@ namespace DATA.DataAccess.Migrations
                                 .HasForeignKey("AppUserId");
                         });
 
-                    b.Navigation("Location")
-                        .IsRequired();
+                    b.Navigation("Location");
 
                     b.Navigation("RefreshTokens");
                 });
@@ -1035,6 +1033,21 @@ namespace DATA.DataAccess.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Rental");
+                });
+
+            modelBuilder.Entity("DATA.Models.CustomersFavoriteVehicles", b =>
+                {
+                    b.HasOne("DATA.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DATA.Models.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DATA.Models.Message", b =>
@@ -1277,8 +1290,7 @@ namespace DATA.DataAccess.Migrations
 
                     b.Navigation("Discounts");
 
-                    b.Navigation("Location")
-                        .IsRequired();
+                    b.Navigation("Location");
 
                     b.Navigation("Renter");
 
