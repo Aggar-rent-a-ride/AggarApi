@@ -177,7 +177,7 @@ namespace CORE.Services
                     Message = "UserId Not Found"
                 };
 
-            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}"]);
+            Booking? booking = await _unitOfWork.Bookings.FindAsync(b => b.Id == bookingId, [BookingIncludes.Customer, BookingIncludes.Vehicle, $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleBrand}", $"{BookingIncludes.Vehicle}.{VehicleIncludes.VehicleType}"]);
             if (booking == null || (booking.CustomerId != userId && booking.Vehicle.RenterId != userId))
                 return new ResponseDto<BookingDetailsDto>
                 {
@@ -198,6 +198,9 @@ namespace CORE.Services
             bookingDetailsDto.VehicleYear = booking.Vehicle.Year;
             bookingDetailsDto.VehicleBrand = booking.Vehicle.VehicleBrand?.Name;
             bookingDetailsDto.VehicleType = booking.Vehicle.VehicleType?.Name;
+            bookingDetailsDto.CustomerId = booking.CustomerId;
+            bookingDetailsDto.CustomerName = booking.Customer.Name;
+            bookingDetailsDto.CustomerImagePath = booking.Customer.ImagePath;
 
             return new ResponseDto<BookingDetailsDto>
             {
