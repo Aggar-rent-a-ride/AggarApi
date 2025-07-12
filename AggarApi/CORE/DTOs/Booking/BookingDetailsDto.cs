@@ -11,6 +11,9 @@ namespace CORE.DTOs.Booking
     public class BookingDetailsDto : CreateBookingDto
     {
         public int Id { get; set; }
+        public int CustomerId { get; set; }
+        public string CustomerName { get; set; }
+        public string? CustomerImagePath { get; set; }
         public int TotalDays { get; set; }
         public decimal Price { get; set; }
         public decimal FinalPrice { get; set; }
