@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - Aggar</title>
+    <style>
+        body, table, td, div, p {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+        }
+        @@media only screen and (max-width: 600px) {
+            .container { width: 100% !important; }
+            .content { padding: 20px !important; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" class="container" width="600" border="0" cellspacing="0" cellpadding="0"
+                       style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="padding: 40px 0; text-align: center; background-color: #4F46E5; border-radius: 8px 8px 0 0;">
+                            <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Welcome to Aggar</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content" style="padding: 40px;">
+                            <p style="margin-bottom: 20px; font-size: 16px; color: #333333;">
+                                Thank you for joining Aggar! To ensure the security of your account, please verify your email address.
+                            </p>
+                            <p style="margin-bottom: 30px; font-size: 16px; color: #333333;">
+                                Please enter the following verification code to complete the activation process:
+                            </p>
+                            <div style="background-color: #f8f8f8; border-radius: 6px; padding: 20px; text-align: center; margin-bottom: 30px;">
+                                <p style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4F46E5; margin: 0; font-family: monospace;">
+                                    @Model.Code
+                                </p>
+                            </div>
+                            <p style="font-size: 14px; color: #666666; text-align: center; margin-bottom: 30px;">
+                                This verification code will expire in 5 minutes.
+                            </p>
+                            <p style="font-size: 13px; color: #999999; text-align: center; border-top: 1px solid #eeeeee; padding-top: 20px;">
+                                If you didn't request this verification code, please ignore this email.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px; text-align: center; background-color: #f8f8f8; border-radius: 0 0 8px 8px;">
+                            <p style="margin: 0; font-size: 13px; color: #666666;">
+                                © 2024 Aggar. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
