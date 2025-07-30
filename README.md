@@ -9,7 +9,7 @@
 - [💳 Payment System](#-payment-system)
 - [🛠 Technologies](#-technologies)
 - [🏗️ Architecture](#%EF%B8%8F-architecture)
-- [🗄️ Database Schema](#-database-schema)
+- [🗄️ Database Schema](#%EF%B8%8F-database-schema)
 - [🧪 Testing](#-testing)
 - [🎮 Demo](#-demo)
 - [📚 API Documentation](#-api-documentation)
@@ -270,7 +270,7 @@ The platform is built using a robust and modern tech stack:
 - **Database**: SQL Server  
 - **ORM**: Entity Framework Core (EF Core) & Dapper  
 - **Authentication**: JWT Bearer Tokens  
-- **Real-Time Communication**: SignalR  
+- **Real-Time Communication & Notifications**: SignalR  
 - **Object Mapping**: AutoMapper  
 - **Background Jobs**: Hangfire  
 - **Payment Processing**: Stripe Payment Gateway  
@@ -298,7 +298,7 @@ The project follows a **Modular Clean Architecture** approach using a multi-proj
   - References `Data`  
 
 - **Data**: Manages Database and Persistence Layer  
-  - **Entity Models**: Represent database tables.  
+  - **Models**: Represent database tables and enums.  
   - **DbContext**: EF Core context for database access.  
   - **Repositories**: Manage data access using repository interfaces and implementations.  
   - **Configurations**: Fluent API mappings for entity relationships and constraints.  
@@ -321,10 +321,27 @@ The project follows a **Modular Clean Architecture** approach using a multi-proj
 
 ## 🗄️ Database Schema
 
+### ERD
 ![Database Schema - ERD](Assets/Diagrams-ERD.drawio.png)  
 
+### Mapping
 ![Database Schema - Mapping](Assets/Diagrams-Mapping.drawio.svg)  
 
 ---
 
+## 🧪 Testing
+Unit tests are implemented using:
+- NUnit
+- Moq
+- SQL Server InMemory
 
+---
+
+## 🎮 Demo
+- [Aggar Video Demo](https://drive.google.com/file/d/1_2l2ve63Zk_gnS7YvD_0qFqXAELZ2JS4/view)
+
+---
+
+## 📚 API Documentation
+- [Postman Collection](https://aggarteam.postman.co/workspace/Aggar-Api~7a5396af-3167-413a-ac62-662269cebdf4/collection/33136211-40ce7740-c3ef-45f5-85d6-72cdda60ad99?action=share&creator=31250760)
+- [Swagger Documentation](https://aggarapi.runasp.net/swagger/index.html)
