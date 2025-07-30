@@ -5,6 +5,8 @@
 
 - [🎯 Overview](#-overview)
 - [✨ Features](#-features)
+- [📅 Booking Process](#-booking-process)
+- [💳 Payment System](#-payment-system)
 - [🛠 Technologies](#-technologies)
 - [🏗️ Architecture](#-architecture)
 - [🗄️ Database Schema](#-database-schema)
@@ -64,13 +66,13 @@ Designed for reliability, the backend supports real-time communication, role-bas
 
 ### 👤 Renter Features
 
-- **Vehicle Management**: Renters can add, edit, or remove vehicles from their listings. Each vehicle includes detailed information such as model, brand, type, color, seating capacity, rental price, and a descriptive overview.
-
-- **Custom Discounts**: Renters can offer discounts based on rental duration (e.g., reduced prices for bookings longer than a specific number of days) per vehicle.
+- **Vehicle Management**: Renters can add, edit, or remove vehicles from their listings.
 
 - **Booking Requests**: Renters receive incoming booking requests from customers and can either accept or reject them through a structured approval process.
 
 - **Availability Calendar**: Renters can view a calendar that highlights booked days across all their vehicles, making it easy to track availability and manage future bookings.
+
+- **Payout Overview**: Renters can view their payout details including upcoming and past payouts, booking earnings breakdown, and stripe account info.
 
 
 ### 🛡️ Admin Dashboard
@@ -89,9 +91,7 @@ Designed for reliability, the backend supports real-time communication, role-bas
 ### 🚗 Vehicle Management
 
 #### 1. Add & Manage Vehicles  
-Renters can add, edit, or remove their vehicles.
-
-Each vehicle includes:
+Renters can add, edit, or remove their vehicles, each vehicle includes:
 - **Basic Info**: Brand, model, year, color, type, etc..
 - **Specifications**: Transmission type, number of seats
 - **Pricing**: Daily rental price
@@ -110,9 +110,66 @@ Renters can configure **dynamic discounts** based on the number of booking days:
   - 5% off for rentals of 3 days or more  
   - 10% off for rentals of 7 days or more
 
+  
+### ⭐ Review and Rating System
+
+After the rental, both customers and renters can review each other.  
+The review system uses both **shared** and **role-specific** rating criteria to ensure fairness and context-aware feedback.  
+Each user submits a review and star ratings:
+
+- **Shared Rating Criteria**:
+  - **Punctuality**: Timeliness during pickup and drop-off
+  - **Behavior**: Respectful and cooperative communication
+
+- **Customer-Specific Ratings**:
+  - **Truthfulness**: Accuracy of the renter's description about the vehicle (pyhisical status, features, etc.)
+
+- **Renter-Specific Ratings**:
+  - **Vehicle Care**: How well the customer treated the vehicle during the rental
+
+- **Overall User Rating**:  
+  - Each user's total rating is automatically calculated as the average of all ratings received across completed rentals.
 
 
-### 📅 Booking & Rental Process
+### 🔔 Notifications
+
+- Users receive **real-time notifications** for:
+  - Booking and Rental updates (accepted, rejected, canceled, confirmed)
+  - Payment status
+  - Warnings or admin actions
+
+- Supports both **in-app** and **email notifications** for critical events.
+
+
+### 💬 Real-Time Chat
+
+- Customers and renters can **chat directly** within the app.
+- Helps coordinate pickup/drop-off and clarify any questions before rental.
+
+
+
+### 🚨 Report & Warning System
+
+#### 1. Reporting  
+- Users can **report**:
+  - Offensive messages  
+  - Inappropriate user behavior  
+  - Use of bad language  
+- Each report includes:
+  - The item being reported (e.g., message, vehicle, user)  
+  - A reason or explanation from the reporter
+
+#### 2. Admin Actions  
+- Admins can:
+  - View and manage all submitted reports  
+  - Issue warnings to users based on violations
+
+#### 3. Auto-Ban Rule  
+- Users are **automatically banned** after reaching a predefined number of **active warnings**.
+
+---
+
+## 📅 Booking Process
 
 #### 1. Initiate Booking
 - The customer selects a vehicle and specifies:
@@ -162,25 +219,42 @@ Renters can configure **dynamic discounts** based on the number of booking days:
   - The **payment is released** from escrow to the renter’s account.
 
 
-  
-### ⭐ Review and Rating System
+---
 
-After the rental, both customers and renters can review each other.  
-The review system uses both **shared** and **role-specific** rating criteria to ensure fairness and context-aware feedback.  
-Each user submits a review and star ratings:
+## 💳 Payment System
 
-- **Shared Rating Criteria**:
-  - **Punctuality**: Timeliness during pickup and drop-off
-  - **Behavior**: Respectful and cooperative communication
+The platform uses **Stripe** to handle all payment and payout processes securely and efficiently.
 
-- **Customer-Specific Ratings**:
-  - **Truthfulness**: Accuracy of the renter's description about the vehicle (pyhisical status, features, etc.)
+### 1. Renter Payment Account Setup
+- Every renter must **create a Stripe Connected Account** inside the platform.
+- During this process, renters provide **personal and bank information** required by Stripe for payouts.
+- **Sensitive information is never stored** on our servers, it is securely **sent directly to Stripe** using their encrypted onboarding flow.
 
-- **Renter-Specific Ratings**:
-  - **Vehicle Care**: How well the customer treated the vehicle during the rental
 
-- **Overall User Rating**:  
-  - Each user's total rating is automatically calculated as the average of all ratings received across completed rentals.
+### 2. Escrow-Based Booking Payment
+- When a customer confirms a booking, payment is **held in escrow** by the platform's Stripe account.
+- Once the rental starts and the **QR code is scanned**, the payment is released to the renter's connected account.
+- Stripe then processes a **payout to the renter’s bank account** within **3 business days**.
+
+### 3. Platform Earnings (App Tax)
+- The platform takes a **fixed percentage** (e.g., 10%) as a service fee from each transaction.
+  - Example: On a $100 booking, the renter receives $90 and the platform takes $10.
+
+### 4. Refund Policy
+- Refunds are allowed under specific conditions and penalties.
+- In case of eligible refunds, Stripe reverses the payment before it is released to the renter.
+
+### 5. Webhook Verification
+- Stripe **webhooks** are used to track:
+  - Payment success/failure
+  - Account creation status
+  - Payouts and refunds
+- Ensures full traceability and real-time status updates.
+
+### 6. Security & Compliance
+- All transactions are handled through **Stripe’s secure infrastructure**.
+- The system follows **KYC (Know Your Customer)** and **financial regulations** enforced by Stripe.
+
 
 
 
