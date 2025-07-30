@@ -14,7 +14,7 @@
 - [🎮 Demo](#-demo)
 - [📚 API Documentation](#-api-documentation)
 - [📦 Installation](#-installation)
-- [⚙️ Environment Configuration](#-environment-configuration)
+- [⚙️ Environment Configuration](#%EF%B8%8F-environment-configuration)
 - [📞 Contact](#-contact)
 
 
@@ -345,3 +345,140 @@ Unit tests are implemented using:
 ## 📚 API Documentation
 - [Postman Collection](https://aggarteam.postman.co/workspace/Aggar-Api~7a5396af-3167-413a-ac62-662269cebdf4/collection/33136211-40ce7740-c3ef-45f5-85d6-72cdda60ad99?action=share&creator=31250760)
 - [Swagger Documentation](https://aggarapi.runasp.net/swagger/index.html)
+
+---
+
+## 📦 Installation
+### 1. Clone the repository:
+``` bash
+git clone https://github.com/Aggar-rent-a-ride/AggarApi.git
+cd AggarApi
+```
+### 2. Restore dependencies:
+
+```bash
+dotnet restore
+```
+
+### 3. Build the solution:
+
+``` bash
+dotnet build
+```
+### 4. Run database migrations:
+
+```bash
+dotnet ef database update
+```
+
+### 5. Run the application:
+
+``` bash
+dotnet run --project AggarApi
+```
+
+---
+
+## ⚙️ Environment Configuration
+Create `appsettings.Development.json` or update `appsettings.json`.
+🔐 **Sensitive values** like API keys and secrets should be stored securely
+
+``` json
+{
+  "ConnectionStrings": {
+    "Hangfire": "",
+    "SQLServer": ""
+  },
+  "EmailSettings": {
+    "EmailAddress": "",
+    "Password": ""
+  },
+  "JWT": {
+    "Key": "",
+    "Issuer": "",
+    "Audience": "",
+    "DurationInHours": 
+  },
+  "Stripe": {
+    "SecretKey": "",
+    "PublishKey": "pk_test_...",
+    "WebhookSecret": ""
+  },
+  "Secret": {
+    "SecretKey": "",
+    "QrSecretKey": ""
+  }
+},
+"Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "restrictedToMinimumLevel": "Information"
+        }
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/app-log-.json",
+          "rollingInterval": "Day",
+          "restrictedToMinimumLevel": "Warning",
+          "formatter": "Serilog.Formatting.Json.JsonFormatter, Serilog"
+        }
+      }
+    ]
+  },
+  "AllowedHosts": "*",
+  "EmailSettings": {
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "DisplayName": "Aggar"
+  },
+  "GeoapifyAddressRequest": {
+    "BaseUrl": "https://api.geoapify.com/v1/geocode/reverse",
+    "Lat": 0,
+    "Lon": 0,
+    "Limit": 1,
+    "Lang": "en",
+    "Format": "json",
+    "Type": "street"
+  },
+  "Paths": {
+    "VehicleImages": "Images/Vehicles",
+    "MessageFiles": "Files/Messages",
+    "VehicleBrands": "Images/VehicleBrands",
+    "VehicleTypes": "Images/VehicleTypes",
+    "Profiles": "Images/Profiles"
+  },
+  "WarningManagement": {
+    "MaxWarningsCount": 3,
+    "MaxTotalWarningsCount": 3
+  },
+  "PaymentPolicy": {
+    "FeesPercentage": 10,
+    "AllowedConfirmDays": 2,
+    "AllowedRefundDaysBefore": 5,
+    "RefundPenalityPercentage": 20
+  }
+
+```
+
+---
+
+## 📄 License
+This project is licensed under the MIT License.
+
+---
+
+## 📞 Contact
+For questions or feedback, feel free to reach out:
+- mohamedsaid3403@gmail.com
+- omarnaru2002@gmail.com
