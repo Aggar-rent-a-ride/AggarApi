@@ -8,7 +8,7 @@
 - [📅 Booking Process](#-booking-process)
 - [💳 Payment System](#-payment-system)
 - [🛠 Technologies](#-technologies)
-- [🏗️ Architecture](#-architecture)
+- [🏗️ Architecture](#%EF%B8%8F-architecture)
 - [🗄️ Database Schema](#-database-schema)
 - [🧪 Testing](#-testing)
 - [🎮 Demo](#-demo)
