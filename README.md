@@ -167,6 +167,11 @@ Each user submits a review and star ratings:
 #### 3. Auto-Ban Rule  
 - Users are **automatically banned** after reaching a predefined number of **active warnings**.
 
+
+### ⚙️ Performance Optimization
+
+- **Caching**: Improves performance by storing frequently accessed data, reducing unnecessary database queries and speeding up response times.
+
 ---
 
 ## 📅 Booking Process
@@ -255,6 +260,71 @@ The platform uses **Stripe** to handle all payment and payout processes securely
 - All transactions are handled through **Stripe’s secure infrastructure**.
 - The system follows **KYC (Know Your Customer)** and **financial regulations** enforced by Stripe.
 
+---
 
+## 🛠 Technologies
+
+The platform is built using a robust and modern tech stack:
+
+- **Backend Framework**: ASP.NET Core Web API 9  
+- **Database**: SQL Server  
+- **ORM**: Entity Framework Core (EF Core) & Dapper  
+- **Authentication**: JWT Bearer Tokens  
+- **Real-Time Communication**: SignalR  
+- **Object Mapping**: AutoMapper  
+- **Background Jobs**: Hangfire  
+- **Payment Processing**: Stripe Payment Gateway  
+- **Background Processing**: Worker Service
+
+---
+
+## 🏗️ Architecture
+
+The project follows a **Modular Clean Architecture** approach using a multi-project solution for better separation of concerns and maintainability.
+
+#### 📁 Projects Structure
+
+- **API**: Handles HTTP requests and application entrypoint  
+  - **Controllers**: Handle incoming HTTP requests and return responses.  
+  - **Hubs**: Manage SignalR hubs for real-time communication and notifications.  
+  - **`wwwroot`**: Stores static files and email templates.  
+  - **Startup Configuration**: Program.cs and service setup.  
+  - References `Core`  
+
+- **Core**: Contains Business Logic and Service Layer  
+  - **Services**: Business logic implementations and interfaces.  
+  - **DTOs**: Data transfer objects used between layers.  
+  - **Background Job Services**: Definitions for Hangfire background tasks.  
+  - References `Data`  
+
+- **Data**: Manages Database and Persistence Layer  
+  - **Entity Models**: Represent database tables.  
+  - **DbContext**: EF Core context for database access.  
+  - **Repositories**: Manage data access using repository interfaces and implementations.  
+  - **Configurations**: Fluent API mappings for entity relationships and constraints.  
+  - Implements Repository Pattern and Unit of Work  
+
+- **APIWorker**: Runs background and scheduled tasks  
+  - Cleans up expired or revoked tokens and other unwanted records to maintain database integrity.  
+  - Uses **Dapper** for fast, lightweight, and efficient SQL operations.
+
+- **UnitTests**: Provides Unit Testing Support.
+
+
+#### 🔧 Patterns & Practices
+
+- **Dependency Injection** is used for all services and repositories  
+- **Repository Pattern** and **Unit of Work** encapsulate DB logic  
+- **Separation of Concerns** ensures independent testing and development  
+
+---
+
+## 🗄️ Database Schema
+
+![Database Schema - ERD](Assets/Diagrams-ERD.drawio.png)  
+
+![Database Schema - Mapping](Assets/Diagrams-Mapping.drawio.svg)  
+
+---
 
 
