@@ -15,6 +15,7 @@
 - [📚 API Documentation](#-api-documentation)
 - [📦 Installation](#-installation)
 - [⚙️ Environment Configuration](#%EF%B8%8F-environment-configuration)
+- [📄 License](#-license)
 - [📞 Contact](#-contact)
 
 
@@ -401,7 +402,7 @@ Create `appsettings.Development.json` or update `appsettings.json`.
   },
   "Stripe": {
     "SecretKey": "",
-    "PublishKey": "pk_test_...",
+    "PublishKey": "",
     "WebhookSecret": ""
   },
   "Secret": {
