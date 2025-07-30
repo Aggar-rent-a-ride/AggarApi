@@ -380,7 +380,7 @@ dotnet run --project AggarApi
 ---
 
 ## ⚙️ Environment Configuration
-Create `appsettings.Development.json` or update `appsettings.json`.
+Create `appsettings.Development.json` or update `appsettings.json`.  
 🔐 **Sensitive values** like API keys and secrets should be stored securely
 
 ``` json
